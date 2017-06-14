@@ -54,3 +54,7 @@ func NewPointerFactory(value reflect.Value) types.BeanFactory {
 func NewFuncFactory(value func(types.Provider) (interface{}, error)) types.BeanFactory {
 	return FuncFactory(value)
 }
+
+func NewParamFactory(length int) types.BeanFactory {
+	return ParamFactory(length)
+}

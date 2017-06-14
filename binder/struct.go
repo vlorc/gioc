@@ -9,10 +9,15 @@ import (
 )
 
 type NamedBind struct {
-	m      sync.RWMutex
+	lock   sync.RWMutex
 	table  map[string]types.BeanFactory
-	mapper types.Mapper
+}
+
+type ProxyBind struct {
+	read  types.Mapper
+	write types.Binder
 }
 
 type CoreBinderFactory struct {
+
 }

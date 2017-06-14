@@ -13,45 +13,15 @@ func (nb *NamedBind) AsMapper() types.Mapper {
 }
 
 func (nb *NamedBind) Bind(key string, factory types.BeanFactory) error {
-	nb.m.Lock()
+	nb.lock.Lock()
 	nb.table[key] = factory
-	nb.m.Unlock()
+	nb.lock.Unlock()
 	return nil
 }
 
 func (nb *NamedBind) Resolve(key string) (factory types.BeanFactory, err error) {
-	nb.m.RLock()
+	nb.lock.RLock()
 	factory = nb.table[key]
-	nb.m.RUnlock()
+	nb.lock.RUnlock()
 	return
-}
-
-type ProxyBind struct {
-	read  types.Mapper
-	write types.Binder
-}
-
-func NewProxyBinder(read types.Mapper, write types.Binder) types.Binder {
-	if nil == read {
-		read = write.AsMapper()
-	}
-	return &ProxyBind{
-		read:  read,
-		write: write,
-	}
-}
-
-func (pb *ProxyBind) AsMapper() types.Mapper {
-	return pb.read
-}
-
-func (pb *ProxyBind) Bind(key string, factory types.BeanFactory) (err error) {
-	if nil != pb.write {
-		err = pb.write.Bind(key, factory)
-	}
-	return
-}
-
-func (pb *ProxyBind) Resolve(key string) (types.BeanFactory, error) {
-	return pb.read.Resolve(key)
 }

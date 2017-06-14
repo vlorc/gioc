@@ -9,13 +9,25 @@ import (
 )
 
 func (bf *CoreBinderFactory) Instance(p reflect.Type) (types.Binder, error) {
-	obj := &NamedBind{
-		table: make(map[string]types.BeanFactory),
-	}
-	//obj.mapper = NewNamedMapping(obj.table,obj.m.RLocker())
-	return obj, nil
+	return NewNameBinder(), nil
 }
 
 func NewBinderFactory() types.BinderFactory {
 	return &CoreBinderFactory{}
+}
+
+func NewNameBinder() types.Binder {
+	return &NamedBind{
+		table: make(map[string]types.BeanFactory),
+	}
+}
+
+func NewProxyBinder(read types.Mapper, write types.Binder) types.Binder {
+	if nil == read {
+		read = write.AsMapper()
+	}
+	return &ProxyBind{
+		read:  read,
+		write: write,
+	}
 }

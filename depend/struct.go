@@ -21,7 +21,7 @@ type DependencyDescription struct {
 type CoreDependency struct {
 	typ           reflect.Type
 	dep           []*DependencyDescription
-	injectFactory func(types.DependencyScan, reflect.Value) types.DependencyInject
+	reflectFactory func(reflect.Value) types.Reflect
 }
 
 type CoreDependencyScan struct {
@@ -31,12 +31,15 @@ type CoreDependencyScan struct {
 
 type CoreDependencyInject struct {
 	types.DependencyScan
-	data reflect.Value
-	set  func(types.DependencyScan, reflect.Value, reflect.Value)
-	get  func(types.DependencyScan, reflect.Value) reflect.Value
+	types.Reflect
 }
 
 type CoreDependencyFactory struct {
 	mux  sync.RWMutex
 	pool map[reflect.Type]types.Dependency
 }
+
+type CoreParamReflect []reflect.Value
+type CoreStructReflect reflect.Value
+type CoreArrayReflect reflect.Value
+type CoreMapReflect reflect.Value

@@ -20,6 +20,11 @@ type Identity struct {
 }
 
 type User struct {
+	id0       int64
+	_id0       int64
+	Id1       int64 `json:"'id'"`
+	Id2       int64 `inject`
+	Id3       int64 `inject:""`
 	Id       int64 `inject:"'id'"`
 	Identity `inject:"extends"`
 	Personal `inject:"extends"`

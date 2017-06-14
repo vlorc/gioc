@@ -89,16 +89,35 @@ type Container interface {
 	Child() Container
 }
 
-type DependencyScan interface {
+type PropertyDescriptorGetter interface {
 	Type() reflect.Type
 	Name() string
 	Default() interface{}
 	Flags() DependencyFlag
-	Next() bool
 	Index() int
-	Test(interface{}) bool
 	Depend() Dependency
 }
+
+type PropertyDescriptorSetter interface {
+	SetType(reflect.Type)
+	SetName(string)
+	SetDefault(interface{})
+	SetFlags(DependencyFlag)
+	SetIndex(int)
+	SetDepend(Dependency)
+}
+
+type PropertyDescriptor interface {
+	PropertyDescriptorSetter
+	PropertyDescriptorGetter
+}
+
+type DependencyScan interface {
+	PropertyDescriptorGetter
+	Next() bool
+	Test(interface{}) bool
+}
+
 
 type DependencyInject interface {
 	DependencyScan
@@ -113,6 +132,20 @@ type Dependency interface {
 	AsInject(interface{}) DependencyInject
 }
 
+type PropertySetter interface{
+	Set(PropertyDescriptorGetter,reflect.Value)
+}
+
+type PropertyGetter interface{
+	Get(PropertyDescriptorGetter) reflect.Value
+}
+
+type Reflect interface {
+	PropertySetter
+	PropertyGetter
+}
+
+
 type Builder interface {
 	BeanFactory
 	AsFactory() BeanFactory
@@ -121,18 +154,12 @@ type Builder interface {
 
 var ErrorType = reflect.TypeOf((*error)(nil)).Elem()
 
-var BuilderType = reflect.TypeOf((*Builder)(nil)).Elem()
-var DependencyType = reflect.TypeOf((*Dependency)(nil)).Elem()
-var DependencyInjectType = reflect.TypeOf((*DependencyInject)(nil)).Elem()
-var DependencyScanType = reflect.TypeOf((*DependencyScan)(nil)).Elem()
 var ContainerType = reflect.TypeOf((*Container)(nil)).Elem()
 var RegisterType = reflect.TypeOf((*Register)(nil)).Elem()
+var ProviderType = reflect.TypeOf((*Provider)(nil)).Elem()
+
 var DependencyFactoryType = reflect.TypeOf((*DependencyFactory)(nil)).Elem()
 var RegisterFactoryType = reflect.TypeOf((*RegisterFactory)(nil)).Elem()
 var BinderFactoryType = reflect.TypeOf((*BinderFactory)(nil)).Elem()
 var BuilderFactoryType = reflect.TypeOf((*BuilderFactory)(nil)).Elem()
-var BinderType = reflect.TypeOf((*Binder)(nil)).Elem()
-var MapperType = reflect.TypeOf((*Mapper)(nil)).Elem()
-var BeanFactoryFactoryType = reflect.TypeOf((*BeanFactory)(nil)).Elem()
-var ProviderType = reflect.TypeOf((*Provider)(nil)).Elem()
-var ParamType = reflect.TypeOf(([]reflect.Value)(nil))
+

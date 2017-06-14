@@ -1,16 +1,6 @@
 // Copyright 2017 Granitic. All rights reserved.
 // Use of this source code is governed by an Apache 2.0 license that can be found in the LICENSE file at the root of this project.
 
-/*
-Package utils provides functionality for the reflection function.
-
-	utils.TypeOf convert to reflect.Type
-	reflect.Type -> reflect.Type
-	reflect.Value -> reflect.Type
-	(*int)(nil) -> reflect.Value	get int type, must be a pointer
-
-*/
-
 package utils
 
 import (
@@ -32,6 +22,9 @@ func TypeOf(v interface{}) (t reflect.Type) {
 	return t
 }
 
+// reflect.Type -> reflect.Type
+// reflect.Value -> reflect.Type
+// (*int)(nil) -> reflect.Value	get int type, must be a pointer
 // convert the reflect.Value type
 func ValueOf(v interface{}) (t reflect.Value) {
 	t, ok := v.(reflect.Value)

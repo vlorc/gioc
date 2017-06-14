@@ -9,20 +9,20 @@ import (
 )
 
 type NamedMapping struct {
-	m     sync.Locker
+	lock     sync.Locker
 	table map[string]types.BeanFactory
 }
 
-func NewNamedMapping(t map[string]types.BeanFactory, m sync.Locker) types.Mapper {
+func NewNamedMapping(t map[string]types.BeanFactory, lock sync.Locker) types.Mapper {
 	return &NamedMapping{
-		m:     m,
+		lock:    lock,
 		table: t,
 	}
 }
 
 func (nm *NamedMapping) Resolve(v string) (factory types.BeanFactory, err error) {
-	nm.m.Lock()
+	nm.lock.Lock()
 	factory = nm.table[v]
-	nm.m.Unlock()
+	nm.lock.Unlock()
 	return
 }

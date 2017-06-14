@@ -9,12 +9,16 @@ import (
 )
 
 func (rf *CoreRegisterFactory) Instance(factory types.BinderFactory) (types.Register, error) {
-	return &CoreRegister{
-		table:   make(map[reflect.Type]types.Binder),
-		factory: factory,
-	}, nil
+	return NewRegister(factory), nil
 }
 
 func NewRegisterFactory() types.RegisterFactory {
 	return &CoreRegisterFactory{}
+}
+
+func NewRegister(factory types.BinderFactory) types.Register {
+	return  &CoreRegister{
+		table:   make(map[reflect.Type]types.Binder),
+		factory: factory,
+	}
 }

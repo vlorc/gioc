@@ -90,6 +90,9 @@ func (df *CoreDependencyFactory) resolveStruct(typ reflect.Type) (dep types.Depe
 func (df *CoreDependencyFactory) resolveStructFields(typ reflect.Type, src []*DependencyDescription) (dst []*DependencyDescription, err error) {
 	for i, n := 0, typ.NumField(); i < n; i++ {
 		field := typ.Field(i)
+		if uint(field.Name[0]) - uint(65) >= uint(26) {
+			continue
+		}
 		tag := field.Tag.Get("inject")
 		if "" == tag {
 			continue
@@ -141,77 +144,27 @@ func (df *CoreDependencyFactory) resolveTag(tag string, des *DependencyDescripti
 	return
 }
 
-func NewDependency(typ reflect.Type, dep []*DependencyDescription, injectFactory func(types.DependencyScan, reflect.Value) types.DependencyInject) types.Dependency {
+func NewDependency(typ reflect.Type, dep []*DependencyDescription, reflectFactory func(reflect.Value) types.Reflect) types.Dependency {
 	return &CoreDependency{
 		typ:           typ,
 		dep:           dep,
-		injectFactory: injectFactory,
+		reflectFactory: reflectFactory,
 	}
 }
 
-func NewBaseDependency(
-	typ reflect.Type,
-	dep []*DependencyDescription,
-	setter func(types.DependencyScan, reflect.Value, reflect.Value),
-	getter func(types.DependencyScan, reflect.Value) reflect.Value) types.Dependency {
-	return NewDependency(
-		typ,
-		dep,
-		func(scan types.DependencyScan, val reflect.Value) types.DependencyInject {
-			return &CoreDependencyInject{
-				scan,
-				val,
-				setter,
-				getter,
-			}
-		},
-	)
-}
-
 func NewStructDependency(typ reflect.Type, dep []*DependencyDescription) types.Dependency {
-	return NewBaseDependency(typ, dep, structSetter, structGetter)
+	return NewDependency(typ, dep, NewStructReflect)
 }
 
 func NewArrayDependency(typ reflect.Type, dep []*DependencyDescription) types.Dependency {
-	return NewBaseDependency(typ, dep, arraySetter, arrayGetter)
+	return NewDependency(typ, dep, NewArrayReflect)
 }
 
 func NewMapDependency(typ reflect.Type, dep []*DependencyDescription) types.Dependency {
-	return NewBaseDependency(typ, dep, mapSetter, mapGetter)
+	return NewDependency(typ, dep, NewMapReflect)
 }
 
 func NewFuncDependency(typ reflect.Type, dep []*DependencyDescription) types.Dependency {
-	return NewBaseDependency(typ, dep, funcSetter, funcGetter)
+	return NewDependency(typ, dep,NewParamReflect)
 }
 
-func funcSetter(scan types.DependencyScan, src, val reflect.Value) {
-	src.Index(scan.Index()).Set(reflect.ValueOf(val))
-}
-
-func structSetter(scan types.DependencyScan, src, val reflect.Value) {
-	src.Field(scan.Index()).Set(val)
-}
-
-func mapSetter(scan types.DependencyScan, src, val reflect.Value) {
-	src.SetMapIndex(reflect.ValueOf(scan.Name()), val)
-}
-
-func arraySetter(scan types.DependencyScan, src, val reflect.Value) {
-	src.Index(scan.Index()).Set(val)
-}
-
-func funcGetter(scan types.DependencyScan, src reflect.Value) reflect.Value {
-	return src.Index(scan.Index()).Interface().(reflect.Value)
-}
-
-func structGetter(scan types.DependencyScan, src reflect.Value) reflect.Value {
-	return src.Field(scan.Index())
-}
-
-func mapGetter(scan types.DependencyScan, src reflect.Value) reflect.Value {
-	return src.MapIndex(reflect.ValueOf(scan.Name()))
-}
-
-func arrayGetter(scan types.DependencyScan, src reflect.Value) reflect.Value {
-	return src.Index(scan.Index())
-}

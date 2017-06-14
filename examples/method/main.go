@@ -64,10 +64,7 @@ func register(container types.Container, impType interface{}, name ...string) ty
 	depend, _ := dependFactory.Instance(typ)
 
 	if reflect.Func == depend.Type().Kind() {
-		builder, _ := builderFactory.Instance(factory.NewFuncFactory(func(types.Provider) (interface{}, error) {
-			return reflect.MakeSlice(types.ParamType, depend.Length(), depend.Length()).Interface(), nil
-		}), depend)
-
+		builder, _ := builderFactory.Instance(factory.NewParamFactory(depend.Length()), depend)
 		container.AsRegister().RegisterMethod(builder.AsFactory(), impType, nil)
 	} else {
 		builder, _ := builderFactory.Instance(factory.NewTypeFactory(typ), depend)

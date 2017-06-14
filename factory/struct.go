@@ -35,4 +35,6 @@ type PointerFactory struct {
 	value reflect.Value
 }
 
+type ParamFactory int
+
 type FuncFactory func(types.Provider) (interface{}, error)

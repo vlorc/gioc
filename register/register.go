@@ -19,23 +19,23 @@ func (r *CoreRegister) MapperOf(typ reflect.Type) (m types.Mapper) {
 }
 
 func (r *CoreRegister) BinderOf(t reflect.Type) (bind types.Binder) {
-	r.m.RLock()
+	r.lock.RLock()
 	bind = r.table[t]
-	r.m.RUnlock()
+	r.lock.RUnlock()
 
 	return bind
 }
 
 func (r *CoreRegister) AsBinder(t reflect.Type) types.Binder {
-	r.m.RLock()
+	r.lock.RLock()
 	bind, ok := r.table[t]
-	r.m.RUnlock()
+	r.lock.RUnlock()
 
 	if !ok {
 		bind, _ = r.factory.Instance(t)
-		r.m.Lock()
+		r.lock.Lock()
 		r.table[t] = bind
-		r.m.Unlock()
+		r.lock.Unlock()
 	}
 	return bind
 }
@@ -54,9 +54,9 @@ func (r *CoreRegister) RegisterMapper(mapping types.Mapper, impType interface{})
 func (r *CoreRegister) RegisterBinder(bind types.Binder, impType interface{}) error {
 	typ := utils.TypeOf(impType)
 
-	r.m.Lock()
+	r.lock.Lock()
 	r.table[typ] = bind
-	r.m.Unlock()
+	r.lock.Unlock()
 	return nil
 }
 

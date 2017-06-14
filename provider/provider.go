@@ -10,7 +10,6 @@ import (
 
 type ProxyProvider struct {
 	provider types.Provider
-	allot    func(types.Provider) types.Provider
 }
 
 func (pp *ProxyProvider) Resolve(impType interface{}, args ...string) (interface{}, error) {
@@ -35,6 +34,5 @@ func (pp *ProxyProvider) AssignNamed(dst interface{}, impType interface{}, name 
 func NewProxyProvider(provider types.Provider) types.Provider {
 	return &ProxyProvider{
 		provider: provider,
-		allot:    NewProxyProvider,
 	}
 }
