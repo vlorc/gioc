@@ -17,7 +17,7 @@ func NewRegisterFactory() types.RegisterFactory {
 }
 
 func NewRegister(factory types.BinderFactory) types.Register {
-	return  &CoreRegister{
+	return &CoreRegister{
 		table:   make(map[reflect.Type]types.Binder),
 		factory: factory,
 	}

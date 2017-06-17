@@ -15,7 +15,10 @@ type ValueFactory struct {
 }
 
 type MethodFactory struct {
-	instance func(types.Provider) (interface{}, error)
+	paramFactory types.BeanFactory
+	retIndex     int
+	errIndex     int
+	method       reflect.Value
 }
 
 type ProxyFactory struct {

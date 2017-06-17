@@ -118,7 +118,6 @@ type DependencyScan interface {
 	Test(interface{}) bool
 }
 
-
 type DependencyInject interface {
 	DependencyScan
 	SetInterface(interface{}) error
@@ -132,11 +131,11 @@ type Dependency interface {
 	AsInject(interface{}) DependencyInject
 }
 
-type PropertySetter interface{
-	Set(PropertyDescriptorGetter,reflect.Value)
+type PropertySetter interface {
+	Set(PropertyDescriptorGetter, reflect.Value)
 }
 
-type PropertyGetter interface{
+type PropertyGetter interface {
 	Get(PropertyDescriptorGetter) reflect.Value
 }
 
@@ -144,7 +143,6 @@ type Reflect interface {
 	PropertySetter
 	PropertyGetter
 }
-
 
 type Builder interface {
 	BeanFactory
@@ -162,4 +160,3 @@ var DependencyFactoryType = reflect.TypeOf((*DependencyFactory)(nil)).Elem()
 var RegisterFactoryType = reflect.TypeOf((*RegisterFactory)(nil)).Elem()
 var BinderFactoryType = reflect.TypeOf((*BinderFactory)(nil)).Elem()
 var BuilderFactoryType = reflect.TypeOf((*BuilderFactory)(nil)).Elem()
-

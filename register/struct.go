@@ -10,7 +10,7 @@ import (
 )
 
 type CoreRegister struct {
-	lock       sync.RWMutex
+	lock    sync.RWMutex
 	table   map[reflect.Type]types.Binder
 	factory types.BinderFactory
 }

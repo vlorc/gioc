@@ -9,8 +9,8 @@ import (
 )
 
 type NamedBind struct {
-	lock   sync.RWMutex
-	table  map[string]types.BeanFactory
+	lock  sync.RWMutex
+	table map[string]types.BeanFactory
 }
 
 type ProxyBind struct {
@@ -19,5 +19,4 @@ type ProxyBind struct {
 }
 
 type CoreBinderFactory struct {
-
 }

@@ -22,16 +22,15 @@ func (df *CoreDependencyFactory) Instance(impTyp interface{}) (types.Dependency,
 }
 
 func (df *CoreDependencyFactory) instance(typ reflect.Type) (dep types.Dependency, err error) {
-	df.mux.RLock()
+	df.lock.RLock()
 	dep = df.pool[typ]
-	df.mux.RUnlock()
+	df.lock.RUnlock()
 
 	if nil != dep {
 		return
 	}
 
 	switch typ.Kind() {
-
 	case reflect.Func:
 		dep, err = df.resolveFunc(typ)
 	case reflect.Struct:
@@ -41,9 +40,9 @@ func (df *CoreDependencyFactory) instance(typ reflect.Type) (dep types.Dependenc
 	}
 
 	if nil != dep {
-		df.mux.Lock()
+		df.lock.Lock()
 		df.pool[typ] = dep
-		df.mux.Unlock()
+		df.lock.Unlock()
 	}
 	return
 }
@@ -51,9 +50,15 @@ func (df *CoreDependencyFactory) instance(typ reflect.Type) (dep types.Dependenc
 func (df *CoreDependencyFactory) resolveArray(src reflect.Value) (dep types.Dependency, err error) {
 	des := []*DependencyDescription{}
 	for i, n := 0, src.Len(); i < n; i++ {
+
+		typ := src.Index(i).Type()
+		if reflect.Ptr == typ.Kind() {
+			typ = typ.Elem()
+		}
+
 		des = append(des, &DependencyDescription{
 			Index: i,
-			Type:  src.Index(i).Type(),
+			Type:  typ,
 		})
 	}
 
@@ -74,6 +79,27 @@ func (df *CoreDependencyFactory) resolveFunc(typ reflect.Type) (dep types.Depend
 	return
 }
 
+func (df *CoreDependencyFactory) resolveMap(src reflect.Value) (dep types.Dependency, err error) {
+	des := []*DependencyDescription{}
+	for i,k := range src.MapKeys() {
+		if reflect.String != k.Kind(){
+			continue
+		}
+
+		typ := src.MapIndex(k).Type()
+		if reflect.Ptr == typ.Kind() {
+			typ = typ.Elem()
+		}
+
+		des = append(des, &DependencyDescription{
+			Name:k.String(),
+			Index: i,
+			Type: typ,
+		})
+	}
+	return
+}
+
 func (df *CoreDependencyFactory) resolveStruct(typ reflect.Type) (dep types.Dependency, err error) {
 	des, err := df.resolveStructFields(typ, []*DependencyDescription{})
 	if len(des) <= 0 {
@@ -90,7 +116,7 @@ func (df *CoreDependencyFactory) resolveStruct(typ reflect.Type) (dep types.Depe
 func (df *CoreDependencyFactory) resolveStructFields(typ reflect.Type, src []*DependencyDescription) (dst []*DependencyDescription, err error) {
 	for i, n := 0, typ.NumField(); i < n; i++ {
 		field := typ.Field(i)
-		if uint(field.Name[0]) - uint(65) >= uint(26) {
+		if uint(field.Name[0])-uint(65) >= uint(26) {
 			continue
 		}
 		tag := field.Tag.Get("inject")
@@ -146,9 +172,9 @@ func (df *CoreDependencyFactory) resolveTag(tag string, des *DependencyDescripti
 
 func NewDependency(typ reflect.Type, dep []*DependencyDescription, reflectFactory func(reflect.Value) types.Reflect) types.Dependency {
 	return &CoreDependency{
-		typ:           typ,
-		dep:           dep,
-		reflectFactory: reflectFactory,
+		typ:            typ,
+		dep:            dep,
+		factory: reflectFactory,
 	}
 }
 
@@ -165,6 +191,5 @@ func NewMapDependency(typ reflect.Type, dep []*DependencyDescription) types.Depe
 }
 
 func NewFuncDependency(typ reflect.Type, dep []*DependencyDescription) types.Dependency {
-	return NewDependency(typ, dep,NewParamReflect)
+	return NewDependency(typ, dep, NewParamReflect)
 }
-

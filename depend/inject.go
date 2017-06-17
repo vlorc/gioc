@@ -8,17 +8,12 @@ import (
 	"reflect"
 )
 
-func NewDependencyInject(scan types.DependencyScan,ref types.Reflect) types.DependencyInject{
-	return &CoreDependencyInject{scan,ref}
+func NewDependencyInject(scan types.DependencyScan, ref types.Reflect) types.DependencyInject {
+	return &CoreDependencyInject{scan, ref}
 }
 
 func (di *CoreDependencyInject) SetInterface(v interface{}) (err error) {
-	/*if !di.Test(v) {
-		err = types.NewError(types.ErrTypeNotMatch, v)
-		return
-	}*/
-
-	di.Set(di.DependencyScan,reflect.ValueOf(v))
+	di.Set(di.DependencyScan, reflect.ValueOf(v))
 	return
 }
 

@@ -9,13 +9,13 @@ import (
 )
 
 type NamedMapping struct {
-	lock     sync.Locker
+	lock  sync.Locker
 	table map[string]types.BeanFactory
 }
 
 func NewNamedMapping(t map[string]types.BeanFactory, lock sync.Locker) types.Mapper {
 	return &NamedMapping{
-		lock:    lock,
+		lock:  lock,
 		table: t,
 	}
 }
