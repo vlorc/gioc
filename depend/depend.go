@@ -23,10 +23,10 @@ func (d *CoreDependency) AsScan() types.DependencyScan {
 
 func (d *CoreDependency) AsInject(src interface{}) types.DependencyInject {
 	dst := utils.DirectlyValue(utils.ValueOf(src))
-	ref := d.reflectFactory(dst)
+	ref := d.factory(dst)
 	if nil == ref {
 		return nil
 	}
 
-	return NewDependencyInject(d.AsScan(),ref)
+	return NewDependencyInject(d.AsScan(), ref)
 }

@@ -19,9 +19,9 @@ type DependencyDescription struct {
 }
 
 type CoreDependency struct {
-	typ           reflect.Type
-	dep           []*DependencyDescription
-	reflectFactory func(reflect.Value) types.Reflect
+	typ            reflect.Type
+	dep            []*DependencyDescription
+	factory        func(reflect.Value) types.Reflect
 }
 
 type CoreDependencyScan struct {
@@ -35,7 +35,7 @@ type CoreDependencyInject struct {
 }
 
 type CoreDependencyFactory struct {
-	mux  sync.RWMutex
+	lock  sync.RWMutex
 	pool map[reflect.Type]types.Dependency
 }
 

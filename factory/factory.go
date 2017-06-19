@@ -47,7 +47,7 @@ func NewSingleFactory(value types.BeanFactory) types.BeanFactory {
 
 func NewPointerFactory(value reflect.Value) types.BeanFactory {
 	return &PointerFactory{
-		value: value,
+		value: utils.DirectlyValue(value),
 	}
 }
 

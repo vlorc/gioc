@@ -9,5 +9,5 @@ import (
 )
 
 func (pf ParamFactory) Instance(provider types.Provider) (interface{}, error) {
-	return make([]reflect.Value,pf,pf),nil
+	return make([]reflect.Value, pf, pf), nil
 }

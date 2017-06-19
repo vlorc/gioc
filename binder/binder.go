@@ -8,7 +8,6 @@ import (
 )
 
 func (nb *NamedBind) AsMapper() types.Mapper {
-	//return NewNamedMapping(this.table,this.m.RLocker())
 	return nb
 }
 

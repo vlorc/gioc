@@ -21,4 +21,3 @@ func (pb *ProxyBind) Bind(key string, factory types.BeanFactory) (err error) {
 func (pb *ProxyBind) Resolve(key string) (types.BeanFactory, error) {
 	return pb.read.Resolve(key)
 }
-

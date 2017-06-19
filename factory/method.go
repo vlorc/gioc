@@ -8,7 +8,11 @@ import (
 	"reflect"
 )
 
-func methodFactoryOf(impType interface{}, paramFactory types.BeanFactory, index ...int) (factory types.BeanFactory, resultType reflect.Type, err error) {
+func methodFactoryOf(
+	impType interface{},
+	paramFactory types.BeanFactory,
+	index ...int,
+) (factory types.BeanFactory, resultType reflect.Type, err error) {
 	srcType := reflect.TypeOf(impType)
 	if reflect.Func != srcType.Kind() {
 		return
@@ -17,12 +21,12 @@ func methodFactoryOf(impType interface{}, paramFactory types.BeanFactory, index 
 		return
 	}
 
-	resultIndex := 0
+	retIndex := 0
 	if len(index) > 0 {
 		if index[0] < 0 || index[0] > srcType.NumOut() {
 			return
 		}
-		resultIndex = index[0]
+		retIndex = index[0]
 	}
 
 	var makeParam func(types.Provider) ([]reflect.Value, error)
@@ -37,7 +41,7 @@ func methodFactoryOf(impType interface{}, paramFactory types.BeanFactory, index 
 	}
 	if errIndex > 0 {
 		makeInstance = func(v []reflect.Value) (instance interface{}, err error) {
-			instance = v[resultIndex].Interface()
+			instance = v[retIndex].Interface()
 			if !v[errIndex].IsNil() {
 				err = v[errIndex].Interface().(error)
 			}
@@ -45,7 +49,7 @@ func methodFactoryOf(impType interface{}, paramFactory types.BeanFactory, index 
 		}
 	} else {
 		makeInstance = func(v []reflect.Value) (interface{}, error) {
-			return v[resultIndex].Interface(), nil
+			return v[retIndex].Interface(), nil
 		}
 	}
 
@@ -56,7 +60,7 @@ func methodFactoryOf(impType interface{}, paramFactory types.BeanFactory, index 
 		}
 	} else if 1 == srcType.NumIn() && srcType.In(0) == types.ProviderType {
 		makeParam = func(provider types.Provider) ([]reflect.Value, error) {
-			return []reflect.Value{reflect.ValueOf(provider)}, nil
+			return []reflect.Value{reflect.ValueOf(&provider).Elem()}, nil
 		}
 	} else {
 		makeParam = func(types.Provider) ([]reflect.Value, error) {
@@ -69,12 +73,16 @@ func methodFactoryOf(impType interface{}, paramFactory types.BeanFactory, index 
 		makeParam,
 		makeInstance,
 	)
-	resultType = srcType.Out(resultIndex)
+	resultType = srcType.Out(retIndex)
 
 	return
 }
 
-func newCallFactory(src reflect.Value, makeParam func(types.Provider) ([]reflect.Value, error), makeInstance func([]reflect.Value) (interface{}, error)) types.BeanFactory {
+func newCallFactory(
+	src reflect.Value,
+	makeParam func(types.Provider) ([]reflect.Value, error),
+	makeInstance func([]reflect.Value) (interface{}, error),
+) types.BeanFactory {
 	return NewFuncFactory(func(provider types.Provider) (instance interface{}, err error) {
 		param, err := makeParam(provider)
 		if nil == err {
