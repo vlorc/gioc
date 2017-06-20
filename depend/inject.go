@@ -5,6 +5,7 @@ package depend
 
 import (
 	"github.com/vlorc/gioc/types"
+	"github.com/vlorc/gioc/utils"
 	"reflect"
 )
 
@@ -19,11 +20,7 @@ func (di *CoreDependencyInject) SetInterface(v interface{}) (err error) {
 
 func (di *CoreDependencyInject) SubInject(provider types.Provider) types.DependencyInject {
 	src := di.Get(di.DependencyScan)
+	dst := utils.NewOf(src)
 
-	for reflect.Ptr == src.Kind() {
-		t := reflect.New(src.Type().Elem())
-		src.Set(t)
-		src = t
-	}
-	return di.Depend().AsInject(src)
+	return di.Depend().AsInject(dst)
 }

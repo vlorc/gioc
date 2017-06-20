@@ -7,6 +7,9 @@ import (
 	"reflect"
 )
 
+// reflect.Type -> reflect.Type
+// reflect.Value -> reflect.Type
+// (*int)(nil) -> reflect.Value	get int type, must be a pointer
 // convert the reflect.Type type
 func TypeOf(v interface{}) (t reflect.Type) {
 	switch r := v.(type) {
@@ -22,9 +25,6 @@ func TypeOf(v interface{}) (t reflect.Type) {
 	return t
 }
 
-// reflect.Type -> reflect.Type
-// reflect.Value -> reflect.Type
-// (*int)(nil) -> reflect.Value	get int type, must be a pointer
 // convert the reflect.Value type
 func ValueOf(v interface{}) (t reflect.Value) {
 	t, ok := v.(reflect.Value)
@@ -56,4 +56,14 @@ func InterfaceOf(t reflect.Type) reflect.Type {
 		t = nil
 	}
 	return t
+}
+
+// get a can set value
+func NewOf(src reflect.Value) reflect.Value {
+	for reflect.Ptr == src.Kind() {
+		tmp := reflect.New(src.Type().Elem())
+		src.Set(tmp)
+		src = tmp.Elem()
+	}
+	return src
 }

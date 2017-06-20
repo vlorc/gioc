@@ -23,7 +23,7 @@ type User struct {
 	_id      int64
 	Id       int64 `inject:"'id'"`
 	Identity `inject:"extends"`
-	Personal `inject:"extends"`
+	Personal ****Personal `inject:"extends"`
 }
 
 func main() {
@@ -55,4 +55,5 @@ func main() {
 
 	child.Assign(&info, "admin")
 	fmt.Println(info)
+	fmt.Println(****info.Personal)
 }

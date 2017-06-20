@@ -36,7 +36,6 @@ func test_registerFactory(t *testing.T, f types.RegisterFactory) {
 }
 
 func Test_Register(t *testing.T) {
-
 	test_register(t, register.NewRegister(binder.NewBinderFactory()))
 }
 

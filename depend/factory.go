@@ -7,27 +7,58 @@ import (
 	"github.com/vlorc/gioc/types"
 	"github.com/vlorc/gioc/utils"
 	"reflect"
-	"strings"
-	"text/scanner"
+	"errors"
 )
 
 func NewDependencyFactory() types.DependencyFactory {
-	return &CoreDependencyFactory{
+	obj := &CoreDependencyFactory{
 		pool: make(map[reflect.Type]types.Dependency),
+		tagHandle:make(map[string][]TagHandle),
 	}
+
+	obj.tagHandle["optional"] = []TagHandle{makeFlagHandle(types.DEPENDENCY_FLAG_OPTIONAL)}
+	obj.tagHandle["extends"] = []TagHandle{makeFlagHandle(types.DEPENDENCY_FLAG_EXTENDS)}
+	obj.tagHandle["default"] = []TagHandle{makeFlagHandle(types.DEPENDENCY_FLAG_DEFAULT)}
+
+	return obj
 }
 
 func (df *CoreDependencyFactory) Instance(impTyp interface{}) (types.Dependency, error) {
-	return df.instance(utils.DirectlyType(utils.TypeOf(impTyp)))
+	return df.instance(utils.DirectlyType(utils.TypeOf(impTyp)),impTyp)
 }
 
-func (df *CoreDependencyFactory) instance(typ reflect.Type) (dep types.Dependency, err error) {
-	df.lock.RLock()
-	dep = df.pool[typ]
-	df.lock.RUnlock()
+func (df *CoreDependencyFactory) instance(typ reflect.Type,val interface{}) (dep types.Dependency, err error) {
+	defer func() {
+		r := recover()
+		if r == nil {
+			return
+		}
+		switch x := r.(type) {
+		case error:
+			err = x
+		case string:
+			err = errors.New(x)
+		default:
+			err = errors.New("Unknown panic")
+		}
+	}()
 
-	if nil != dep {
-		return
+	if 0 != (1 << typ.Kind()) & ((1 << reflect.Func) | (1 << reflect.Struct)) {
+		df.lock.RLock()
+		dep = df.pool[typ]
+		df.lock.RUnlock()
+
+		if nil != dep {
+			return
+		}
+
+		defer func(){
+			if nil != dep {
+				df.lock.Lock()
+				df.pool[typ] = dep
+				df.lock.Unlock()
+			}
+		}()
 	}
 
 	switch typ.Kind() {
@@ -35,19 +66,22 @@ func (df *CoreDependencyFactory) instance(typ reflect.Type) (dep types.Dependenc
 		dep, err = df.resolveFunc(typ)
 	case reflect.Struct:
 		dep, err = df.resolveStruct(typ)
+	case reflect.Array:
+		dep, err = df.resolveArray(reflect.ValueOf(val))
+	case reflect.Map:
+		dep, err = df.resolveMap(reflect.ValueOf(val))
 	default:
 		err = types.NewError(types.ErrTypeNotSupport, typ)
 	}
 
-	if nil != dep {
-		df.lock.Lock()
-		df.pool[typ] = dep
-		df.lock.Unlock()
-	}
 	return
 }
 
 func (df *CoreDependencyFactory) resolveArray(src reflect.Value) (dep types.Dependency, err error) {
+	if src.Len() <= 0{
+		return
+	}
+
 	des := []*DependencyDescription{}
 	for i, n := 0, src.Len(); i < n; i++ {
 
@@ -67,6 +101,10 @@ func (df *CoreDependencyFactory) resolveArray(src reflect.Value) (dep types.Depe
 }
 
 func (df *CoreDependencyFactory) resolveFunc(typ reflect.Type) (dep types.Dependency, err error) {
+	if typ.NumIn() <= 0 {
+		return
+	}
+
 	des := []*DependencyDescription{}
 	for i, n := 0, typ.NumIn(); i < n; i++ {
 		des = append(des, &DependencyDescription{
@@ -80,6 +118,10 @@ func (df *CoreDependencyFactory) resolveFunc(typ reflect.Type) (dep types.Depend
 }
 
 func (df *CoreDependencyFactory) resolveMap(src reflect.Value) (dep types.Dependency, err error) {
+	if src.Len() <= 0 {
+		return
+	}
+
 	des := []*DependencyDescription{}
 	for i,k := range src.MapKeys() {
 		if reflect.String != k.Kind(){
@@ -101,73 +143,58 @@ func (df *CoreDependencyFactory) resolveMap(src reflect.Value) (dep types.Depend
 }
 
 func (df *CoreDependencyFactory) resolveStruct(typ reflect.Type) (dep types.Dependency, err error) {
-	des, err := df.resolveStructFields(typ, []*DependencyDescription{})
-	if len(des) <= 0 {
-		if nil == err {
-			err = types.NewError(types.ErrDependencyNotNeed, typ)
-		}
-	} else {
-		dep = NewStructDependency(typ, des)
-	}
-
+	des := df.resolveFields(typ, []*DependencyDescription{})
+	dep = NewStructDependency(typ, des)
 	return
 }
 
-func (df *CoreDependencyFactory) resolveStructFields(typ reflect.Type, src []*DependencyDescription) (dst []*DependencyDescription, err error) {
+func (df *CoreDependencyFactory) resolveFields(typ reflect.Type, src []*DependencyDescription) (dst []*DependencyDescription) {
 	for i, n := 0, typ.NumField(); i < n; i++ {
 		field := typ.Field(i)
+
 		if uint(field.Name[0])-uint(65) >= uint(26) {
 			continue
 		}
+
 		tag := field.Tag.Get("inject")
 		if "" == tag {
 			continue
 		}
 
-		des := &DependencyDescription{}
-		des.Index = i
-		des.Type = field.Type
+		dep := &DependencyDescription{
+			Name:field.Name,
+			Index:i,
+			Type:field.Type,
+		}
+
+		des := NewDescriptor(dep)
 
 		df.resolveTag(tag, des)
-		if 0 != (des.Flags & types.DEPENDENCY_FLAG_EXTENDS) {
-			err = df.resolveExtends(des)
-			if nil != err {
-				return
-			}
-		}
-		src = append(src, des)
+		df.resolveFlags(des)
+
+		src = append(src, dep)
+	}
+
+	if len(src) <= 0 {
+		panic(types.NewError(types.ErrDependencyNotNeed, typ))
 	}
 
 	dst = src
-
 	return
 }
 
-func (df *CoreDependencyFactory) resolveExtends(des *DependencyDescription) (err error) {
-	des.Depend, err = df.Instance(des.Type)
-	return
+func (df *CoreDependencyFactory) resolveFlags(des types.PropertyDescriptor) {
+	if 0 != (des.Flags() & types.DEPENDENCY_FLAG_EXTENDS) {
+		df.resolveExtends(des)
+	}
 }
 
-func (df *CoreDependencyFactory) resolveTag(tag string, des *DependencyDescription) (err error) {
-	var sc scanner.Scanner
-	sc.Init(strings.NewReader(tag))
-	flags := map[string]types.DependencyFlag{
-		"optional": types.DEPENDENCY_FLAG_OPTIONAL,
-		"extends":  types.DEPENDENCY_FLAG_EXTENDS,
-		"default":  types.DEPENDENCY_FLAG_DEFAULT,
+func (df *CoreDependencyFactory) resolveExtends(des types.PropertyDescriptor) {
+	dep, err := df.Instance(des.Type())
+	if nil != err {
+		panic(err)
 	}
-	for token := sc.Scan(); token != scanner.EOF; token = sc.Scan() {
-		str := sc.TokenText()
-		switch token {
-		case scanner.Char, scanner.String:
-			des.Name = str[1 : len(str)-1]
-		case scanner.Ident:
-			if v, ok := flags[str]; ok {
-				des.Flags |= v
-			}
-		}
-	}
-	return
+	des.SetDepend(dep)
 }
 
 func NewDependency(typ reflect.Type, dep []*DependencyDescription, reflectFactory func(reflect.Value) types.Reflect) types.Dependency {

@@ -9,6 +9,8 @@ import (
 	"sync"
 )
 
+type TagHandle func(types.DependencyFactory,types.PropertyDescriptor,[]string) (interface{},error)
+
 type DependencyDescription struct {
 	Type    reflect.Type
 	Name    string
@@ -37,6 +39,20 @@ type CoreDependencyInject struct {
 type CoreDependencyFactory struct {
 	lock  sync.RWMutex
 	pool map[reflect.Type]types.Dependency
+	tagHandle map[string][]TagHandle
+}
+
+type DescriptorGetter struct {
+	des *DependencyDescription
+}
+
+type DescriptorSetter struct {
+	des *DependencyDescription
+}
+
+type Descriptor struct {
+	types.PropertyDescriptorGetter
+	types.PropertyDescriptorSetter
 }
 
 type CoreParamReflect []reflect.Value
