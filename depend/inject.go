@@ -10,7 +10,10 @@ import (
 )
 
 func NewDependencyInject(scan types.DependencyScan, ref types.Reflect) types.DependencyInject {
-	return &CoreDependencyInject{scan, ref}
+	return &CoreDependencyInject{
+		scan,
+		ref,
+	}
 }
 
 func (di *CoreDependencyInject) SetInterface(v interface{}) (err error) {

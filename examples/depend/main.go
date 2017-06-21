@@ -48,8 +48,15 @@ func main() {
 	child.Assign(&dependFactory)
 	child.Assign(&builderFactory)
 
-	depend, _ := dependFactory.Instance(info)
-	builder, _ := builderFactory.Instance(factory.NewTypeFactory(info), depend)
+	depend, err := dependFactory.Instance(info)
+	if nil != err {
+		panic(err)
+	}
+
+	builder, err := builderFactory.Instance(factory.NewTypeFactory(info), depend)
+	if nil != err {
+		panic(err)
+	}
 
 	child.AsRegister().RegisterFactory(builder.AsFactory(), &info, "admin")
 

@@ -39,7 +39,7 @@ type CoreDependencyInject struct {
 type CoreDependencyFactory struct {
 	lock  sync.RWMutex
 	pool map[reflect.Type]types.Dependency
-	tagHandle map[string][]TagHandle
+	tagParser *TagParser
 }
 
 type DescriptorGetter struct {
@@ -53,6 +53,10 @@ type DescriptorSetter struct {
 type Descriptor struct {
 	types.PropertyDescriptorGetter
 	types.PropertyDescriptorSetter
+}
+
+type TagParser struct {
+	tagHandle map[string][]TagHandle
 }
 
 type CoreParamReflect []reflect.Value

@@ -57,18 +57,25 @@ func getUser(identity *Identity, personal *Personal) (*User, error, int64) {
 func register(container types.Container, impType interface{}, name ...string) types.Dependency {
 	var dependFactory types.DependencyFactory
 	var builderFactory types.BuilderFactory
+	var builder types.Builder
 	container.Assign(&dependFactory)
 	container.Assign(&builderFactory)
 
 	typ := utils.TypeOf(impType)
-	depend, _ := dependFactory.Instance(typ)
+	depend, err := dependFactory.Instance(typ)
+	if nil != err {
+		panic(err)
+	}
 
 	if reflect.Func == depend.Type().Kind() {
-		builder, _ := builderFactory.Instance(factory.NewParamFactory(depend.Length()), depend)
+		builder, err = builderFactory.Instance(factory.NewParamFactory(depend.Length()), depend)
 		container.AsRegister().RegisterMethod(builder.AsFactory(), impType, nil)
 	} else {
-		builder, _ := builderFactory.Instance(factory.NewTypeFactory(typ), depend)
+		builder, err = builderFactory.Instance(factory.NewTypeFactory(typ), depend)
 		container.AsRegister().RegisterFactory(builder.AsFactory(), reflect.PtrTo(depend.Type()), name...)
+	}
+	if nil != err {
+		panic(err)
 	}
 
 	return depend
