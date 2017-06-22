@@ -7,7 +7,6 @@ import (
 	"github.com/vlorc/gioc/types"
 	"go/token"
 	"go/scanner"
-	"errors"
 	"fmt"
 )
 
@@ -68,7 +67,7 @@ func (tp *TagParser)Resolve(factory types.DependencyFactory,tag string, des type
 func (tp *TagParser)Invoke(factory types.DependencyFactory,key string, des types.PropertyDescriptor) {
 	handle,ok := tp.tagHandle[key]
 	if !ok {
-		panic(errors.New(fmt.Sprintf("can't find token '%s'",key)))
+		panic(fmt.Errorf("can't find token '%s'",key))
 	}
 
 	for _,f := range handle {

@@ -16,9 +16,8 @@ func NewDependencyInject(scan types.DependencyScan, ref types.Reflect) types.Dep
 	}
 }
 
-func (di *CoreDependencyInject) SetInterface(v interface{}) (err error) {
+func (di *CoreDependencyInject) SetInterface(v interface{}){
 	di.Set(di.DependencyScan, reflect.ValueOf(v))
-	return
 }
 
 func (di *CoreDependencyInject) SubInject(provider types.Provider) types.DependencyInject {

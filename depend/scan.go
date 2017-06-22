@@ -49,8 +49,7 @@ func (ds *CoreDependencyScan) Test(v interface{}) bool {
 	srcType := utils.TypeOf(v)
 	dstType := ds.dep[ds.pos].Type
 
-	ok := dstType == srcType || (dstType.Kind() == reflect.Interface && srcType.Implements(dstType))
-	return ok
+	return dstType == srcType || (dstType.Kind() == reflect.Interface && srcType.Implements(dstType))
 }
 
 func (ds *CoreDependencyScan) Depend() types.Dependency {

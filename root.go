@@ -4,28 +4,38 @@
 package gioc
 
 import (
+	"github.com/vlorc/gioc/types"
 	"github.com/vlorc/gioc/binder"
 	"github.com/vlorc/gioc/builder"
 	"github.com/vlorc/gioc/container"
 	"github.com/vlorc/gioc/depend"
 	"github.com/vlorc/gioc/register"
-	"github.com/vlorc/gioc/types"
+	"github.com/vlorc/gioc/selector"
 )
 
 // create a root container
 func NewRootContainer() types.Container {
 	registerFactory := register.NewRegisterFactory()
-
 	binderFactory := binder.NewBinderFactory()
 	dependFactory := depend.NewDependencyFactory()
 	builderFactory := builder.NewBuilderFactory()
-	reg, _ := registerFactory.Instance(binderFactory)
-	con := container.NewContainer(reg, nil, 30)
+	selectorFactory := selector.NewSelectorFactory()
+
+	sel,err := selectorFactory.Instance(binderFactory)
+	if nil != err {
+		panic(err)
+	}
+
+	reg, err := registerFactory.Instance(sel)
+	if nil != err {
+		panic(err)
+	}
 
 	reg.RegisterInterface(&registerFactory)
 	reg.RegisterInterface(&binderFactory)
 	reg.RegisterInterface(&dependFactory)
 	reg.RegisterInterface(&builderFactory)
+	reg.RegisterInterface(&selectorFactory)
 
-	return con
+	return container.NewContainer(reg, nil, 30)
 }

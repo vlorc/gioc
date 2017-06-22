@@ -60,7 +60,10 @@ func main() {
 
 	child.AsRegister().RegisterFactory(builder.AsFactory(), &info, "admin")
 
-	child.Assign(&info, "admin")
+	if err = child.Assign(&info, "admin"); nil != err{
+		panic(err)
+	}
+
 	fmt.Println(info)
 	fmt.Println(****info.Personal)
 }

@@ -8,21 +8,16 @@ import (
 	"sync"
 )
 
-type NamedMapping struct {
-	lock  sync.Locker
-	table map[string]types.BeanFactory
-}
-
-func NewNamedMapping(t map[string]types.BeanFactory, lock sync.Locker) types.Mapper {
+func NewNamedMapping(table map[string]types.BeanFactory, lock sync.Locker) types.Mapper {
 	return &NamedMapping{
 		lock:  lock,
-		table: t,
+		table: table,
 	}
 }
 
-func (nm *NamedMapping) Resolve(v string) (factory types.BeanFactory, err error) {
+func (nm *NamedMapping) Resolve(key string) (factory types.BeanFactory) {
 	nm.lock.Lock()
-	factory = nm.table[v]
+	factory = nm.table[key]
 	nm.lock.Unlock()
 	return
 }

@@ -1,3 +1,6 @@
+// Copyright 2017 Granitic. All rights reserved.
+// Use of this source code is governed by an Apache 2.0 license that can be found in the LICENSE file at the root of this project.
+
 package binder
 
 import (
@@ -21,20 +24,20 @@ func test_binder(t *testing.T, binder types.Binder) {
 		"0", "1", "2",
 	}
 
-	for i, v := range key {
-		err := binder.Bind(v, intFactory(i))
+	for v, k := range key {
+		err := binder.Bind(k, intFactory(v))
 		if nil != err {
 			t.Errorf("can't bind key %s error : %s", v, err.Error())
 		}
 	}
 
-	for i, v := range key {
-		temp, err := binder.Resolve(v)
-		if nil != err {
-			t.Errorf("can't found key %s error : %s", v, err.Error())
+	for v, k := range key {
+		temp := binder.Resolve(k)
+		if nil == temp {
+			t.Errorf("can't found key %s", k)
 		}
-		if temp != interface{}(intFactory(i)) {
-			t.Errorf("can't matching key %s,were modified", v)
+		if temp != interface{}(intFactory(v)) {
+			t.Errorf("can't matching key %s,were modified", k)
 		}
 	}
 }
@@ -44,11 +47,11 @@ func test_binderFactory(t *testing.T, factory types.BinderFactory) {
 		t.Errorf("can't allocate a factory")
 	}
 
-	binder, err := factory.Instance(reflect.TypeOf(0))
+	bind, err := factory.Instance(reflect.TypeOf(0))
 	if nil != err {
 		t.Errorf("can't allocate a binder error : %s", err.Error())
 	}
-	test_binder(t, binder)
+	test_binder(t, bind)
 }
 
 func Test_NameBinder(t *testing.T) {

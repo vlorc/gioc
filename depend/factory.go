@@ -7,7 +7,6 @@ import (
 	"github.com/vlorc/gioc/types"
 	"github.com/vlorc/gioc/utils"
 	"reflect"
-	"errors"
 )
 
 func NewDependencyFactory() types.DependencyFactory {
@@ -22,20 +21,7 @@ func (df *CoreDependencyFactory) Instance(impTyp interface{}) (types.Dependency,
 }
 
 func (df *CoreDependencyFactory) instance(typ reflect.Type,val interface{}) (dep types.Dependency, err error) {
-	defer func() {
-		r := recover()
-		if r == nil {
-			return
-		}
-		switch x := r.(type) {
-		case error:
-			err = x
-		case string:
-			err = errors.New(x)
-		default:
-			err = errors.New("Unknown panic")
-		}
-	}()
+	defer utils.Recover(&err)
 
 	switch typ.Kind() {
 	case reflect.Func:

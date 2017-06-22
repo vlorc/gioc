@@ -8,12 +8,12 @@ import (
 	"github.com/vlorc/gioc/utils"
 )
 
-func (this *Error) Error() string {
-	return this.Message
+func (e *Error) Error() string {
+	return e.Message
 }
 
-func (this *Error) String() string {
-	return this.Message
+func (e *Error) String() string {
+	return e.Message
 }
 
 func NewError(code ErrorCode, impType interface{}, args ...string) error {
