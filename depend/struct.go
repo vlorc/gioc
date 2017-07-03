@@ -9,13 +9,13 @@ import (
 	"sync"
 )
 
-type TagHandle func(types.DependencyFactory,types.PropertyDescriptor,[]string) (interface{},error)
+type TagHandle func(types.DependencyFactory,types.PropertyDescriptor,[]string) error
 
 type DependencyDescription struct {
 	Type    reflect.Type
 	Name    string
 	Index   int
-	Default interface{}
+	Default reflect.Value
 	Depend  types.Dependency
 	Flags   types.DependencyFlag
 }

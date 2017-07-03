@@ -38,8 +38,8 @@ var errFormatTable = map[ErrorCode]string{
 
 const (
 	DEPENDENCY_FLAG_EXTENDS DependencyFlag = 1 << iota
-	DEPENDENCY_FLAG_OPTIONAL
 	DEPENDENCY_FLAG_DEFAULT
+	DEPENDENCY_FLAG_OPTIONAL
 )
 
 const DEFAULT_NAME string = ""

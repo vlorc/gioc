@@ -5,58 +5,68 @@ package depend
 
 import (
 	"github.com/vlorc/gioc/types"
-	"go/token"
-	"go/scanner"
 	"fmt"
+	"reflect"
+	"github.com/vlorc/gioc/utils"
 )
 
 func NewTagParser() *TagParser{
-	obj := &TagParser{
-		tagHandle:make(map[string][]TagHandle),
-	}
+	obj := &TagParser{}
 
-	obj.tagHandle["optional"] = []TagHandle{
-		flagsHandle(types.DEPENDENCY_FLAG_OPTIONAL),
+	obj.tagHandle = map[string][]TagHandle{
+		"optional":[]TagHandle{
+			flagsHandle(types.DEPENDENCY_FLAG_OPTIONAL),
+		},
+		"extends":[]TagHandle{
+			flagsHandle(types.DEPENDENCY_FLAG_EXTENDS),
+			extendsHandle,
+		},
+		"default":[]TagHandle{
+			flagsHandle(types.DEPENDENCY_FLAG_DEFAULT),
+			defaultHandle,
+		},
+		"id":[]TagHandle{nameHandle},
+		"name":[]TagHandle{nameHandle},
 	}
-	obj.tagHandle["extends"] = []TagHandle{
-		flagsHandle(types.DEPENDENCY_FLAG_EXTENDS),
-		extendsHandle,
-	}
-	obj.tagHandle["default"] = []TagHandle{
-		flagsHandle(types.DEPENDENCY_FLAG_DEFAULT),
-	}
-
 	return obj
 }
 
-func extendsHandle(factory types.DependencyFactory,des types.PropertyDescriptor,_ []string) (interface{}, error) {
+func nameHandle(factory types.DependencyFactory,des types.PropertyDescriptor,param []string) error {
+	des.SetName(param[0])
+	return nil
+}
+
+func defaultHandle(factory types.DependencyFactory,des types.PropertyDescriptor,_ []string) error {
+	val := reflect.Zero(des.Type())
+	des.SetDefault(val)
+	return nil
+}
+
+func extendsHandle(factory types.DependencyFactory,des types.PropertyDescriptor,_ []string) error {
 	dep, err := factory.Instance(des.Type())
 	des.SetDepend(dep)
-	return dep,err
+	return err
 }
 
 func flagsHandle(flag types.DependencyFlag) TagHandle {
-	return func(_ types.DependencyFactory,des types.PropertyDescriptor,_ []string) (interface{},error) {
+	return func(_ types.DependencyFactory,des types.PropertyDescriptor,_ []string) error {
 		des.SetFlags(des.Flags() | flag)
-		return flag,nil
+		return nil
 	}
 }
 
 func (tp *TagParser)Resolve(factory types.DependencyFactory,tag string, des types.PropertyDescriptor) {
-	src := []byte(tag)
-	var s scanner.Scanner
-	fset := token.NewFileSet()
-	file := fset.AddFile("", fset.Base(), len(src))
-	s.Init(file, src, nil, scanner.ScanComments)
+	s := utils.NewTokenScan()
+	s.Init(tag)
 
 	for {
-		_, tk, str := s.Scan()
-		switch tk {
-		case token.IDENT:
-			tp.Invoke(factory,str,des)
-		case token.CHAR,token.STRING:
-			des.SetName(str[1 : len(str) - 1])
-		case token.EOF:
+		token, offset, length := s.Scan()
+		switch token {
+		case utils.TOKEN_IDENT:
+			tp.Invoke(factory,tag[offset:length],des)
+		case utils.TOKEN_CHART,utils.TOKEN_STRING:
+			des.SetName(tag[offset + 1 :length - 1])
+		case utils.TOKEN_EOF:
 			return
 		}
 	}
@@ -71,8 +81,7 @@ func (tp *TagParser)Invoke(factory types.DependencyFactory,key string, des types
 	}
 
 	for _,f := range handle {
-		_,err := f(factory,des,nil)
-		if nil != err {
+		if err := f(factory,des,nil);nil != err {
 			panic(err)
 		}
 	}

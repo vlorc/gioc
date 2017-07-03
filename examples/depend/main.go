@@ -19,12 +19,19 @@ type Identity struct {
 	Password string `inject:"'password'"`
 }
 
+type UserControl interface {
+	Destroy() error
+	Action() error
+}
+
 type User struct {
 	_id      int64
 	Id       int64 `inject:"'id'"`
 	Identity `inject:"extends"`
 	Personal ****Personal `inject:"extends"`
+	Control UserControl `inject:"'control' default"`
 }
+
 
 func main() {
 	container := gioc.NewRootContainer()
