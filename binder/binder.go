@@ -18,7 +18,7 @@ func (nb *NamedBind) Bind(key string, factory types.BeanFactory) error {
 	return nil
 }
 
-func (nb *NamedBind) Resolve(key string) (factory types.BeanFactory, err error) {
+func (nb *NamedBind) Resolve(key string) (factory types.BeanFactory) {
 	nb.lock.RLock()
 	factory = nb.table[key]
 	nb.lock.RUnlock()

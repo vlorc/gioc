@@ -9,7 +9,7 @@ import (
 	"reflect"
 )
 
-func NewDependencyScan(dep []*DependencyDescription) types.DependencyScan {
+func NewDependencyScan(dep []*types.DependencyDescription) types.DependencyScan {
 	return &CoreDependencyScan{
 		dep: dep,
 		pos: len(dep),
@@ -29,7 +29,7 @@ func (ds *CoreDependencyScan) Type() reflect.Type {
 	return ds.dep[ds.pos].Type
 }
 
-func (ds *CoreDependencyScan) Default() interface{} {
+func (ds *CoreDependencyScan) Default() reflect.Value {
 	return ds.dep[ds.pos].Default
 }
 
@@ -45,14 +45,14 @@ func (ds *CoreDependencyScan) Index() int {
 	return ds.dep[ds.pos].Index
 }
 
+func (ds *CoreDependencyScan) Depend() types.Dependency {
+	return ds.dep[ds.pos].Depend
+}
+
 func (ds *CoreDependencyScan) Test(v interface{}) bool {
 	srcType := utils.TypeOf(v)
 	dstType := ds.dep[ds.pos].Type
 
-	ok := dstType == srcType || (dstType.Kind() == reflect.Interface && srcType.Implements(dstType))
-	return ok
+	return dstType == srcType || (dstType.Kind() == reflect.Interface && srcType.Implements(dstType))
 }
 
-func (ds *CoreDependencyScan) Depend() types.Dependency {
-	return ds.dep[ds.pos].Depend
-}

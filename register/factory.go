@@ -5,20 +5,18 @@ package register
 
 import (
 	"github.com/vlorc/gioc/types"
-	"reflect"
 )
 
-func (rf *CoreRegisterFactory) Instance(factory types.BinderFactory) (types.Register, error) {
-	return NewRegister(factory), nil
+func (rf *CoreRegisterFactory) Instance(selector types.Selector) (types.Register, error) {
+	return NewRegister(selector), nil
 }
 
 func NewRegisterFactory() types.RegisterFactory {
 	return &CoreRegisterFactory{}
 }
 
-func NewRegister(factory types.BinderFactory) types.Register {
+func NewRegister(selector types.Selector) types.Register {
 	return &CoreRegister{
-		table:   make(map[reflect.Type]types.Binder),
-		factory: factory,
+		selector:selector,
 	}
 }

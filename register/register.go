@@ -11,53 +11,17 @@ import (
 	"reflect"
 )
 
-func (r *CoreRegister) MapperOf(typ reflect.Type) (m types.Mapper) {
-	if b := r.BinderOf(typ); nil != b {
-		m = b.AsMapper()
-	}
-	return
-}
-
-func (r *CoreRegister) BinderOf(t reflect.Type) (bind types.Binder) {
-	r.lock.RLock()
-	bind = r.table[t]
-	r.lock.RUnlock()
-
-	return bind
-}
-
-func (r *CoreRegister) AsBinder(t reflect.Type) types.Binder {
-	r.lock.RLock()
-	bind, ok := r.table[t]
-	r.lock.RUnlock()
-
-	if !ok {
-		bind, _ = r.factory.Instance(t)
-		r.lock.Lock()
-		r.table[t] = bind
-		r.lock.Unlock()
-	}
-	return bind
-}
-
-func (r *CoreRegister) AsMapper(typ reflect.Type) (m types.Mapper) {
-	if b := r.AsBinder(typ); nil != b {
-		m = b.AsMapper()
-	}
-	return
+func (r *CoreRegister) AsSelector() types.Selector {
+	return r.selector
 }
 
 func (r *CoreRegister) RegisterMapper(mapping types.Mapper, impType interface{}) error {
 	return r.RegisterMapper(binder.NewProxyBinder(mapping, nil), impType)
 }
 
-func (r *CoreRegister) RegisterBinder(bind types.Binder, impType interface{}) error {
+func (r *CoreRegister) RegisterBinder(binder types.Binder, impType interface{}) error {
 	typ := utils.TypeOf(impType)
-
-	r.lock.Lock()
-	r.table[typ] = bind
-	r.lock.Unlock()
-	return nil
+	return r.selector.SetBinder(typ,binder)
 }
 
 func (r *CoreRegister) RegisterInterface(instance interface{}, args ...string) error {
@@ -94,12 +58,11 @@ func (r *CoreRegister) RegisterPointer(pointer interface{}, args ...string) erro
 }
 
 func (r *CoreRegister) registerFactory(beanFactory types.BeanFactory, impType reflect.Type, args ...string) error {
-	b := r.AsBinder(impType)
 	var name string = types.DEFAULT_NAME
 	if len(args) > 0 {
 		name = args[0]
 	}
-	return b.Bind(name, beanFactory)
+	return r.selector.SetFactory(impType,name,beanFactory)
 }
 
 func (r *CoreRegister) RegisterFactory(beanFactory types.BeanFactory, impType interface{}, args ...string) error {

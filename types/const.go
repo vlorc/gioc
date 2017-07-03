@@ -3,6 +3,10 @@
 
 package types
 
+type DependencyFlag int
+
+type ErrorCode int
+
 const (
 	ErrInstanceNotFound ErrorCode = iota
 	ErrFactoryNotFound
@@ -33,9 +37,9 @@ var errFormatTable = map[ErrorCode]string{
 }
 
 const (
-	DEPENDENCY_FLAG_OPTIONAL DependencyFlag = 1 << iota
+	DEPENDENCY_FLAG_EXTENDS DependencyFlag = 1 << iota
 	DEPENDENCY_FLAG_DEFAULT
-	DEPENDENCY_FLAG_EXTENDS
+	DEPENDENCY_FLAG_OPTIONAL
 )
 
 const DEFAULT_NAME string = ""

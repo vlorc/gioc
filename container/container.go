@@ -10,10 +10,41 @@ import (
 	"reflect"
 )
 
-type CoreContainer struct {
-	parent   types.Container
-	register types.Register
-	deep     int
+func NewWithContainer(provider types.Provider,parent types.Container, deep int) types.Container {
+	var binderFactory types.BinderFactory
+	var selectorFactory types.SelectorFactory
+	var registerFactory types.RegisterFactory
+
+	provider.Assign(&binderFactory)
+	provider.Assign(&selectorFactory)
+	provider.Assign(&registerFactory)
+
+	if nil == selectorFactory || nil == registerFactory{
+		return nil
+	}
+
+	sel,err := selectorFactory.Instance(binderFactory)
+	if nil != err {
+		panic(err)
+	}
+
+	reg, err := registerFactory.Instance(sel)
+	if nil != err {
+		panic(err)
+	}
+
+	return NewContainer(reg, parent, deep)
+}
+
+func NewChildContainer(provider types.Provider,parent types.Container, deep int) types.Container {
+	var reg types.Register
+
+	err := provider.Assign(&reg)
+	if nil != err {
+		return NewWithContainer(provider,parent,deep)
+	}
+
+	return NewContainer(reg, parent, deep)
 }
 
 func NewContainer(register types.Register, parent types.Container, deep int) types.Container {
@@ -45,22 +76,7 @@ func (c *CoreContainer) Parent() types.Container {
 }
 
 func (c *CoreContainer) Child() types.Container {
-	var registerFactory types.RegisterFactory
-	var binderFactory types.BinderFactory
-
-	c.Assign(&registerFactory)
-	c.Assign(&binderFactory)
-
-	if nil == registerFactory || nil == binderFactory {
-		return nil
-	}
-
-	reg, _ := registerFactory.Instance(binderFactory)
-	if nil == reg {
-		return nil
-	}
-
-	return NewContainer(reg, c, c.deep)
+	return NewChildContainer(c,c,c.deep)
 }
 
 func (c *CoreContainer) ResolveNamed(impType interface{}, name string, deep int) (interface{}, error) {
@@ -68,26 +84,14 @@ func (c *CoreContainer) ResolveNamed(impType interface{}, name string, deep int)
 }
 
 func (c *CoreContainer) ResolveType(typ reflect.Type, name string, deep int) (instance interface{}, err error) {
-	for {
-		mapper := c.register.MapperOf(typ)
-		if deep < 0 {
-			deep = c.deep
-		}
-		if nil == mapper {
-			break
-		}
-
-		var factory types.BeanFactory
-		if factory, err = mapper.Resolve(name); nil != err {
-			return
-		}
-		if nil == factory {
-			break
-		}
+	if factory := c.register.AsSelector().FactoryOf(typ,name); nil != factory {
 		instance, err = factory.Instance(c)
 		return
 	}
 
+	if deep < 0 {
+		deep = c.deep
+	}
 	if deep--; nil == c.Parent() || deep < 0 {
 		err = types.NewError(types.ErrFactoryNotFound, typ, name)
 	} else {

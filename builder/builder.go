@@ -5,7 +5,17 @@ package builder
 
 import (
 	"github.com/vlorc/gioc/types"
+	"github.com/vlorc/gioc/utils"
 )
+
+var fullProcess []func(types.Provider,types.DependencyInject)
+
+func init(){
+	fullProcess = []func(types.Provider,types.DependencyInject){
+		fullInstance,
+		fullExtends,
+	}
+}
 
 func (b *CoreBuilder) AsFactory() types.BeanFactory {
 	return b
@@ -15,56 +25,59 @@ func (b *CoreBuilder) Build(provider types.Provider, factory types.BeanFactory) 
 	if nil == factory {
 		factory = b.factory
 	}
-	return buildInstance(factory, b.depend, provider)
+	return buildAllInstance(provider, factory, b.depend)
 }
 
 func (this *CoreBuilder) Instance(provider types.Provider) (interface{}, error) {
-	return buildInstance(this.factory, this.depend, provider)
+	return buildAllInstance(provider, this.factory, this.depend)
 }
 
-func buildInstance(factory types.BeanFactory, depend types.Dependency, provider types.Provider) (instance interface{}, err error) {
-	instance, err = factory.Instance(provider)
-	if nil != err {
+func buildAllInstance(provider types.Provider,factory types.BeanFactory, depend types.Dependency) (instance interface{}, err error) {
+	defer utils.Recover(&err)
+
+	if instance, err = factory.Instance(provider);nil != err {
 		return
 	}
+
 	if nil == instance {
 		err = types.NewError(types.ErrInstanceNotFound, instance)
 		return
 	}
 
-	inject := depend.AsInject(instance)
-	if nil == inject {
+	if inject := depend.AsInject(instance); nil != inject {
+		fullAllInstance(provider, inject)
+	} else {
 		err = types.NewError(types.ErrInjectNotAllot, instance)
-		return
 	}
-
-	err = fullInstance(inject, provider)
 
 	return
 }
 
-func fullInstance(inject types.DependencyInject, provider types.Provider) (err error) {
-	var v interface{}
+func fullAllInstance(provider types.Provider, inject types.DependencyInject) {
 	for inject.Next() {
-		if 0 != inject.Flags()&types.DEPENDENCY_FLAG_EXTENDS {
-			if err = fullInstance(inject.SubInject(provider), provider); nil != err {
-				break
-			}
-			continue
-		}
-
-		if v, err = provider.Resolve(inject.Type(), inject.Name()); nil != err {
-			if 0 != inject.Flags()&types.DEPENDENCY_FLAG_DEFAULT {
-				v = inject.Default()
-				err = nil
-			} else if 0 != inject.Flags()&types.DEPENDENCY_FLAG_OPTIONAL {
-				continue
-			} else {
-				err = types.NewError(types.ErrInstanceNotFound, inject.Type(), inject.Name())
-				break
-			}
-		}
-		err = inject.SetInterface(v)
+		fullProcess[inject.Flags() & types.DEPENDENCY_FLAG_EXTENDS](provider,inject)
 	}
-	return
+}
+
+func fullExtends(provider types.Provider, inject types.DependencyInject) {
+	fullAllInstance(provider,inject.SubInject(provider))
+}
+
+func fullInstance(provider types.Provider, inject types.DependencyInject) {
+	instance, err := provider.Resolve(inject.Type(), inject.Name())
+	if nil == err {
+		inject.SetInterface(instance)
+		return
+	}
+
+	if 0 != inject.Flags()&types.DEPENDENCY_FLAG_DEFAULT {
+		inject.SetValue(inject.Default())
+		return
+	}
+
+	if 0 != inject.Flags()&types.DEPENDENCY_FLAG_OPTIONAL {
+		return
+	}
+
+	panic(err)
 }

@@ -9,17 +9,6 @@ package types
 
 import "reflect"
 
-type DependencyFlag int
-
-type ErrorCode int
-
-type Error struct {
-	Type    reflect.Type
-	Name    string
-	Code    ErrorCode
-	Message string
-}
-
 type Provider interface {
 	Resolve(interface{}, ...string) (interface{}, error)
 	ResolveType(reflect.Type, string, int) (interface{}, error)
@@ -33,13 +22,32 @@ type BeanFactory interface {
 }
 
 type Mapper interface {
-	Resolve(string) (BeanFactory, error)
+	Resolve(string) BeanFactory
 }
 
 type Binder interface {
 	Mapper
 	AsMapper() Mapper
 	Bind(string, BeanFactory) error
+}
+
+type SelectorSetter interface {
+	AsMapper(reflect.Type) Mapper
+	AsBinder(reflect.Type) Binder
+
+	SetBinder(reflect.Type,Binder) error
+	SetFactory(reflect.Type,string,BeanFactory) error
+}
+
+type SelectorGetter interface {
+	MapperOf(reflect.Type) Mapper
+	BinderOf(reflect.Type) Binder
+	FactoryOf(reflect.Type,string) BeanFactory
+}
+
+type Selector interface {
+	SelectorSetter
+	SelectorGetter
 }
 
 type BuilderFactory interface {
@@ -51,24 +59,19 @@ type BinderFactory interface {
 }
 
 type RegisterFactory interface {
-	Instance(BinderFactory) (Register, error)
+	Instance(Selector) (Register, error)
 }
 
 type DependencyFactory interface {
 	Instance(interface{}) (Dependency, error)
 }
 
-/*
-type Component interface {
-
+type SelectorFactory interface {
+	Instance(BinderFactory) (Selector, error)
 }
-*/
 
 type Register interface {
-	AsMapper(reflect.Type) Mapper
-	AsBinder(reflect.Type) Binder
-	MapperOf(reflect.Type) Mapper
-	BinderOf(reflect.Type) Binder
+	AsSelector() Selector
 	RegisterBinder(Binder, interface{}) error
 	RegisterMapper(Mapper, interface{}) error
 	RegisterPointer(interface{}, ...string) error
@@ -76,7 +79,6 @@ type Register interface {
 	RegisterInterface(interface{}, ...string) error
 	RegisterFactory(BeanFactory, interface{}, ...string) error
 	RegisterMethod(BeanFactory, interface{}, interface{}, ...string) error
-	//RegisterComponent(interface{},...string)error
 }
 
 type Container interface {
@@ -89,38 +91,39 @@ type Container interface {
 	Child() Container
 }
 
-type PropertyDescriptorGetter interface {
+type DescriptorGetter interface {
 	Type() reflect.Type
 	Name() string
-	Default() interface{}
+	Default() reflect.Value
 	Flags() DependencyFlag
 	Index() int
 	Depend() Dependency
 }
 
-type PropertyDescriptorSetter interface {
+type DescriptorSetter interface {
 	SetType(reflect.Type)
 	SetName(string)
-	SetDefault(interface{})
+	SetDefault(reflect.Value)
 	SetFlags(DependencyFlag)
 	SetIndex(int)
 	SetDepend(Dependency)
 }
 
-type PropertyDescriptor interface {
-	PropertyDescriptorSetter
-	PropertyDescriptorGetter
+type Descriptor interface {
+	DescriptorSetter
+	DescriptorGetter
 }
 
 type DependencyScan interface {
-	PropertyDescriptorGetter
+	DescriptorGetter
 	Next() bool
 	Test(interface{}) bool
 }
 
 type DependencyInject interface {
 	DependencyScan
-	SetInterface(interface{}) error
+	SetInterface(interface{})
+	SetValue(reflect.Value)
 	SubInject(Provider) DependencyInject
 }
 
@@ -132,11 +135,11 @@ type Dependency interface {
 }
 
 type PropertySetter interface {
-	Set(PropertyDescriptorGetter, reflect.Value)
+	Set(DescriptorGetter, reflect.Value)
 }
 
 type PropertyGetter interface {
-	Get(PropertyDescriptorGetter) reflect.Value
+	Get(DescriptorGetter) reflect.Value
 }
 
 type Reflect interface {
@@ -151,9 +154,6 @@ type Builder interface {
 }
 
 var ErrorType = reflect.TypeOf((*error)(nil)).Elem()
-
-var ContainerType = reflect.TypeOf((*Container)(nil)).Elem()
-var RegisterType = reflect.TypeOf((*Register)(nil)).Elem()
 var ProviderType = reflect.TypeOf((*Provider)(nil)).Elem()
 
 var DependencyFactoryType = reflect.TypeOf((*DependencyFactory)(nil)).Elem()

@@ -7,8 +7,7 @@ import (
 	"github.com/vlorc/gioc/types"
 )
 
-type CoreBuilderFactory struct {
-}
+type CoreBuilderFactory struct {}
 
 type CoreBuilder struct {
 	depend  types.Dependency

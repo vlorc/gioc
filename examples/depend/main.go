@@ -19,12 +19,18 @@ type Identity struct {
 	Password string `inject:"'password'"`
 }
 
-type User struct {
-	_id      int64
-	Id       int64 `inject:"'id'"`
-	Identity `inject:"extends"`
-	Personal `inject:"extends"`
+type UserControl interface {
+	Destroy() error
+	Action() error
 }
+
+type User struct {
+	Id       int64 `inject:"lower"`
+	Identity `inject:"extends"`
+	Personal ****Personal `inject:"extends"`
+	Control UserControl `inject:"lower default"`
+}
+
 
 func main() {
 	container := gioc.NewRootContainer()
@@ -48,11 +54,22 @@ func main() {
 	child.Assign(&dependFactory)
 	child.Assign(&builderFactory)
 
-	depend, _ := dependFactory.Instance(info)
-	builder, _ := builderFactory.Instance(factory.NewTypeFactory(info), depend)
+	depend, err := dependFactory.Instance(info)
+	if nil != err {
+		panic(err)
+	}
+
+	builder, err := builderFactory.Instance(factory.NewTypeFactory(info), depend)
+	if nil != err {
+		panic(err)
+	}
 
 	child.AsRegister().RegisterFactory(builder.AsFactory(), &info, "admin")
 
-	child.Assign(&info, "admin")
+	if err = child.Assign(&info, "admin"); nil != err{
+		panic(err)
+	}
+
 	fmt.Println(info)
+	fmt.Println(****info.Personal)
 }

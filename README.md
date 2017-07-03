@@ -24,7 +24,7 @@ func main() {
 	//regiter int instance
 	container.AsRegister().RegisterInstance(17, "age")
 
-	// get a int type of 'age'
+	// get an int type 'age'
 	fmt.Println(container.Resolve((*int)(nil), "age"))
 }
 ```
@@ -46,7 +46,7 @@ func main() {
 	container.AsRegister().RegisterFactory(
 	    factory.NewValueFactory(age),(*int)(nil),"age")
 
-	//regiter int of func factory
+	//regiter func factory
 	inc := factory.NewFuncFactory(func(types.Provider) (interface{}, error) {
 		age++
 		return age, nil
@@ -58,13 +58,13 @@ func main() {
 	container.AsRegister().RegisterFactory(
 	    factory.NewSingleFactory(inc),&age,"once")
 
-	// get a int type of 'age'
+	// get an int type 'age'
 	fmt.Println(container.Resolve((*int)(nil), "age"))
 	
-	// get a age + 1
+	// get an age + 1
 	fmt.Println(container.Resolve((*int)(nil), "inc"))
 	
-	// get a age,once + 1
+	// get an age,once + 1
 	fmt.Println(container.Resolve((*int)(nil), "once"))
 	fmt.Println(container.Resolve((*int)(nil), "once"))
 }
@@ -81,31 +81,35 @@ This project is under the apache License. See the LICENSE file for the full lice
 	+ provides Factory discovery
 + Factory
 	+ responsible for generating Instance
-	+ The basic plant has a value factory, method factory, agent factory, single factory, type factory
+	+ the basic plant has a value factory, method factory, agent factory, single factory, type factory
 + Mapper
-	+ Get the Factory by id
+	+ get the Factory by id
 + Binder
 	+ the Factory is bound by id
-	+ can be converted to ReadOnly Mapper
+	+ can be converted to read-only Mapper
 + Register
-	+ as a connection to Factory and Binder
+	+ as a connection to Factory and Selector
 	+ provides the registration method, which eventually matches the Type to the Factory
 	+ register custom Binder, Mapper, Factory
 + Dependency
 	+ for target type dependency analysis, collection integration
-	+ is converted to an Injector by an instance
+	+ converted to an Injector by an instance
 + Injector
 	+ and obtain the Instance padding based on the Dependency retrieval Provider
 + Builder
 	+ is also a Factory
-	+ Use the Factory to get the instance and Injector to solve the dependency
+	+ use the Factory to get the instance and Injector to solve the Dependency
 + Container
 	+ provides Register and Provider, and the parent container makes up traversal
-	+ can be converted to a Provider for ReadOnly
-	+ can be converted to Seal Container
+	+ convert to read-only Provider
+	+ convert to seal Container
++ Selector
+	+ use type and id index Factory
+	+ auto create Binder and Mapper
+	+ index mode isolation
 
 # Key
 
-**dependency, dependency injection, inversion of control**
+**dependency injection, inversion of control**
 
 # Reference

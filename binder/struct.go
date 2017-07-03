@@ -6,6 +6,7 @@ package binder
 import (
 	"github.com/vlorc/gioc/types"
 	"sync"
+	"reflect"
 )
 
 type NamedBind struct {
@@ -18,5 +19,9 @@ type ProxyBind struct {
 	write types.Binder
 }
 
-type CoreBinderFactory struct {
+type SelectorBind struct {
+	typ      reflect.Type
+	selector types.Selector
 }
+
+type CoreBinderFactory struct {}
