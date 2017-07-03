@@ -31,7 +31,7 @@ func(dg *DescriptorGetter)Name() string{
 	return dg.des.Name
 }
 
-func(dg *DescriptorGetter)Default() interface{}{
+func(dg *DescriptorGetter)Default() reflect.Value{
 	return dg.des.Default
 }
 
@@ -55,7 +55,7 @@ func(dg *DescriptorSetter)SetName(name string) {
 	dg.des.Name = name
 }
 
-func(dg *DescriptorSetter)SetDefault(def interface{}){
+func(dg *DescriptorSetter)SetDefault(def reflect.Value){
 	dg.des.Default = def
 }
 

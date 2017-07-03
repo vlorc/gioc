@@ -35,8 +35,7 @@ func (this *CoreBuilder) Instance(provider types.Provider) (interface{}, error) 
 func buildAllInstance(provider types.Provider,factory types.BeanFactory, depend types.Dependency) (instance interface{}, err error) {
 	defer utils.Recover(&err)
 
-	instance, err = factory.Instance(provider)
-	if nil != err {
+	if instance, err = factory.Instance(provider);nil != err {
 		return
 	}
 
@@ -72,14 +71,12 @@ func fullInstance(provider types.Provider, inject types.DependencyInject) {
 	}
 
 	if 0 != inject.Flags()&types.DEPENDENCY_FLAG_DEFAULT {
-		inject.SetInterface(inject.Default())
+		inject.SetValue(inject.Default())
 		return
 	}
 
 	if 0 != inject.Flags()&types.DEPENDENCY_FLAG_OPTIONAL {
 		return
-	} else {
-		err = types.NewError(types.ErrInstanceNotFound, inject.Type(), inject.Name())
 	}
 
 	panic(err)

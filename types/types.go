@@ -94,7 +94,7 @@ type Container interface {
 type PropertyDescriptorGetter interface {
 	Type() reflect.Type
 	Name() string
-	Default() interface{}
+	Default() reflect.Value
 	Flags() DependencyFlag
 	Index() int
 	Depend() Dependency
@@ -103,7 +103,7 @@ type PropertyDescriptorGetter interface {
 type PropertyDescriptorSetter interface {
 	SetType(reflect.Type)
 	SetName(string)
-	SetDefault(interface{})
+	SetDefault(reflect.Value)
 	SetFlags(DependencyFlag)
 	SetIndex(int)
 	SetDepend(Dependency)
@@ -123,6 +123,7 @@ type DependencyScan interface {
 type DependencyInject interface {
 	DependencyScan
 	SetInterface(interface{})
+	SetValue(reflect.Value)
 	SubInject(Provider) DependencyInject
 }
 
