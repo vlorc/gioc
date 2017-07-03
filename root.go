@@ -11,6 +11,8 @@ import (
 	"github.com/vlorc/gioc/depend"
 	"github.com/vlorc/gioc/register"
 	"github.com/vlorc/gioc/selector"
+	"github.com/vlorc/gioc/utils"
+	"github.com/vlorc/gioc/factory"
 )
 
 // create a root container
@@ -30,6 +32,28 @@ func NewRootContainer() types.Container {
 	if nil != err {
 		panic(err)
 	}
+
+	paramFactory,err := builderFactory.Instance(
+		factory.ParamFactory(1),
+		depend.NewFuncDependency(utils.TypeOf(selectorFactory.Instance),[]*types.DependencyDescription{
+			{Type:utils.TypeOf(&binderFactory), Flags:types.DEPENDENCY_FLAG_DEFAULT},
+		}),
+	)
+	if nil != err{
+		panic(err)
+	}
+	reg.RegisterMethod(paramFactory,selectorFactory.Instance,nil)
+
+	paramFactory,err = builderFactory.Instance(
+		factory.ParamFactory(1),
+		depend.NewFuncDependency(utils.TypeOf(registerFactory.Instance),[]*types.DependencyDescription{
+			{Type:utils.TypeOf((*types.Selector)(nil))},
+		}),
+	)
+	if nil != err{
+		panic(err)
+	}
+	reg.RegisterMethod(paramFactory,registerFactory.Instance,nil)
 
 	reg.RegisterInterface(&registerFactory)
 	reg.RegisterInterface(&binderFactory)

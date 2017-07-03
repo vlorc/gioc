@@ -36,6 +36,17 @@ func NewWithContainer(provider types.Provider,parent types.Container, deep int) 
 	return NewContainer(reg, parent, deep)
 }
 
+func NewChildContainer(provider types.Provider,parent types.Container, deep int) types.Container {
+	var reg types.Register
+
+	err := provider.Assign(&reg)
+	if nil != err {
+		return NewWithContainer(provider,parent,deep)
+	}
+
+	return NewContainer(reg, parent, deep)
+}
+
 func NewContainer(register types.Register, parent types.Container, deep int) types.Container {
 	return &CoreContainer{
 		register: register,
@@ -65,7 +76,7 @@ func (c *CoreContainer) Parent() types.Container {
 }
 
 func (c *CoreContainer) Child() types.Container {
-	return NewWithContainer(c,c,c.deep)
+	return NewChildContainer(c,c,c.deep)
 }
 
 func (c *CoreContainer) ResolveNamed(impType interface{}, name string, deep int) (interface{}, error) {

@@ -9,25 +9,17 @@ import (
 	"sync"
 )
 
-type TagHandle func(types.DependencyFactory,types.PropertyDescriptor,[]string) error
-
-type DependencyDescription struct {
-	Type    reflect.Type
-	Name    string
-	Index   int
-	Default reflect.Value
-	Depend  types.Dependency
-	Flags   types.DependencyFlag
-}
+type TagHandle func(types.DependencyFactory,types.Descriptor,[]string) error
+type ResolveHandle func(reflect.Type,reflect.Value)(types.Dependency, error)
 
 type CoreDependency struct {
 	typ            reflect.Type
-	dep            []*DependencyDescription
+	dep            []*types.DependencyDescription
 	factory        func(reflect.Value) types.Reflect
 }
 
 type CoreDependencyScan struct {
-	dep []*DependencyDescription
+	dep []*types.DependencyDescription
 	pos int
 }
 
@@ -38,21 +30,22 @@ type CoreDependencyInject struct {
 
 type CoreDependencyFactory struct {
 	lock  sync.RWMutex
+	resolve map[reflect.Kind]ResolveHandle
 	pool map[reflect.Type]types.Dependency
 	tagParser *TagParser
 }
 
 type DescriptorGetter struct {
-	des *DependencyDescription
+	des *types.DependencyDescription
 }
 
 type DescriptorSetter struct {
-	des *DependencyDescription
+	des *types.DependencyDescription
 }
 
 type Descriptor struct {
-	types.PropertyDescriptorGetter
-	types.PropertyDescriptorSetter
+	types.DescriptorGetter
+	types.DescriptorSetter
 }
 
 type TagParser struct {

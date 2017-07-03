@@ -11,3 +11,12 @@ type Error struct {
 	Code    ErrorCode
 	Message string
 }
+
+type DependencyDescription struct {
+	Type    reflect.Type
+	Name    string
+	Index   int
+	Default reflect.Value
+	Depend  Dependency
+	Flags   DependencyFlag
+}

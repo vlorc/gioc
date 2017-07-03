@@ -36,34 +36,34 @@ func NewMapReflect(value reflect.Value) (ref types.Reflect) {
 	return
 }
 
-func (pr CoreParamReflect) Set(des types.PropertyDescriptorGetter, val reflect.Value) {
+func (pr CoreParamReflect) Set(des types.DescriptorGetter, val reflect.Value) {
 	pr[des.Index()] = val
 }
 
-func (pr CoreParamReflect) Get(des types.PropertyDescriptorGetter) reflect.Value {
+func (pr CoreParamReflect) Get(des types.DescriptorGetter) reflect.Value {
 	return pr[des.Index()]
 }
 
-func (sr CoreStructReflect) Set(des types.PropertyDescriptorGetter, val reflect.Value) {
+func (sr CoreStructReflect) Set(des types.DescriptorGetter, val reflect.Value) {
 	reflect.Value(sr).Field(des.Index()).Set(val)
 }
 
-func (sr CoreStructReflect) Get(des types.PropertyDescriptorGetter) reflect.Value {
+func (sr CoreStructReflect) Get(des types.DescriptorGetter) reflect.Value {
 	return reflect.Value(sr).Field(des.Index())
 }
 
-func (ar CoreArrayReflect) Set(des types.PropertyDescriptorGetter, val reflect.Value) {
+func (ar CoreArrayReflect) Set(des types.DescriptorGetter, val reflect.Value) {
 	reflect.Value(ar).Index(des.Index()).Set(val)
 }
 
-func (ar CoreArrayReflect) Get(des types.PropertyDescriptorGetter) reflect.Value {
+func (ar CoreArrayReflect) Get(des types.DescriptorGetter) reflect.Value {
 	return reflect.Value(ar).Index(des.Index())
 }
 
-func (mr CoreMapReflect) Set(des types.PropertyDescriptorGetter, val reflect.Value) {
+func (mr CoreMapReflect) Set(des types.DescriptorGetter, val reflect.Value) {
 	reflect.Value(mr).SetMapIndex(reflect.ValueOf(des.Name()), val)
 }
 
-func (mr CoreMapReflect) Get(des types.PropertyDescriptorGetter) reflect.Value {
+func (mr CoreMapReflect) Get(des types.DescriptorGetter) reflect.Value {
 	return reflect.Value(mr).MapIndex(reflect.ValueOf(des.Name()))
 }

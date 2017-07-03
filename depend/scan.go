@@ -9,7 +9,7 @@ import (
 	"reflect"
 )
 
-func NewDependencyScan(dep []*DependencyDescription) types.DependencyScan {
+func NewDependencyScan(dep []*types.DependencyDescription) types.DependencyScan {
 	return &CoreDependencyScan{
 		dep: dep,
 		pos: len(dep),

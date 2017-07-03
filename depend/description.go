@@ -8,15 +8,15 @@ import (
 	"reflect"
 )
 
-func NewDescriptorGetter(des *DependencyDescription) types.PropertyDescriptorGetter{
+func NewDescriptorGetter(des *types.DependencyDescription) types.DescriptorGetter{
 	return &DescriptorGetter{des:des}
 }
 
-func NewDescriptorSetter(des *DependencyDescription) types.PropertyDescriptorSetter{
+func NewDescriptorSetter(des *types.DependencyDescription) types.DescriptorSetter{
 	return &DescriptorSetter{des:des}
 }
 
-func NewDescriptor(des *DependencyDescription) types.PropertyDescriptor{
+func NewDescriptor(des *types.DependencyDescription) types.Descriptor{
 	return &Descriptor{
 		NewDescriptorGetter(des),
 		NewDescriptorSetter(des),

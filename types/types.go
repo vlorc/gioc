@@ -91,7 +91,7 @@ type Container interface {
 	Child() Container
 }
 
-type PropertyDescriptorGetter interface {
+type DescriptorGetter interface {
 	Type() reflect.Type
 	Name() string
 	Default() reflect.Value
@@ -100,7 +100,7 @@ type PropertyDescriptorGetter interface {
 	Depend() Dependency
 }
 
-type PropertyDescriptorSetter interface {
+type DescriptorSetter interface {
 	SetType(reflect.Type)
 	SetName(string)
 	SetDefault(reflect.Value)
@@ -109,13 +109,13 @@ type PropertyDescriptorSetter interface {
 	SetDepend(Dependency)
 }
 
-type PropertyDescriptor interface {
-	PropertyDescriptorSetter
-	PropertyDescriptorGetter
+type Descriptor interface {
+	DescriptorSetter
+	DescriptorGetter
 }
 
 type DependencyScan interface {
-	PropertyDescriptorGetter
+	DescriptorGetter
 	Next() bool
 	Test(interface{}) bool
 }
@@ -135,11 +135,11 @@ type Dependency interface {
 }
 
 type PropertySetter interface {
-	Set(PropertyDescriptorGetter, reflect.Value)
+	Set(DescriptorGetter, reflect.Value)
 }
 
 type PropertyGetter interface {
-	Get(PropertyDescriptorGetter) reflect.Value
+	Get(DescriptorGetter) reflect.Value
 }
 
 type Reflect interface {

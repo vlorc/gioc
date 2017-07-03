@@ -25,11 +25,10 @@ type UserControl interface {
 }
 
 type User struct {
-	_id      int64
-	Id       int64 `inject:"'id'"`
+	Id       int64 `inject:"lower"`
 	Identity `inject:"extends"`
 	Personal ****Personal `inject:"extends"`
-	Control UserControl `inject:"'control' default"`
+	Control UserControl `inject:"lower default"`
 }
 
 
