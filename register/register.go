@@ -66,7 +66,10 @@ func (r *CoreRegister) registerFactory(beanFactory types.BeanFactory, impType re
 }
 
 func (r *CoreRegister) RegisterFactory(beanFactory types.BeanFactory, impType interface{}, args ...string) error {
-	return r.registerFactory(beanFactory, utils.TypeOf(impType), args...)
+	return r.registerFactory(
+		beanFactory,
+		utils.TypeOf(impType),
+		args...)
 }
 
 func (r *CoreRegister) RegisterMethod(paramFactory types.BeanFactory, funcType interface{}, impType interface{}, args ...string) error {

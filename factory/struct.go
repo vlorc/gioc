@@ -15,7 +15,6 @@ type ValueFactory struct {
 }
 
 type MethodFactory struct {
-	paramFactory types.BeanFactory
 	retIndex     int
 	errIndex     int
 	method       reflect.Value

@@ -41,7 +41,12 @@ func (pr CoreParamReflect) Set(des types.DescriptorGetter, val reflect.Value) {
 }
 
 func (pr CoreParamReflect) Get(des types.DescriptorGetter) reflect.Value {
-	return pr[des.Index()]
+	v := pr[des.Index()]
+	if !v.IsValid() {
+		v = reflect.New(des.Type()).Elem()
+		pr[des.Index()] = v
+	}
+	return v
 }
 
 func (sr CoreStructReflect) Set(des types.DescriptorGetter, val reflect.Value) {

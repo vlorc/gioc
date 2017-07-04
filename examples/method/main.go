@@ -17,6 +17,9 @@ type Personal struct {
 }
 
 type Identity struct {
+	Software struct{
+		Version string
+	}`inject:"extends"`
 	Username string `inject:"'username'"`
 	Password string `inject:"'password'"`
 }
@@ -37,6 +40,7 @@ func main() {
 		"name":     "admin_001",
 		"gender":   1,
 		"email":    "xxx@163.com",
+		"Version": "1.0.1",
 	} {
 		container.AsRegister().RegisterInstance(v, k)
 	}
@@ -50,8 +54,9 @@ func main() {
 	fmt.Println(child.Resolve((**User)(nil)))
 }
 
-func getUser(identity *Identity, personal *Personal) (*User, error, int64) {
-	return &User{1, identity, personal}, nil, 1
+func getUser(param struct{Name string `inject:"lower"`},identity *Identity, personal *Personal) (*User, error, int64) {
+	fmt.Println("getUser by name:",param.Name,"version:",identity.Software.Version)
+	return &User{ 1,identity, personal}, nil, 1
 }
 
 func register(container types.Container, impType interface{}, name ...string) types.Dependency {

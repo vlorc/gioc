@@ -42,7 +42,7 @@ func NewRootContainer() types.Container {
 	if nil != err{
 		panic(err)
 	}
-	reg.RegisterMethod(paramFactory,selectorFactory.Instance,nil)
+	reg.RegisterMethod(paramFactory.AsFactory(),selectorFactory.Instance,nil)
 
 	paramFactory,err = builderFactory.Instance(
 		factory.ParamFactory(1),
@@ -53,7 +53,7 @@ func NewRootContainer() types.Container {
 	if nil != err{
 		panic(err)
 	}
-	reg.RegisterMethod(paramFactory,registerFactory.Instance,nil)
+	reg.RegisterMethod(paramFactory.AsFactory(),registerFactory.Instance,nil)
 
 	reg.RegisterInterface(&registerFactory)
 	reg.RegisterInterface(&binderFactory)
