@@ -3,16 +3,18 @@
 
 package utils
 
-import "bufio"
+import (
+	"bufio"
+)
 
 type EmptyLock struct{}
 
 type Token int
 
 type TokenScan struct {
-	state int
-	offset int
+	state    int
+	offset   int
 	position int
-	input *bufio.Reader
-	dump func(Token,int,int) bool
+	input    *bufio.Reader
+	dump     func(Token, int, int) bool
 }

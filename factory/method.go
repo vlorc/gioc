@@ -8,7 +8,7 @@ import (
 	"reflect"
 )
 
-func makeInstance(retIndex,errIndex int)func([]reflect.Value) (interface{}, error){
+func makeInstance(retIndex, errIndex int) func([]reflect.Value) (interface{}, error) {
 	if errIndex > 0 {
 		return func(v []reflect.Value) (instance interface{}, err error) {
 			instance = v[retIndex].Interface()
@@ -23,7 +23,7 @@ func makeInstance(retIndex,errIndex int)func([]reflect.Value) (interface{}, erro
 	}
 }
 
-func makeParam(typ reflect.Type,paramFactory types.BeanFactory)func(types.Provider) ([]reflect.Value, error){
+func makeParam(typ reflect.Type, paramFactory types.BeanFactory) func(types.Provider) ([]reflect.Value, error) {
 	if nil != paramFactory {
 		return func(provider types.Provider) ([]reflect.Value, error) {
 			instance, err := paramFactory.Instance(provider)
@@ -46,15 +46,18 @@ func methodFactoryOf(
 	index ...int) (factory types.BeanFactory, resultType reflect.Type, err error) {
 	srcType := reflect.TypeOf(impType)
 	if reflect.Func != srcType.Kind() {
+		err = types.NewError(types.ErrTypeNotFunction,srcType)
 		return
 	}
 	if srcType.NumOut() <= 0 {
+		err = types.NewError(types.ErrTypeNotInterface,srcType)
 		return
 	}
 
 	retIndex := 0
 	if len(index) > 0 {
 		if index[0] < 0 || index[0] > srcType.NumOut() {
+			err = types.NewError(types.ErrTypeNotInterface,srcType)
 			return
 		}
 		retIndex = index[0]
@@ -68,7 +71,7 @@ func methodFactoryOf(
 		}
 	}
 
-	factory = newCallFactory(reflect.ValueOf(impType), makeParam(srcType,paramFactory), makeInstance(retIndex,errIndex))
+	factory = newCallFactory(reflect.ValueOf(impType), makeParam(srcType, paramFactory), makeInstance(retIndex, errIndex))
 	resultType = srcType.Out(retIndex)
 
 	return

@@ -4,8 +4,8 @@
 package utils
 
 import (
-	"testing"
 	"reflect"
+	"testing"
 )
 
 func Test_TypeOf(t *testing.T) {
@@ -26,11 +26,11 @@ func Test_TypeOf(t *testing.T) {
 func Test_ValueOf(t *testing.T) {
 	err := "can't matching type"
 
-	if v := ValueOf(1); v.Interface() != interface{}(1){
+	if v := ValueOf(1); v.Interface() != interface{}(1) {
 		t.Error(err)
 	}
 
-	if v := ValueOf(reflect.ValueOf(1)); v.Interface() != interface{}(1){
+	if v := ValueOf(reflect.ValueOf(1)); v.Interface() != interface{}(1) {
 		t.Error(err)
 	}
 }
@@ -38,23 +38,23 @@ func Test_ValueOf(t *testing.T) {
 func Test_InterfaceOf(t *testing.T) {
 	err := "must is interface type"
 
-	if InterfaceOf(reflect.TypeOf(0)) != nil{
+	if InterfaceOf(reflect.TypeOf(0)) != nil {
 		t.Error(err)
 	}
 
-	if InterfaceOf(reflect.TypeOf(new(interface{}))) == nil{
+	if InterfaceOf(reflect.TypeOf(new(interface{}))) == nil {
 		t.Error(err)
 	}
 }
 
 func Test_DirectlyType(t *testing.T) {
-	if v := DirectlyType(reflect.TypeOf((*int)(nil))); nil == v || reflect.Ptr == v.Kind(){
+	if v := DirectlyType(reflect.TypeOf((*int)(nil))); nil == v || reflect.Ptr == v.Kind() {
 		t.Error("must not is pointer type")
 	}
 }
 
 func Test_DirectlyValue(t *testing.T) {
-	if v := DirectlyValue(reflect.ValueOf(new(int))); !v.CanSet(){
+	if v := DirectlyValue(reflect.ValueOf(new(int))); !v.CanSet() {
 		t.Error("can't set value")
 	}
 }

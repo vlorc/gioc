@@ -4,20 +4,20 @@
 package utils
 
 import (
-	"testing"
 	"errors"
 	"runtime"
+	"testing"
 )
 
 func Test_Recover(t *testing.T) {
 	var dst error
 	src := errors.New("error test")
-	go func(){
+	go func() {
 		defer Recover(&dst)
 		panic(src)
 	}()
 
-	if runtime.Gosched(); src != dst{
+	if runtime.Gosched(); src != dst {
 		t.Error("can't matching error")
 	}
 }

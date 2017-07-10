@@ -15,17 +15,21 @@ func NewDependencyInject(scan types.DependencyScan, ref types.Reflect) types.Dep
 		ref,
 	}
 }
-func (di *CoreDependencyInject) SetValue(v reflect.Value){
+
+func (di *CoreDependencyInject)AsValue() reflect.Value {
+	src := di.Get(di.DependencyScan)
+	return utils.NewOf(src)
+}
+
+func (di *CoreDependencyInject) SetValue(v reflect.Value) {
 	di.Set(di.DependencyScan, v)
 }
 
-func (di *CoreDependencyInject) SetInterface(v interface{}){
+func (di *CoreDependencyInject) SetInterface(v interface{}) {
 	di.SetValue(reflect.ValueOf(v))
 }
 
 func (di *CoreDependencyInject) SubInject(provider types.Provider) types.DependencyInject {
-	src := di.Get(di.DependencyScan)
-	dst := utils.NewOf(src)
-
+	dst := di.AsValue()
 	return di.Depend().AsInject(dst)
 }

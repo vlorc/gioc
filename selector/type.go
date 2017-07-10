@@ -4,8 +4,8 @@
 package selector
 
 import (
-	"reflect"
 	"github.com/vlorc/gioc/types"
+	"reflect"
 )
 
 func (ts *TypeSelector) MapperOf(typ reflect.Type) (m types.Mapper) {
@@ -44,23 +44,23 @@ func (ts *TypeSelector) AsMapper(typ reflect.Type) (m types.Mapper) {
 	return
 }
 
-func (ts *TypeSelector)FactoryOf(typ reflect.Type,name string) (factory types.BeanFactory) {
-	if mapper := ts.MapperOf(typ); nil != mapper{
+func (ts *TypeSelector) FactoryOf(typ reflect.Type, name string) (factory types.BeanFactory) {
+	if mapper := ts.MapperOf(typ); nil != mapper {
 		factory = mapper.Resolve(name)
 	}
 	return
 }
 
-func (tns *TypeSelector)SetBinder(typ reflect.Type,bind types.Binder) error {
+func (tns *TypeSelector) SetBinder(typ reflect.Type, bind types.Binder) error {
 	tns.lock.Lock()
 	tns.table[typ] = bind
 	tns.lock.Unlock()
 	return nil
 }
 
-func (ts *TypeSelector)SetFactory(typ reflect.Type,name string,factory types.BeanFactory) (err error) {
-	if bind := ts.AsBinder(typ); nil != bind{
-		err = bind.Bind(name,factory)
+func (ts *TypeSelector) SetFactory(typ reflect.Type, name string, factory types.BeanFactory) (err error) {
+	if bind := ts.AsBinder(typ); nil != bind {
+		err = bind.Bind(name, factory)
 	}
 	return
 }

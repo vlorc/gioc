@@ -5,8 +5,8 @@ package binder
 
 import (
 	"github.com/vlorc/gioc/types"
-	"sync"
 	"reflect"
+	"sync"
 )
 
 type NamedBind struct {
@@ -24,4 +24,4 @@ type SelectorBind struct {
 	selector types.Selector
 }
 
-type CoreBinderFactory struct {}
+type CoreBinderFactory struct{}

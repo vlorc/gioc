@@ -5,17 +5,18 @@ package depend
 
 import (
 	"github.com/vlorc/gioc/types"
+	"github.com/vlorc/gioc/utils"
 	"reflect"
 	"sync"
 )
 
-type TagHandle func(types.DependencyFactory,types.Descriptor,[]string) error
-type ResolveHandle func(reflect.Type,reflect.Value)(types.Dependency, error)
+type TagHandle func(*TagContext) error
+type ResolveHandle func(reflect.Type, reflect.Value) types.Dependency
 
 type CoreDependency struct {
-	typ            reflect.Type
-	dep            []*types.DependencyDescription
-	factory        func(reflect.Value) types.Reflect
+	typ     reflect.Type
+	dep     []*types.DependencyDescription
+	factory func(reflect.Value) types.Reflect
 }
 
 type CoreDependencyScan struct {
@@ -29,9 +30,9 @@ type CoreDependencyInject struct {
 }
 
 type CoreDependencyFactory struct {
-	lock  sync.RWMutex
-	resolve map[reflect.Kind]ResolveHandle
-	pool map[reflect.Type]types.Dependency
+	lock      sync.RWMutex
+	resolve   map[reflect.Kind]ResolveHandle
+	pool      map[reflect.Type]types.Dependency
 	tagParser *TagParser
 }
 
@@ -48,11 +49,19 @@ type Descriptor struct {
 	types.DescriptorSetter
 }
 
+type TagContext struct {
+	Factory types.DependencyFactory
+	Descriptor types.Descriptor
+	Param []string
+	Skip func(string) bool
+	TokenScan *utils.TokenScan
+}
+
 type TagParser struct {
 	tagHandle map[string][]TagHandle
 }
 
-type CoreParamReflect []reflect.Value
-type CoreStructReflect reflect.Value
-type CoreArrayReflect reflect.Value
-type CoreMapReflect reflect.Value
+type ParamReflect []reflect.Value
+type StructReflect reflect.Value
+type ArrayReflect reflect.Value
+type MapReflect reflect.Value

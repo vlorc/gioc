@@ -9,14 +9,14 @@ type Error struct {
 	Type    reflect.Type
 	Name    string
 	Code    ErrorCode
-	Message string
+	format  func(*Error)string
 }
 
 type DependencyDescription struct {
 	Type    reflect.Type
 	Name    string
 	Index   int
+	Flags   DependencyFlag
 	Default reflect.Value
 	Depend  Dependency
-	Flags   DependencyFlag
 }

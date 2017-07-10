@@ -11,42 +11,41 @@ import (
 
 func NewDependencyFactory() types.DependencyFactory {
 	obj := &CoreDependencyFactory{
-		pool: make(map[reflect.Type]types.Dependency),
-		tagParser:NewTagParser(),
+		pool:      make(map[reflect.Type]types.Dependency),
+		tagParser: NewTagParser(),
 	}
 	obj.resolve = map[reflect.Kind]ResolveHandle{
-		reflect.Array:obj.resolveArray,
-		reflect.Map:obj.resolveMap,
-		reflect.Func:obj.resolveFunc,
-		reflect.Struct:obj.resolveStruct,
+		reflect.Array:  obj.resolveArray,
+		reflect.Map:    obj.resolveMap,
+		reflect.Func:   obj.resolveFunc,
+		reflect.Struct: obj.resolveStruct,
 	}
 	return obj
 }
 
 func (df *CoreDependencyFactory) Instance(impTyp interface{}) (types.Dependency, error) {
-	return df.instance(utils.DirectlyType(utils.TypeOf(impTyp)),impTyp)
+	return df.instance(utils.DirectlyType(utils.TypeOf(impTyp)), impTyp)
 }
 
-func (df *CoreDependencyFactory) instance(typ reflect.Type,val interface{}) (dep types.Dependency, err error) {
+func (df *CoreDependencyFactory) instance(typ reflect.Type, val interface{}) (dep types.Dependency, err error) {
 	defer utils.Recover(&err)
 
-	resolve,ok := df.resolve[typ.Kind()]
+	resolve, ok := df.resolve[typ.Kind()]
 	if !ok {
 		err = types.NewError(types.ErrTypeNotSupport, typ)
 		return
 	}
 
-	if dep,err = resolve(typ,reflect.ValueOf(val)); nil == dep && nil == err {
+	if dep = resolve(typ, reflect.ValueOf(val)); nil == dep {
 		err = types.NewError(types.ErrDependencyNotNeed, typ)
 	}
-
 	return
 }
 
 func NewDependency(typ reflect.Type, dep []*types.DependencyDescription, reflectFactory func(reflect.Value) types.Reflect) types.Dependency {
 	return &CoreDependency{
-		typ:            typ,
-		dep:            dep,
+		typ:     typ,
+		dep:     dep,
 		factory: reflectFactory,
 	}
 }

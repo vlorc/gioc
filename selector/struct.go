@@ -4,9 +4,9 @@
 package selector
 
 import (
-	"sync"
-	"reflect"
 	"github.com/vlorc/gioc/types"
+	"reflect"
+	"sync"
 )
 
 type TypeSelector struct {
@@ -21,8 +21,8 @@ type TypeName struct {
 }
 
 type TypeNameSelector struct {
-	lock    sync.RWMutex
-	table   map[TypeName]types.BeanFactory
+	lock  sync.RWMutex
+	table map[TypeName]types.BeanFactory
 }
 
-type CoreSelectorFactory struct {}
+type CoreSelectorFactory struct{}

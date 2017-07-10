@@ -3,8 +3,8 @@
 
 package utils
 
-func(ml EmptyLock) Lock(){
+func (ml EmptyLock) Lock() {
 }
 
-func(ml EmptyLock) Unlock(){
+func (ml EmptyLock) Unlock() {
 }

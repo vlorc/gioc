@@ -4,15 +4,15 @@
 package gioc
 
 import (
-	"github.com/vlorc/gioc/types"
 	"github.com/vlorc/gioc/binder"
 	"github.com/vlorc/gioc/builder"
 	"github.com/vlorc/gioc/container"
 	"github.com/vlorc/gioc/depend"
+	"github.com/vlorc/gioc/factory"
 	"github.com/vlorc/gioc/register"
 	"github.com/vlorc/gioc/selector"
+	"github.com/vlorc/gioc/types"
 	"github.com/vlorc/gioc/utils"
-	"github.com/vlorc/gioc/factory"
 )
 
 // create a root container
@@ -23,7 +23,7 @@ func NewRootContainer() types.Container {
 	builderFactory := builder.NewBuilderFactory()
 	selectorFactory := selector.NewSelectorFactory()
 
-	sel,err := selectorFactory.Instance(binderFactory)
+	sel, err := selectorFactory.Instance(binderFactory)
 	if nil != err {
 		panic(err)
 	}
@@ -33,27 +33,27 @@ func NewRootContainer() types.Container {
 		panic(err)
 	}
 
-	paramFactory,err := builderFactory.Instance(
+	paramFactory, err := builderFactory.Instance(
 		factory.ParamFactory(1),
-		depend.NewFuncDependency(utils.TypeOf(selectorFactory.Instance),[]*types.DependencyDescription{
-			{Type:utils.TypeOf(&binderFactory), Flags:types.DEPENDENCY_FLAG_DEFAULT},
+		depend.NewFuncDependency(utils.TypeOf(selectorFactory.Instance), []*types.DependencyDescription{
+			{Type: utils.TypeOf(&binderFactory), Flags: types.DEPENDENCY_FLAG_DEFAULT},
 		}),
 	)
-	if nil != err{
+	if nil != err {
 		panic(err)
 	}
-	reg.RegisterMethod(paramFactory.AsFactory(),selectorFactory.Instance,nil)
+	reg.RegisterMethod(paramFactory.AsFactory(), selectorFactory.Instance, nil)
 
-	paramFactory,err = builderFactory.Instance(
+	paramFactory, err = builderFactory.Instance(
 		factory.ParamFactory(1),
-		depend.NewFuncDependency(utils.TypeOf(registerFactory.Instance),[]*types.DependencyDescription{
-			{Type:utils.TypeOf((*types.Selector)(nil))},
+		depend.NewFuncDependency(utils.TypeOf(registerFactory.Instance), []*types.DependencyDescription{
+			{Type: utils.TypeOf((*types.Selector)(nil))},
 		}),
 	)
-	if nil != err{
+	if nil != err {
 		panic(err)
 	}
-	reg.RegisterMethod(paramFactory.AsFactory(),registerFactory.Instance,nil)
+	reg.RegisterMethod(paramFactory.AsFactory(), registerFactory.Instance, nil)
 
 	reg.RegisterInterface(&registerFactory)
 	reg.RegisterInterface(&binderFactory)
@@ -61,5 +61,5 @@ func NewRootContainer() types.Container {
 	reg.RegisterInterface(&builderFactory)
 	reg.RegisterInterface(&selectorFactory)
 
-	return container.NewContainer(reg, nil, 30)
+	return container.NewContainer(reg, nil, 0)
 }

@@ -10,7 +10,7 @@ import (
 	"reflect"
 )
 
-func NewWithContainer(provider types.Provider,parent types.Container, deep int) types.Container {
+func NewWithContainer(provider types.Provider, parent types.Container, deep int) types.Container {
 	var binderFactory types.BinderFactory
 	var selectorFactory types.SelectorFactory
 	var registerFactory types.RegisterFactory
@@ -19,40 +19,47 @@ func NewWithContainer(provider types.Provider,parent types.Container, deep int) 
 	provider.Assign(&selectorFactory)
 	provider.Assign(&registerFactory)
 
-	if nil == selectorFactory || nil == registerFactory{
+	if nil == selectorFactory || nil == registerFactory {
 		return nil
 	}
-
-	sel,err := selectorFactory.Instance(binderFactory)
+	sel, err := selectorFactory.Instance(binderFactory)
 	if nil != err {
 		panic(err)
 	}
-
 	reg, err := registerFactory.Instance(sel)
 	if nil != err {
 		panic(err)
 	}
-
 	return NewContainer(reg, parent, deep)
 }
 
-func NewChildContainer(provider types.Provider,parent types.Container, deep int) types.Container {
+func NewChildContainer(provider types.Provider, parent types.Container, deep int) (c types.Container) {
 	var reg types.Register
-
-	err := provider.Assign(&reg)
-	if nil != err {
-		return NewWithContainer(provider,parent,deep)
+	if err := provider.Assign(&reg); nil != err {
+		c = NewWithContainer(provider, parent, deep)
+	} else {
+		c = NewContainer(reg, parent, deep)
 	}
-
-	return NewContainer(reg, parent, deep)
+	return
 }
 
 func NewContainer(register types.Register, parent types.Container, deep int) types.Container {
-	return &CoreContainer{
+	c := &CoreContainer{
 		register: register,
 		parent:   parent,
 		deep:     deep,
 	}
+
+	utils.Once(&c.getChild,func() func() map[types.Container]bool{
+		pool := make(map[types.Container]bool)
+		return func() map[types.Container]bool{
+			return pool
+		}
+	})
+
+	p := c.AsProvider()
+	register.RegisterInstance(&p)
+	return c
 }
 
 func (c *CoreContainer) AsRegister() types.Register {
@@ -76,7 +83,11 @@ func (c *CoreContainer) Parent() types.Container {
 }
 
 func (c *CoreContainer) Child() types.Container {
-	return NewChildContainer(c,c,c.deep)
+	child := NewChildContainer(c, c, c.deep + 1)
+	if nil != child{
+		c.getChild()[child] = true
+	}
+	return child
 }
 
 func (c *CoreContainer) ResolveNamed(impType interface{}, name string, deep int) (interface{}, error) {
@@ -84,7 +95,7 @@ func (c *CoreContainer) ResolveNamed(impType interface{}, name string, deep int)
 }
 
 func (c *CoreContainer) ResolveType(typ reflect.Type, name string, deep int) (instance interface{}, err error) {
-	if factory := c.register.AsSelector().FactoryOf(typ,name); nil != factory {
+	if factory := c.register.AsSelector().FactoryOf(typ, name); nil != factory {
 		instance, err = factory.Instance(c)
 		return
 	}
@@ -108,7 +119,7 @@ func (c *CoreContainer) Resolve(impType interface{}, args ...string) (interface{
 	return c.ResolveNamed(impType, name, -1)
 }
 
-func (c *CoreContainer) Assign(dst interface{}, args ...string) (err error) {
+func (c *CoreContainer) Assign(dst interface{}, args ...string) error {
 	var name string = types.DEFAULT_NAME
 	if len(args) > 0 {
 		name = args[0]
@@ -117,6 +128,8 @@ func (c *CoreContainer) Assign(dst interface{}, args ...string) (err error) {
 }
 
 func (c *CoreContainer) AssignNamed(dst interface{}, impType interface{}, name string, deep int) (err error) {
+	defer utils.Recover(&err)
+
 	dstValue := reflect.ValueOf(dst)
 	if !dstValue.CanSet() {
 		if reflect.Ptr != dstValue.Kind() {
@@ -134,12 +147,8 @@ func (c *CoreContainer) AssignNamed(dst interface{}, impType interface{}, name s
 	}
 
 	instance, err := c.ResolveType(srcType, name, deep)
-	if nil != err {
-		return
+	if nil == err {
+		dstValue.Set(reflect.ValueOf(instance))
 	}
-
-	srcValue := reflect.ValueOf(instance)
-	dstValue.Set(srcValue)
-
 	return
 }

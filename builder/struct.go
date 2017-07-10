@@ -7,9 +7,15 @@ import (
 	"github.com/vlorc/gioc/types"
 )
 
-type CoreBuilderFactory struct {}
+type CoreBuilderFactory struct{}
 
 type CoreBuilder struct {
 	depend  types.Dependency
 	factory types.BeanFactory
+}
+
+type BuildContext struct {
+	Descriptor types.DescriptorGetter
+	Inject types.DependencyInject
+	Provider types.Provider
 }

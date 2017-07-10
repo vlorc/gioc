@@ -15,9 +15,9 @@ type ValueFactory struct {
 }
 
 type MethodFactory struct {
-	retIndex     int
-	errIndex     int
-	method       reflect.Value
+	retIndex int
+	errIndex int
+	method   reflect.Value
 }
 
 type ProxyFactory struct {

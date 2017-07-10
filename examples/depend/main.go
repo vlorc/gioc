@@ -27,10 +27,9 @@ type UserControl interface {
 type User struct {
 	Id       int64 `inject:"lower"`
 	Identity `inject:"extends"`
-	Personal ****Personal `inject:"extends"`
-	Control UserControl `inject:"lower default"`
+	Personal func()****Personal `inject:"lazy extends"`
+	Control  UserControl  `inject:"lower default"`
 }
-
 
 func main() {
 	container := gioc.NewRootContainer()
@@ -66,10 +65,10 @@ func main() {
 
 	child.AsRegister().RegisterFactory(builder.AsFactory(), &info, "admin")
 
-	if err = child.Assign(&info, "admin"); nil != err{
+	if err = child.Assign(&info, "admin"); nil != err {
 		panic(err)
 	}
 
 	fmt.Println(info)
-	fmt.Println(****info.Personal)
+	fmt.Println(****info.Personal())
 }

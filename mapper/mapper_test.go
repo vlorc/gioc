@@ -24,7 +24,7 @@ func test_mapping(t *testing.T, mapper types.Mapper, table map[string]types.Bean
 	for k, v := range table {
 		temp := mapper.Resolve(k)
 		if nil == temp {
-			t.Errorf("can't found key %s",k)
+			t.Errorf("can't found key %s", k)
 		}
 		if v != temp {
 			t.Errorf("can't matching key %s,were modified", k)
@@ -41,5 +41,5 @@ func Test_NamedMapping(t *testing.T) {
 		table[k] = intFactory(v)
 	}
 
-	test_mapping(t,NewNamedMapping(table, &sync.Mutex{}), table)
+	test_mapping(t, NewNamedMapping(table, &sync.Mutex{}), table)
 }

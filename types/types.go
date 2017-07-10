@@ -35,14 +35,14 @@ type SelectorSetter interface {
 	AsMapper(reflect.Type) Mapper
 	AsBinder(reflect.Type) Binder
 
-	SetBinder(reflect.Type,Binder) error
-	SetFactory(reflect.Type,string,BeanFactory) error
+	SetBinder(reflect.Type, Binder) error
+	SetFactory(reflect.Type, string, BeanFactory) error
 }
 
 type SelectorGetter interface {
 	MapperOf(reflect.Type) Mapper
 	BinderOf(reflect.Type) Binder
-	FactoryOf(reflect.Type,string) BeanFactory
+	FactoryOf(reflect.Type, string) BeanFactory
 }
 
 type Selector interface {
@@ -117,11 +117,13 @@ type Descriptor interface {
 type DependencyScan interface {
 	DescriptorGetter
 	Next() bool
+	AsDescriptor() DescriptorGetter
 	Test(interface{}) bool
 }
 
 type DependencyInject interface {
 	DependencyScan
+	AsValue() reflect.Value
 	SetInterface(interface{})
 	SetValue(reflect.Value)
 	SubInject(Provider) DependencyInject
@@ -151,6 +153,10 @@ type Builder interface {
 	BeanFactory
 	AsFactory() BeanFactory
 	Build(Provider, BeanFactory) (interface{}, error)
+}
+
+type Invoker interface{
+	Invoke(...interface{}) []reflect.Value
 }
 
 var ErrorType = reflect.TypeOf((*error)(nil)).Elem()

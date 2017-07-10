@@ -21,12 +21,12 @@ func (r *CoreRegister) RegisterMapper(mapping types.Mapper, impType interface{})
 
 func (r *CoreRegister) RegisterBinder(binder types.Binder, impType interface{}) error {
 	typ := utils.TypeOf(impType)
-	return r.selector.SetBinder(typ,binder)
+	return r.selector.SetBinder(typ, binder)
 }
 
 func (r *CoreRegister) RegisterInterface(instance interface{}, args ...string) error {
 	val := utils.DirectlyValue(utils.ValueOf(instance))
-	if reflect.Interface != val.Kind() {
+	if reflect.Interface != val.Kind() || val.IsNil(){
 		return types.NewError(types.ErrTypeNotInterface, instance)
 	}
 
@@ -62,7 +62,7 @@ func (r *CoreRegister) registerFactory(beanFactory types.BeanFactory, impType re
 	if len(args) > 0 {
 		name = args[0]
 	}
-	return r.selector.SetFactory(impType,name,beanFactory)
+	return r.selector.SetFactory(impType, name, beanFactory)
 }
 
 func (r *CoreRegister) RegisterFactory(beanFactory types.BeanFactory, impType interface{}, args ...string) error {

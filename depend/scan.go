@@ -56,3 +56,6 @@ func (ds *CoreDependencyScan) Test(v interface{}) bool {
 	return dstType == srcType || (dstType.Kind() == reflect.Interface && srcType.Implements(dstType))
 }
 
+func(ds *CoreDependencyScan) AsDescriptor() types.DescriptorGetter {
+	return NewDescriptorGetter(ds.dep[ds.pos])
+}
