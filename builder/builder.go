@@ -11,11 +11,8 @@ func (b *CoreBuilder) AsFactory() types.BeanFactory {
 	return b
 }
 
-func (b *CoreBuilder) Build(provider types.Provider, factory types.BeanFactory) (interface{}, error) {
-	if nil == factory {
-		factory = b.factory
-	}
-	return BuildInstance(provider, factory, b.depend)
+func (b *CoreBuilder) Build(provider types.Provider,option ...func(*types.BuildContext)) (interface{}, error) {
+	return BuildInstance(provider, b.factory, b.depend,option...)
 }
 
 func (b *CoreBuilder) Instance(provider types.Provider) (interface{}, error) {

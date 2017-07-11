@@ -85,7 +85,7 @@ func flagsHandle(flag types.DependencyFlag) TagHandle {
 }
 
 func (tp *TagParser) Resolve(ctx *TagContext, tag string) {
-	ctx.TokenScan.Init(tag)
+	ctx.TokenScan.Init(strings.NewReader(tag))
 	ctx.TokenScan.Begin()
 	for {
 		token, offset, length := ctx.TokenScan.Scan()

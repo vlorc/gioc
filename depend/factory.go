@@ -35,7 +35,6 @@ func (df *CoreDependencyFactory) instance(typ reflect.Type, val interface{}) (de
 		err = types.NewError(types.ErrTypeNotSupport, typ)
 		return
 	}
-
 	if dep = resolve(typ, reflect.ValueOf(val)); nil == dep {
 		err = types.NewError(types.ErrDependencyNotNeed, typ)
 	}

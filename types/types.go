@@ -70,6 +70,10 @@ type SelectorFactory interface {
 	Instance(BinderFactory) (Selector, error)
 }
 
+type InvokerFactory interface{
+	Instance(interface{}, Builder) (Invoker, error)
+}
+
 type Register interface {
 	AsSelector() Selector
 	RegisterBinder(Binder, interface{}) error
@@ -116,6 +120,7 @@ type Descriptor interface {
 
 type DependencyScan interface {
 	DescriptorGetter
+	Reset()
 	Next() bool
 	AsDescriptor() DescriptorGetter
 	Test(interface{}) bool
@@ -124,6 +129,7 @@ type DependencyScan interface {
 type DependencyInject interface {
 	DependencyScan
 	AsValue() reflect.Value
+	Convert(interface{})
 	SetInterface(interface{})
 	SetValue(reflect.Value)
 	SubInject(Provider) DependencyInject
@@ -152,11 +158,12 @@ type Reflect interface {
 type Builder interface {
 	BeanFactory
 	AsFactory() BeanFactory
-	Build(Provider, BeanFactory) (interface{}, error)
+	Build(Provider, ...func(*BuildContext)) (interface{}, error)
 }
 
 type Invoker interface{
-	Invoke(...interface{}) []reflect.Value
+	Apply(...interface{}) []reflect.Value
+	ApplyWith(Provider,...interface{}) []reflect.Value
 }
 
 var ErrorType = reflect.TypeOf((*error)(nil)).Elem()

@@ -6,7 +6,7 @@ package utils
 import (
 	"bufio"
 	"errors"
-	"strings"
+	"io"
 )
 
 var table = []byte{
@@ -90,8 +90,8 @@ func NewTokenScan() *TokenScan {
 	return &TokenScan{}
 }
 
-func (ts *TokenScan) Init(str string) {
-	input := bufio.NewReader(strings.NewReader(str))
+func (ts *TokenScan) Init(steam io.Reader) {
+	input := bufio.NewReader(steam)
 	ts.input = input
 }
 
@@ -118,7 +118,7 @@ func (ts *TokenScan) Next() bool {
 	if nil != err {
 		return false
 	}
-	ts.Transfer(int(index[c-(127-c)*((127-c)>>31)]), l)
+	ts.Transfer(int(index[c - (127 - c) * ((127 - c) >> 31)]), l)
 	return true
 }
 
@@ -135,20 +135,17 @@ func (ts *TokenScan) Scan() (token Token, offset int, position int) {
 		position = l
 		return true
 	}
-
 	for ts.Next() {
 
 	}
-
 	if !ts.End() {
 		token = -1
 	}
-
 	return
 }
 
 func (ts *TokenScan) Transfer(i int, l int) {
-	n := int(table[ts.state*12+i])
+	n := int(table[ts.state * 12 + i])
 	transfer[n](ts, n, i, l)
 }
 

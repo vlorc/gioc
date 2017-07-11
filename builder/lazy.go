@@ -1,9 +1,12 @@
+// Copyright 2017 Granitic. All rights reserved.
+// Use of this source code is governed by an Apache 2.0 license that can be found in the LICENSE file at the root of this project.
+
 package builder
 
 import (
 	"reflect"
-	"github.com/vlorc/gioc/types"
 	"sync"
+	"github.com/vlorc/gioc/types"
 	"github.com/vlorc/gioc/utils"
 )
 
@@ -18,7 +21,7 @@ func MakeLazyLoad(dstVal reflect.Value,load func()) {
 
 func MakeLazyInstance(val reflect.Value,provider types.Provider,des types.DescriptorGetter) {
 	MakeLazyLoad(val, func() {
-		instance, err := provider.ResolveType(val.Type().Out(0), des.Name(),-1)
+		instance, err := provider.ResolveType(des.Type().Out(0), des.Name(),-1)
 		if nil != err {
 			panic(err)
 		}
@@ -31,12 +34,8 @@ func MakeLazyInstance(val reflect.Value,provider types.Provider,des types.Descri
 
 func MakeLazyExtends(val reflect.Value,provider types.Provider,des types.DescriptorGetter) {
 	MakeLazyLoad(val, func() {
-		dstVal := reflect.New(des.Type().Out(0)).Elem()
-		FullAllInstance(&BuildContext{
-			Provider: provider,
-			Inject: des.Depend().AsInject(utils.NewOf(dstVal)),
-		})
-		results := []reflect.Value{dstVal}
+		results := []reflect.Value{reflect.New(des.Type().Out(0)).Elem()}
+		buildDefault(provider,des.Depend().AsInject(utils.NewOf(results[0])))
 		val.Set(reflect.MakeFunc(val.Type(),func([]reflect.Value) []reflect.Value{
 			return results
 		}))

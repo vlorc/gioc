@@ -11,6 +11,7 @@ import (
 	"github.com/vlorc/gioc/factory"
 	"github.com/vlorc/gioc/register"
 	"github.com/vlorc/gioc/selector"
+	"github.com/vlorc/gioc/invoker"
 	"github.com/vlorc/gioc/types"
 	"github.com/vlorc/gioc/utils"
 )
@@ -22,6 +23,7 @@ func NewRootContainer() types.Container {
 	dependFactory := depend.NewDependencyFactory()
 	builderFactory := builder.NewBuilderFactory()
 	selectorFactory := selector.NewSelectorFactory()
+	invokerFactory := invoker.NewInvokerFactory()
 
 	sel, err := selectorFactory.Instance(binderFactory)
 	if nil != err {
@@ -60,6 +62,7 @@ func NewRootContainer() types.Container {
 	reg.RegisterInterface(&dependFactory)
 	reg.RegisterInterface(&builderFactory)
 	reg.RegisterInterface(&selectorFactory)
+	reg.RegisterInterface(&invokerFactory)
 
 	return container.NewContainer(reg, nil, 0)
 }

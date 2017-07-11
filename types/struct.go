@@ -20,3 +20,11 @@ type DependencyDescription struct {
 	Default reflect.Value
 	Depend  Dependency
 }
+
+type BuildContext struct {
+	Descriptor DescriptorGetter
+	Inject DependencyInject
+	Provider Provider
+	FullBefore func(*BuildContext) bool
+	FullAfter func(*BuildContext)
+}

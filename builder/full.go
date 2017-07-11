@@ -7,10 +7,10 @@ import (
 	"github.com/vlorc/gioc/types"
 )
 
-var fullProcess []func(*BuildContext)
+var fullProcess []func(*types.BuildContext)
 
 func init() {
-	fullProcess = []func(*BuildContext){
+	fullProcess = []func(*types.BuildContext){
 		FullInstance,
 		FullExtends,
 		FullLazyInstance,
@@ -18,21 +18,21 @@ func init() {
 	}
 }
 
-func FullAllInstance(ctx *BuildContext) {
+func FullAllInstance(ctx *types.BuildContext) {
 	for ctx.Inject.Next() {
 		ctx.Descriptor = ctx.Inject
-		fullProcess[ctx.Descriptor.Flags() & 3](ctx)
+		if ctx.FullBefore(ctx) {
+			fullProcess[ctx.Descriptor.Flags() & 3](ctx)
+			ctx.FullAfter(ctx)
+		}
 	}
 }
 
-func FullExtends(ctx *BuildContext) {
-	FullAllInstance(&BuildContext{
-		Provider:ctx.Provider,
-		Inject:ctx.Inject.SubInject(ctx.Provider),
-	})
+func FullExtends(ctx *types.BuildContext) {
+	buildDefault(ctx.Provider,ctx.Inject.SubInject(ctx.Provider))
 }
 
-func FullInstance(ctx *BuildContext) {
+func FullInstance(ctx *types.BuildContext) {
 	instance, err := ctx.Provider.Resolve(
 		ctx.Descriptor.Type(),
 		ctx.Descriptor.Name(),
@@ -51,10 +51,10 @@ func FullInstance(ctx *BuildContext) {
 	panic(err)
 }
 
-func FullLazyInstance(ctx *BuildContext) {
+func FullLazyInstance(ctx *types.BuildContext) {
 	MakeLazyInstance(ctx.Inject.AsValue(),ctx.Provider,ctx.Inject.AsDescriptor())
 }
 
-func FullLazyExtends(ctx *BuildContext) {
+func FullLazyExtends(ctx *types.BuildContext) {
 	MakeLazyExtends(ctx.Inject.AsValue(),ctx.Provider,ctx.Inject.AsDescriptor())
 }

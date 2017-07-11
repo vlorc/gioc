@@ -145,7 +145,6 @@ func (c *CoreContainer) AssignNamed(dst interface{}, impType interface{}, name s
 	} else {
 		srcType = utils.TypeOf(impType)
 	}
-
 	instance, err := c.ResolveType(srcType, name, deep)
 	if nil == err {
 		dstValue.Set(reflect.ValueOf(instance))

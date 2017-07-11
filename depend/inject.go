@@ -26,7 +26,19 @@ func (di *CoreDependencyInject) SetValue(v reflect.Value) {
 }
 
 func (di *CoreDependencyInject) SetInterface(v interface{}) {
-	di.SetValue(reflect.ValueOf(v))
+	di.Set(di.DependencyScan, reflect.ValueOf(v))
+}
+
+func (di *CoreDependencyInject) Convert(v interface{}) {
+	val := reflect.ValueOf(v)
+	if val.IsValid() {
+		if val.Type() != di.Type() {
+			val = val.Convert(di.Type())
+		}
+	} else {
+		val = reflect.Zero(di.Type())
+	}
+	di.Set(di.DependencyScan, val)
 }
 
 func (di *CoreDependencyInject) SubInject(provider types.Provider) types.DependencyInject {

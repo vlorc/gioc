@@ -16,17 +16,8 @@ type Personal struct {
 	Email  string `inject:"'email' optional"`
 }
 
-type Identity struct {
-	Software struct {
-		Version string
-	} `inject:"extends"`
-	Username string `inject:"'username'"`
-	Password string `inject:"'password'"`
-}
-
 type User struct {
 	Id        int64 `inject:"'id'"`
-	*Identity `inject:"extends"`
 	*Personal `inject:"extends"`
 }
 
@@ -35,8 +26,6 @@ func main() {
 
 	for k, v := range map[string]interface{}{
 		"id":       int64(123),
-		"username": "admin",
-		"password": "admin",
 		"name":     "admin_001",
 		"gender":   1,
 		"email":    "xxx@163.com",
@@ -46,18 +35,15 @@ func main() {
 	}
 
 	child := container.Child()
-	register(child, (*Identity)(nil))
 	register(child, (*Personal)(nil))
 	register(child, getUser)
 
 	fmt.Println(child.Resolve((**User)(nil)))
 }
 
-func getUser(param struct {
-	Name string `inject:"lower"`
-}, identity *Identity, personal *Personal) (*User, error, int64) {
-	fmt.Println("getUser by name:", param.Name, "version:", identity.Software.Version)
-	return &User{1, identity, personal}, nil, 1
+func getUser(param struct {Name string `inject:"lower"`},  personal *Personal) (*User, error, int64) {
+	fmt.Println("getUser by name:", param.Name)
+	return &User{1, personal}, nil, 1
 }
 
 func register(container types.Container, impType interface{}, name ...string) types.Dependency {
