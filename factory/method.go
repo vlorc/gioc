@@ -46,18 +46,18 @@ func methodFactoryOf(
 	index ...int) (factory types.BeanFactory, resultType reflect.Type, err error) {
 	srcType := reflect.TypeOf(impType)
 	if reflect.Func != srcType.Kind() {
-		err = types.NewError(types.ErrTypeNotFunction,srcType)
+		err = types.NewError(types.ErrTypeNotFunction, srcType)
 		return
 	}
 	if srcType.NumOut() <= 0 {
-		err = types.NewError(types.ErrTypeNotInterface,srcType)
+		err = types.NewError(types.ErrTypeNotInterface, srcType)
 		return
 	}
 
 	retIndex := 0
 	if len(index) > 0 {
 		if index[0] < 0 || index[0] > srcType.NumOut() {
-			err = types.NewError(types.ErrTypeNotInterface,srcType)
+			err = types.NewError(types.ErrTypeNotInterface, srcType)
 			return
 		}
 		retIndex = index[0]

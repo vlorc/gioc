@@ -9,11 +9,10 @@ import (
 )
 
 type CoreInvoker struct {
-	method reflect.Value
-	param []reflect.Value
+	method  reflect.Value
+	param   []reflect.Value
 	builder types.Builder
 }
 
 type CoreInvokerFactory struct {
-
 }

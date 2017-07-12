@@ -25,11 +25,11 @@ func main() {
 	container := gioc.NewRootContainer()
 
 	for k, v := range map[string]interface{}{
-		"id":       int64(123),
-		"name":     "admin_001",
-		"gender":   1,
-		"email":    "xxx@163.com",
-		"Version":  "1.0.1",
+		"id":      int64(123),
+		"name":    "admin_001",
+		"gender":  1,
+		"email":   "xxx@163.com",
+		"Version": "1.0.1",
 	} {
 		container.AsRegister().RegisterInstance(v, k)
 	}
@@ -41,7 +41,9 @@ func main() {
 	fmt.Println(child.Resolve((**User)(nil)))
 }
 
-func getUser(param struct {Name string `inject:"lower"`},  personal *Personal) (*User, error, int64) {
+func getUser(param struct {
+	Name string `inject:"lower"`
+}, personal *Personal) (*User, error, int64) {
 	fmt.Println("getUser by name:", param.Name)
 	return &User{1, personal}, nil, 1
 }

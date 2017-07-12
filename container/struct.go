@@ -11,5 +11,5 @@ type CoreContainer struct {
 	parent   types.Container
 	register types.Register
 	deep     int
-	getChild func()map[types.Container]bool
+	getChild func() map[types.Container]bool
 }

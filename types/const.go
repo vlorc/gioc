@@ -8,7 +8,7 @@ type DependencyFlag int
 type ErrorCode int
 
 const (
-	_           = iota
+	_                             = iota
 	ErrInstanceNotFound ErrorCode = iota
 	ErrFactoryNotFound
 	ErrTypeNotFound
@@ -38,7 +38,7 @@ var errFormatTable = map[ErrorCode]string{
 	ErrTypeNotPointer:    `don't is pointer type '%s'`,
 	ErrTypeNotInterface:  `don't is interface type '%s'`,
 	ErrTypeNotFunction:   `don't is interface type '%s'`,
-	ErrIndexNotSupport:    `can't support type '%s'`,
+	ErrIndexNotSupport:   `can't support type '%s'`,
 }
 
 const (

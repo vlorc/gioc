@@ -70,7 +70,7 @@ type SelectorFactory interface {
 	Instance(BinderFactory) (Selector, error)
 }
 
-type InvokerFactory interface{
+type InvokerFactory interface {
 	Instance(interface{}, Builder) (Invoker, error)
 }
 
@@ -122,7 +122,8 @@ type DependencyScan interface {
 	DescriptorGetter
 	Reset()
 	Next() bool
-	AsDescriptor() DescriptorGetter
+	AsDescriptorGetter() DescriptorGetter
+	AsDescriptorSetter() DescriptorSetter
 	Test(interface{}) bool
 }
 
@@ -161,9 +162,9 @@ type Builder interface {
 	Build(Provider, ...func(*BuildContext)) (interface{}, error)
 }
 
-type Invoker interface{
+type Invoker interface {
 	Apply(...interface{}) []reflect.Value
-	ApplyWith(Provider,...interface{}) []reflect.Value
+	ApplyWith(Provider, ...interface{}) []reflect.Value
 }
 
 var ErrorType = reflect.TypeOf((*error)(nil)).Elem()

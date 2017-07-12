@@ -50,9 +50,9 @@ func NewContainer(register types.Register, parent types.Container, deep int) typ
 		deep:     deep,
 	}
 
-	utils.Once(&c.getChild,func() func() map[types.Container]bool{
+	utils.Once(&c.getChild, func() func() map[types.Container]bool {
 		pool := make(map[types.Container]bool)
-		return func() map[types.Container]bool{
+		return func() map[types.Container]bool {
 			return pool
 		}
 	})
@@ -83,8 +83,8 @@ func (c *CoreContainer) Parent() types.Container {
 }
 
 func (c *CoreContainer) Child() types.Container {
-	child := NewChildContainer(c, c, c.deep + 1)
-	if nil != child{
+	child := NewChildContainer(c, c, c.deep+1)
+	if nil != child {
 		c.getChild()[child] = true
 	}
 	return child

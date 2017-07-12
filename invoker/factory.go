@@ -9,9 +9,9 @@ func NewInvokerFactory() types.InvokerFactory {
 	return &CoreInvokerFactory{}
 }
 
-func(fi *CoreInvokerFactory)Instance(method interface{},build types.Builder) (invoker types.Invoker,err error){
+func (fi *CoreInvokerFactory) Instance(method interface{}, build types.Builder) (invoker types.Invoker, err error) {
 	defer utils.Recover(&err)
 
-	invoker = NewInvoker(method,build)
+	invoker = NewInvoker(method, build)
 	return
 }

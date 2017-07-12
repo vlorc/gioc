@@ -16,7 +16,7 @@ func NewDependencyInject(scan types.DependencyScan, ref types.Reflect) types.Dep
 	}
 }
 
-func (di *CoreDependencyInject)AsValue() reflect.Value {
+func (di *CoreDependencyInject) AsValue() reflect.Value {
 	src := di.Get(di.DependencyScan)
 	return utils.NewOf(src)
 }

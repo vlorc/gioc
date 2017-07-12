@@ -4,29 +4,29 @@
 package invoker
 
 import (
-	"reflect"
+	"github.com/vlorc/gioc/builder"
 	"github.com/vlorc/gioc/types"
 	"github.com/vlorc/gioc/utils"
-	"github.com/vlorc/gioc/builder"
+	"reflect"
 )
 
-func NewInvoker(method interface{},builder types.Builder) types.Invoker {
+func NewInvoker(method interface{}, builder types.Builder) types.Invoker {
 	srcVal := utils.ValueOf(method)
-	if reflect.Func != srcVal.Kind(){
-		panic(types.NewError(types.ErrTypeNotFunction,method))
+	if reflect.Func != srcVal.Kind() {
+		panic(types.NewError(types.ErrTypeNotFunction, method))
 	}
 	return &CoreInvoker{
-		method: srcVal,
+		method:  srcVal,
 		builder: builder,
 	}
 }
 
-func(i *CoreInvoker)Apply(args ...interface{}) []reflect.Value{
-	return i.ApplyWith(nil,args...)
+func (i *CoreInvoker) Apply(args ...interface{}) []reflect.Value {
+	return i.ApplyWith(nil, args...)
 }
 
-func(i *CoreInvoker)ApplyWith(provider types.Provider,args ...interface{}) []reflect.Value{
-	temp,err := i.builder.Build(provider,func(ctx *types.BuildContext){
+func (i *CoreInvoker) ApplyWith(provider types.Provider, args ...interface{}) []reflect.Value {
+	temp, err := i.builder.Build(provider, func(ctx *types.BuildContext) {
 		ctx.FullBefore = builder.MakeIndexFullBefore(args)
 	})
 	if nil != err {

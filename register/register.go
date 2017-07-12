@@ -26,7 +26,7 @@ func (r *CoreRegister) RegisterBinder(binder types.Binder, impType interface{}) 
 
 func (r *CoreRegister) RegisterInterface(instance interface{}, args ...string) error {
 	val := utils.DirectlyValue(utils.ValueOf(instance))
-	if reflect.Interface != val.Kind() || val.IsNil(){
+	if reflect.Interface != val.Kind() || val.IsNil() {
 		return types.NewError(types.ErrTypeNotInterface, instance)
 	}
 

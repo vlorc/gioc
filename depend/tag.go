@@ -26,7 +26,7 @@ func NewTagParser() *TagParser {
 			flagsHandle(types.DEPENDENCY_FLAG_DEFAULT),
 			defaultHandle,
 		},
-		"lazy":    []TagHandle{
+		"lazy": []TagHandle{
 			flagsHandle(types.DEPENDENCY_FLAG_LAZY),
 			lazyHandle,
 		},
@@ -59,17 +59,17 @@ func defaultHandle(ctx *TagContext) error {
 	return nil
 }
 
-func lazyHandle(ctx *TagContext) (err error){
+func lazyHandle(ctx *TagContext) (err error) {
 	typ := utils.DirectlyType(ctx.Descriptor.Type())
-	if reflect.Func != typ.Kind() || typ.NumOut() != 1 || typ.NumIn() > 0{
-		err = types.NewError(types.ErrTypeNotSupport,typ,ctx.Descriptor.Name())
+	if reflect.Func != typ.Kind() || typ.NumOut() != 1 || typ.NumIn() > 0 {
+		err = types.NewError(types.ErrTypeNotSupport, typ, ctx.Descriptor.Name())
 	}
 	return
 }
 
 func extendsHandle(ctx *TagContext) error {
 	typ := ctx.Descriptor.Type()
-	if 0 != ctx.Descriptor.Flags() & types.DEPENDENCY_FLAG_LAZY{
+	if 0 != ctx.Descriptor.Flags()&types.DEPENDENCY_FLAG_LAZY {
 		typ = utils.DirectlyType(ctx.Descriptor.Type()).Out(0)
 	}
 	dep, err := ctx.Factory.Instance(typ)
@@ -84,18 +84,68 @@ func flagsHandle(flag types.DependencyFlag) TagHandle {
 	}
 }
 
-func (tp *TagParser) Resolve(ctx *TagContext, tag string) {
-	ctx.TokenScan.Init(strings.NewReader(tag))
+func (tp *TagParser) Resolve(ctx *TagContext) {
+	defer func() {
+		if r := recover(); nil != r {
+			panic(r)
+		}
+	}()
+
+	ctx.TokenScan.Init(strings.NewReader(ctx.Tag))
 	ctx.TokenScan.Begin()
 	for {
-		token, offset, length := ctx.TokenScan.Scan()
-		switch token {
-		case utils.TOKEN_IDENT:
-			tp.Invoke(ctx, tag[offset:length])
-		case utils.TOKEN_CHART, utils.TOKEN_STRING:
-			ctx.Descriptor.SetName(tag[offset+1 : length-1])
-		case utils.TOKEN_EOF:
-			return
+		tp.nextToken(ctx)
+	}
+}
+
+func (tp *TagParser) pop(ctx *TagContext,handle ...TagHandle) (utils.Token,string) {
+	token, offset, length := ctx.TokenScan.Scan()
+	if utils.TOKEN_EOF == token {
+		tp.invoke(ctx,handle)
+		panic(nil)
+	}
+	return token,ctx.Tag[offset:length]
+}
+
+func (tp *TagParser) nextToken(ctx *TagContext) {
+	token, key := tp.pop(ctx)
+	tp.dispatch(ctx, token, key)
+}
+
+func (tp *TagParser) getParam(ctx *TagContext) {
+	for tp.nextParam(ctx) {
+
+	}
+}
+
+func (tp *TagParser) nextParam(ctx *TagContext) (ok bool) {
+	ok = true
+	token, key := tp.pop(ctx)
+	switch token {
+	case utils.TOKEN_RPAREN:
+		ok = false
+	case utils.TOKEN_CHART, utils.TOKEN_STRING:
+		key = key[1 : len(key) - 1]
+		fallthrough
+	default:
+		ctx.Param = append(ctx.Param, key)
+	}
+	return
+}
+
+func (tp *TagParser) dispatch(ctx *TagContext, token utils.Token, key string) {
+	switch token {
+	case utils.TOKEN_IDENT:
+		tp.Invoke(ctx, key)
+	case utils.TOKEN_CHART, utils.TOKEN_STRING:
+		ctx.Descriptor.SetName(key[1 : len(key)-1])
+	}
+}
+
+func (tp *TagParser) invoke(ctx *TagContext, handle []TagHandle) {
+	for _, f := range handle {
+		if err := f(ctx); nil != err {
+			panic(err)
 		}
 	}
 }
@@ -105,9 +155,13 @@ func (tp *TagParser) Invoke(ctx *TagContext, key string) {
 	if !ok {
 		panic(fmt.Errorf("can't find token '%s'", key))
 	}
-	for _, f := range handle {
-		if err := f(ctx); nil != err {
-			panic(err)
-		}
+
+	ctx.Param = nil
+	token, key := tp.pop(ctx,handle...)
+	if utils.TOKEN_LPAREN != token {
+		defer tp.dispatch(ctx, token, key)
+	} else {
+		tp.getParam(ctx)
 	}
+	tp.invoke(ctx,handle)
 }

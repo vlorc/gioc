@@ -10,20 +10,20 @@ import (
 type User struct {
 	Id       int64 `inject:"lower"`
 	Personal ****struct {
-		Name   string `inject:"'name'"`
-		Age    int    `inject:"'age' optional"`
-		Gender int    `inject:"'gender' optional"`
-		Email  string `inject:"'email' optional"`
+		Name   string `inject:"lower"`
+		Age    int    `inject:"id('age') optional"`
+		Gender int    `inject:"lower optional"`
+		Email  string `inject:"lower optional"`
 	} `inject:"extends"`
 }
 
 func main() {
 	container := gioc.NewRootContainer()
 	for k, v := range map[string]interface{}{
-		"id":       int64(123),
-		"name":     "admin_001",
-		"gender":   1,
-		"email":    "xxx@163.com",
+		"id":     int64(123),
+		"name":   "admin_001",
+		"gender": 1,
+		"email":  "xxx@163.com",
 	} {
 		container.AsRegister().RegisterInstance(v, k)
 	}

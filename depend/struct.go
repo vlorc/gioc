@@ -50,11 +50,12 @@ type Descriptor struct {
 }
 
 type TagContext struct {
-	Factory types.DependencyFactory
+	Factory    types.DependencyFactory
 	Descriptor types.Descriptor
-	Param []string
-	Skip func(string) bool
-	TokenScan *utils.TokenScan
+	Param      []string
+	Skip       func(string) bool
+	Tag        string
+	TokenScan  *utils.TokenScan
 }
 
 type TagParser struct {

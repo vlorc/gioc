@@ -4,10 +4,10 @@
 package depend
 
 import (
-	"testing"
-	"reflect"
 	"github.com/vlorc/gioc/types"
 	"github.com/vlorc/gioc/utils"
+	"reflect"
+	"testing"
 )
 
 type depTable map[int]struct {
@@ -16,36 +16,36 @@ type depTable map[int]struct {
 }
 
 func Test_NewDependencyFactory(t *testing.T) {
-	test_factory(t,NewDependencyFactory())
+	test_factory(t, NewDependencyFactory())
 }
 
-func test_factory(t *testing.T,factory types.DependencyFactory) {
-	if nil == factory{
+func test_factory(t *testing.T, factory types.DependencyFactory) {
+	if nil == factory {
 		t.Errorf("can't allocate a DependencyFactory")
 	}
 }
 
-func test_struct(t *testing.T,typ reflect.Type,table depTable) {
+func test_struct(t *testing.T, typ reflect.Type, table depTable) {
 	factory := NewDependencyFactory()
-	test_factory(t,factory)
+	test_factory(t, factory)
 
-	dep,err := factory.Instance(typ)
-	if nil != err{
-		t.Errorf("can't instance dependency error: %s",err.Error())
+	dep, err := factory.Instance(typ)
+	if nil != err {
+		t.Errorf("can't instance dependency error: %s", err.Error())
 	}
 	if typ != dep.Type() {
-		t.Errorf("can't matching dependency type: %s",dep.Type().String())
+		t.Errorf("can't matching dependency type: %s", dep.Type().String())
 	}
-	if typ.NumField() != dep.Length(){
-		t.Errorf("can't matching dependency length: %d",dep.Length())
+	if typ.NumField() != dep.Length() {
+		t.Errorf("can't matching dependency length: %d", dep.Length())
 	}
-	compare_Dependency(t,dep,table)
+	compare_Dependency(t, dep, table)
 }
 
 func Test_AnonymousStruct(t *testing.T) {
 	bean := struct {
-		Id int64
-		Name *string `inject:"'alias' optional"`
+		Id       int64
+		Name     *string `inject:"'alias' optional"`
 		Identity struct {
 			Username string `inject:"lower"`
 			Password string `inject:"upper"`
@@ -54,14 +54,14 @@ func Test_AnonymousStruct(t *testing.T) {
 	typ := utils.DirectlyType(reflect.TypeOf(bean))
 	table := depTable{
 		0: {
-			des :&types.DependencyDescription{
-				Index:0,
-				Type: typ.Field(0).Type,
-				Name: "Id",
+			des: &types.DependencyDescription{
+				Index: 0,
+				Type:  typ.Field(0).Type,
+				Name:  "Id",
 			},
 		},
 		1: {
-			des : &types.DependencyDescription{
+			des: &types.DependencyDescription{
 				Index: 1,
 				Type:  typ.Field(1).Type,
 				Name:  "alias",
@@ -69,22 +69,22 @@ func Test_AnonymousStruct(t *testing.T) {
 			},
 		},
 		2: {
-			des : &types.DependencyDescription{
+			des: &types.DependencyDescription{
 				Index: 2,
 				Type:  typ.Field(2).Type,
 				Name:  "Identity",
 				Flags: types.DEPENDENCY_FLAG_EXTENDS,
 			},
-			sub:depTable{
+			sub: depTable{
 				0: {
-					des :&types.DependencyDescription{
-						Index:0,
-						Type: typ.Field(2).Type.Field(0).Type,
-						Name: "username",
+					des: &types.DependencyDescription{
+						Index: 0,
+						Type:  typ.Field(2).Type.Field(0).Type,
+						Name:  "username",
 					},
 				},
 				1: {
-					des : &types.DependencyDescription{
+					des: &types.DependencyDescription{
 						Index: 1,
 						Type:  typ.Field(2).Type.Field(1).Type,
 						Name:  "PASSWORD",
@@ -93,30 +93,33 @@ func Test_AnonymousStruct(t *testing.T) {
 			},
 		},
 	}
-	test_struct(t,typ,table)
+	test_struct(t, typ, table)
 
 }
 
-func compare_Dependency(t *testing.T, dep types.Dependency, table depTable){
+func compare_Dependency(t *testing.T, dep types.Dependency, table depTable) {
 	for scan := dep.AsScan(); scan.Next(); {
-		compare_Description(t,scan,table[scan.Index()])
+		compare_Description(t, scan, table[scan.Index()])
 	}
 }
 
-func compare_Description(t *testing.T, dst types.DescriptorGetter, table struct{des *types.DependencyDescription;sub depTable}) {
-	if nil == table.des{
-		t.Errorf("can't matching dependency field %s",dst.Name())
+func compare_Description(t *testing.T, dst types.DescriptorGetter, table struct {
+	des *types.DependencyDescription
+	sub depTable
+}) {
+	if nil == table.des {
+		t.Errorf("can't matching dependency field %s", dst.Name())
 	}
 
 	dstVal := reflect.ValueOf(dst)
 	srcVal := reflect.ValueOf(table.des).Elem()
 
 	hasExtends := 0
-	if 0 != table.des.Flags & types.DEPENDENCY_FLAG_EXTENDS{
+	if 0 != table.des.Flags&types.DEPENDENCY_FLAG_EXTENDS {
 		hasExtends = 1
 	}
 
-	for i,n := 0,srcVal.NumField() - hasExtends; i < n; i++ {
+	for i, n := 0, srcVal.NumField()-hasExtends; i < n; i++ {
 		srcField := srcVal.Field(i)
 		key := srcVal.Type().Field(i).Name
 		dstField := dstVal.MethodByName(key).Call(nil)[0]
@@ -129,7 +132,7 @@ func compare_Description(t *testing.T, dst types.DescriptorGetter, table struct{
 		}
 	}
 
-	if 0 != hasExtends{
-		compare_Dependency(t,dst.Depend(),table.sub)
+	if 0 != hasExtends {
+		compare_Dependency(t, dst.Depend(), table.sub)
 	}
 }

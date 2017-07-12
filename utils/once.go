@@ -4,21 +4,20 @@
 package utils
 
 import (
-	"sync"
 	"reflect"
+	"sync"
 )
 
-func Once(src interface{},init interface{}){
+func Once(src interface{}, init interface{}) {
 	srcVal := DirectlyValue(ValueOf(src))
 	initVal := ValueOf(init)
 	once := sync.Once{}
 
-	dstVal := reflect.MakeFunc(srcVal.Type(), func(args []reflect.Value) []reflect.Value{
-		once.Do(func(){
+	dstVal := reflect.MakeFunc(srcVal.Type(), func(args []reflect.Value) []reflect.Value {
+		once.Do(func() {
 			srcVal.Set(reflect.ValueOf(initVal.Call(args)[0].Interface()))
 		})
 		return srcVal.Call(args)
 	})
 	srcVal.Set(dstVal)
 }
-

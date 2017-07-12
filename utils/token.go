@@ -118,7 +118,7 @@ func (ts *TokenScan) Next() bool {
 	if nil != err {
 		return false
 	}
-	ts.Transfer(int(index[c - (127 - c) * ((127 - c) >> 31)]), l)
+	ts.Transfer(int(index[c-(127-c)*((127-c)>>31)]), l)
 	return true
 }
 
@@ -145,7 +145,7 @@ func (ts *TokenScan) Scan() (token Token, offset int, position int) {
 }
 
 func (ts *TokenScan) Transfer(i int, l int) {
-	n := int(table[ts.state * 12 + i])
+	n := int(table[ts.state*12+i])
 	transfer[n](ts, n, i, l)
 }
 

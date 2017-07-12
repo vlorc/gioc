@@ -101,13 +101,13 @@ func (df *CoreDependencyFactory) resolveStruct(typ reflect.Type, _ reflect.Value
 	df.lock.RLock()
 	dep = df.pool[typ]
 	df.lock.RUnlock()
-	if nil == dep {
-		dep = df.namedToDependency(typ)
-		if nil != dep {
-			df.lock.Lock()
-			df.pool[typ] = dep
-			df.lock.Unlock()
-		}
+	if nil != dep {
+		return
+	}
+	if dep = df.namedToDependency(typ); nil != dep {
+		df.lock.Lock()
+		df.pool[typ] = dep
+		df.lock.Unlock()
 	}
 	return
 }
@@ -115,8 +115,8 @@ func (df *CoreDependencyFactory) resolveStruct(typ reflect.Type, _ reflect.Value
 func (df *CoreDependencyFactory) structToDependency(typ reflect.Type, skip func(string) bool) (dep types.Dependency) {
 	arr := []*types.DependencyDescription{}
 	ctx := &TagContext{
-		Factory: df,
-		Skip: skip,
+		Factory:   df,
+		Skip:      skip,
 		TokenScan: utils.NewTokenScan(),
 	}
 	for i, n := 0, typ.NumField(); i < n; i++ {
@@ -140,35 +140,29 @@ func (df *CoreDependencyFactory) anonymousToDependency(typ reflect.Type) (dep ty
 	})
 }
 
-func (df *CoreDependencyFactory) appendField(
-	dep []*types.DependencyDescription,
-	field reflect.StructField,
-	ctx *TagContext) []*types.DependencyDescription {
-
-	tag := field.Tag.Get("inject")
-	if uint(field.Name[0]-65) >= uint(26) || !ctx.Skip(tag) {
+func (df *CoreDependencyFactory) appendField(dep []*types.DependencyDescription, field reflect.StructField, ctx *TagContext) []*types.DependencyDescription {
+	if uint(field.Name[0]-65) >= uint(26) {
+		return dep
+	}
+	if ctx.Tag = field.Tag.Get("inject"); !ctx.Skip(ctx.Tag) {
 		return dep
 	}
 	if len(field.Index) > 1 {
-		panic(types.NewError(types.ErrIndexNotSupport,field.Type))
+		panic(types.NewError(types.ErrIndexNotSupport, field.Type))
 	}
-	des := &types.DependencyDescription{
-		Name:  field.Name,
-		Index: field.Index[0],
-		Type:  field.Type,
-	}
-	if "" != tag {
+	des := &types.DependencyDescription{Name: field.Name, Index: field.Index[0], Type: field.Type}
+	if "" != ctx.Tag {
 		ctx.Descriptor = NewDescriptor(des)
-		df.tagParser.Resolve(ctx, tag)
+		df.tagParser.Resolve(ctx)
 	}
 	df.checkAnonymous(des)
 	return append(dep, des)
 }
 
 func (df *CoreDependencyFactory) checkAnonymous(des *types.DependencyDescription) (ok bool) {
-	if 0 != des.Flags & types.DEPENDENCY_FLAG_EXTENDS{
+	if 0 != des.Flags&types.DEPENDENCY_FLAG_EXTENDS {
 		ok = true
-	}else if temp := utils.DirectlyType(des.Type); reflect.Struct == temp.Kind() && "" == temp.Name() {
+	} else if temp := utils.DirectlyType(des.Type); reflect.Struct == temp.Kind() && "" == temp.Name() {
 		des.Flags |= types.DEPENDENCY_FLAG_EXTENDS
 		des.Depend = df.anonymousToDependency(temp)
 		ok = true

@@ -31,8 +31,8 @@
 - [ ] destroy container
 
 ## Invoker
-- [ ] inject param
-- [ ] input param
+- [X] inject param
+- [X] input param
 - [ ] async invoke
 - [ ] context
 - [ ] named result

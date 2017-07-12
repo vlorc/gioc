@@ -4,14 +4,14 @@
 package gioc
 
 import (
-	"github.com/vlorc/gioc/binder"
-	"github.com/vlorc/gioc/register"
-	"github.com/vlorc/gioc/types"
-	"testing"
-	"github.com/vlorc/gioc/selector"
-	"reflect"
 	"fmt"
+	"github.com/vlorc/gioc/binder"
 	"github.com/vlorc/gioc/factory"
+	"github.com/vlorc/gioc/register"
+	"github.com/vlorc/gioc/selector"
+	"github.com/vlorc/gioc/types"
+	"reflect"
+	"testing"
 )
 
 func test_register(t *testing.T, r types.Register) {
@@ -19,16 +19,16 @@ func test_register(t *testing.T, r types.Register) {
 		t.Errorf("can't allocate a Register")
 	}
 
-	err := r.RegisterInstance(1,"id")
+	err := r.RegisterInstance(1, "id")
 	if nil != err {
-		t.Errorf("can't register a int error : %s",err.Error())
+		t.Errorf("can't register a int error : %s", err.Error())
 	}
 
-	iface,err := r.AsSelector().FactoryOf(reflect.TypeOf((*int)(nil)).Elem(),"id").Instance(nil)
+	iface, err := r.AsSelector().FactoryOf(reflect.TypeOf((*int)(nil)).Elem(), "id").Instance(nil)
 	if nil != err {
-		t.Errorf("can't get a int error : %s",err.Error())
+		t.Errorf("can't get a int error : %s", err.Error())
 	}
-	if iface != interface{}(1){
+	if iface != interface{}(1) {
 		t.Errorf("can't matching instance,were modified")
 	}
 }
@@ -56,12 +56,11 @@ func Test_RegisterFactory(t *testing.T) {
 func Test_Invoker(t *testing.T) {
 	root := NewRootContainer()
 
-
-	getKey := func(id int64,name *string) (r string) {
-		if nil != name{
-			r =fmt.Sprintf("id(%d) - name(%s)",id,*name)
+	getKey := func(id int64, name *string) (r string) {
+		if nil != name {
+			r = fmt.Sprintf("id(%d) - name(%s)", id, *name)
 		} else {
-			r =fmt.Sprintf("id(%d)",id)
+			r = fmt.Sprintf("id(%d)", id)
 		}
 		return
 	}
@@ -75,21 +74,21 @@ func Test_Invoker(t *testing.T) {
 	root.Assign(&builderFactory)
 	root.Assign(&invokerFactory)
 
-	dep,err := dependFactory.Instance(getKey)
-	if nil != err{
+	dep, err := dependFactory.Instance(getKey)
+	if nil != err {
 		t.Errorf("can't allocate a depend error : %s", err.Error())
 	}
-	build,err := builderFactory.Instance(factory.NewParamFactory(dep.Length()),dep)
-	if nil != err{
+	build, err := builderFactory.Instance(factory.NewParamFactory(dep.Length()), dep)
+	if nil != err {
 		t.Errorf("can't allocate a build error : %s", err.Error())
 	}
-	invoker,err := invokerFactory.Instance(getKey,build)
-	if nil != err{
+	invoker, err := invokerFactory.Instance(getKey, build)
+	if nil != err {
 		t.Errorf("can't allocate a invoker error : %s", err.Error())
 	}
 
-	results := invoker.ApplyWith(root.AsProvider(),1)
-	t.Log("getKey",results[0].Interface())
-	results = invoker.ApplyWith(root.AsProvider(),2,nil)
-	t.Log("getKey",results[0].Interface())
+	results := invoker.ApplyWith(root.AsProvider(), 1)
+	t.Log("getKey", results[0].Interface())
+	results = invoker.ApplyWith(root.AsProvider(), 2, nil)
+	t.Log("getKey", results[0].Interface())
 }

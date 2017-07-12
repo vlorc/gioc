@@ -6,10 +6,10 @@ package types
 import "reflect"
 
 type Error struct {
-	Type    reflect.Type
-	Name    string
-	Code    ErrorCode
-	format  func(*Error)string
+	Type   reflect.Type
+	Name   string
+	Code   ErrorCode
+	format func(*Error) string
 }
 
 type DependencyDescription struct {
@@ -23,8 +23,8 @@ type DependencyDescription struct {
 
 type BuildContext struct {
 	Descriptor DescriptorGetter
-	Inject DependencyInject
-	Provider Provider
+	Inject     DependencyInject
+	Provider   Provider
 	FullBefore func(*BuildContext) bool
-	FullAfter func(*BuildContext)
+	FullAfter  func(*BuildContext)
 }
