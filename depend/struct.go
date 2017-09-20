@@ -52,7 +52,7 @@ type Descriptor struct {
 type TagContext struct {
 	Factory    types.DependencyFactory
 	Descriptor types.Descriptor
-	Param      []string
+	Params      []Param
 	Skip       func(string) bool
 	Tag        string
 	TokenScan  *utils.TokenScan
@@ -60,6 +60,12 @@ type TagContext struct {
 
 type TagParser struct {
 	tagHandle map[string][]TagHandle
+}
+
+type Param interface {
+	String() string
+	Number() int64
+	Boolean() bool
 }
 
 type ParamReflect []reflect.Value

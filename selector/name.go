@@ -31,7 +31,6 @@ func (tns *TypeNameSelector) FactoryOf(typ reflect.Type, name string) (factory t
 	tns.lock.RLock()
 	factory = tns.table[TypeName{Type: typ, Name: name}]
 	tns.lock.RUnlock()
-
 	return
 }
 
@@ -43,6 +42,5 @@ func (tns *TypeNameSelector) SetFactory(typ reflect.Type, name string, factory t
 	tns.lock.Lock()
 	tns.table[TypeName{Type: typ, Name: name}] = factory
 	tns.lock.Unlock()
-
 	return nil
 }

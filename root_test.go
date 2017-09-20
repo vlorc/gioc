@@ -89,6 +89,6 @@ func Test_Invoker(t *testing.T) {
 
 	results := invoker.ApplyWith(root.AsProvider(), 1)
 	t.Log("getKey", results[0].Interface())
-	results = invoker.ApplyWith(root.AsProvider(), 2, nil)
+	results = invoker.ApplyWith(root.AsProvider(), -2, nil)
 	t.Log("getKey", results[0].Interface())
 }

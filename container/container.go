@@ -50,13 +50,12 @@ func NewContainer(register types.Register, parent types.Container, deep int) typ
 		deep:     deep,
 	}
 
-	utils.Once(&c.getChild, func() func() map[types.Container]bool {
+	utils.Once(&c.getChild, func() interface {}{
 		pool := make(map[types.Container]bool)
 		return func() map[types.Container]bool {
 			return pool
 		}
 	})
-
 	p := c.AsProvider()
 	register.RegisterInstance(&p)
 	return c

@@ -13,7 +13,6 @@ import (
 
 func NewTagParser() *TagParser {
 	obj := &TagParser{}
-
 	obj.tagHandle = map[string][]TagHandle{
 		"optional": []TagHandle{
 			flagsHandle(types.DEPENDENCY_FLAG_OPTIONAL),
@@ -49,7 +48,7 @@ func upperCaseHandle(ctx *TagContext) error {
 }
 
 func nameHandle(ctx *TagContext) error {
-	ctx.Descriptor.SetName(ctx.Param[0])
+	ctx.Descriptor.SetName(ctx.Params[0].String())
 	return nil
 }
 
@@ -125,10 +124,9 @@ func (tp *TagParser) nextParam(ctx *TagContext) (ok bool) {
 	case utils.TOKEN_RPAREN:
 		ok = false
 	case utils.TOKEN_CHART, utils.TOKEN_STRING:
-		key = key[1 : len(key) - 1]
-		fallthrough
-	default:
-		ctx.Param = append(ctx.Param, key)
+		ctx.Params = append(ctx.Params, NewParamString(key))
+	case utils.TOKEN_NUMBER:
+		ctx.Params = append(ctx.Params, NewParamNumber(key))
 	}
 	return
 }
@@ -156,7 +154,7 @@ func (tp *TagParser) Invoke(ctx *TagContext, key string) {
 		panic(fmt.Errorf("can't find token '%s'", key))
 	}
 
-	ctx.Param = nil
+	ctx.Params = nil
 	token, key := tp.pop(ctx,handle...)
 	if utils.TOKEN_LPAREN != token {
 		defer tp.dispatch(ctx, token, key)

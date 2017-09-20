@@ -169,8 +169,5 @@ type Invoker interface {
 
 var ErrorType = reflect.TypeOf((*error)(nil)).Elem()
 var ProviderType = reflect.TypeOf((*Provider)(nil)).Elem()
-
-var DependencyFactoryType = reflect.TypeOf((*DependencyFactory)(nil)).Elem()
 var RegisterFactoryType = reflect.TypeOf((*RegisterFactory)(nil)).Elem()
 var BinderFactoryType = reflect.TypeOf((*BinderFactory)(nil)).Elem()
-var BuilderFactoryType = reflect.TypeOf((*BuilderFactory)(nil)).Elem()
