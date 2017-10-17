@@ -5,24 +5,26 @@ package depend
 
 import (
 	"github.com/vlorc/gioc/types"
+	"github.com/vlorc/gioc/utils"
 	"reflect"
 )
 
-func (df *CoreDependencyFactory) resolveArray(typ reflect.Type,val reflect.Value) (dep types.Dependency, err error) {
-	if val.Len() <= 0{
+func (df *CoreDependencyFactory) resolveArray(typ reflect.Type, val reflect.Value) (dep types.Dependency) {
+	if val.Len() <= 0 {
 		return
 	}
 
 	arr := []*types.DependencyDescription{}
 	for i, n := 0, val.Len(); i < n; i++ {
-		arr = df.appendValue(arr,val.Index(i),i)
+		arr = df.appendValue(arr, val.Index(i), i)
 	}
-
-	dep = NewArrayDependency(typ, arr)
+	if len(arr) > 0 {
+		dep = NewArrayDependency(typ, arr)
+	}
 	return
 }
 
-func (df *CoreDependencyFactory) appendValue(dep []*types.DependencyDescription,val reflect.Value,index int)  []*types.DependencyDescription {
+func (df *CoreDependencyFactory) appendValue(dep []*types.DependencyDescription, val reflect.Value, index int) []*types.DependencyDescription {
 	typ := val.Type()
 	if reflect.Ptr == typ.Kind() {
 		typ = typ.Elem()
@@ -34,29 +36,33 @@ func (df *CoreDependencyFactory) appendValue(dep []*types.DependencyDescription,
 	})
 }
 
-func (df *CoreDependencyFactory) resolveFunc(typ reflect.Type,val reflect.Value) (dep types.Dependency, err error) {
+func (df *CoreDependencyFactory) resolveFunc(typ reflect.Type, val reflect.Value) (dep types.Dependency) {
 	if typ.NumIn() <= 0 {
 		return
 	}
 
 	arr := []*types.DependencyDescription{}
 	for i, n := 0, typ.NumIn(); i < n; i++ {
-		arr = df.appendParam(arr,typ.In(i),i)
+		arr = df.appendParam(arr, typ.In(i), i)
 	}
-
-	dep = NewFuncDependency(typ, arr)
+	if len(arr) > 0 {
+		dep = NewFuncDependency(typ, arr)
+	}
 	return
 }
 
-func (df *CoreDependencyFactory) appendParam(dep []*types.DependencyDescription,typ reflect.Type,index int)  []*types.DependencyDescription {
-	return append(dep, &types.DependencyDescription{
+func (df *CoreDependencyFactory) appendParam(dep []*types.DependencyDescription, typ reflect.Type, index int) []*types.DependencyDescription {
+	des := &types.DependencyDescription{
 		Index: index,
 		Type:  typ,
-	})
+	}
+
+	df.checkAnonymous(des)
+	return append(dep, des)
 }
 
-func (df *CoreDependencyFactory) appendKey(dep []*types.DependencyDescription,m reflect.Value,k reflect.Value)  []*types.DependencyDescription{
-	if reflect.String != k.Kind(){
+func (df *CoreDependencyFactory) appendKey(dep []*types.DependencyDescription, m reflect.Value, k reflect.Value) []*types.DependencyDescription {
+	if reflect.String != k.Kind() {
 		return dep
 	}
 
@@ -66,44 +72,39 @@ func (df *CoreDependencyFactory) appendKey(dep []*types.DependencyDescription,m 
 	}
 
 	return append(dep, &types.DependencyDescription{
-		Name:k.String(),
+		Name: k.String(),
 		Type: typ,
 	})
 }
 
-func (df *CoreDependencyFactory) resolveMap(typ reflect.Type,val reflect.Value) (dep types.Dependency, err error) {
+func (df *CoreDependencyFactory) resolveMap(typ reflect.Type, val reflect.Value) (dep types.Dependency) {
 	if val.Len() <= 0 {
 		return
 	}
 
 	arr := []*types.DependencyDescription{}
-	for _,k := range val.MapKeys() {
-		arr = df.appendKey(arr,val,k)
+	for _, k := range val.MapKeys() {
+		arr = df.appendKey(arr, val, k)
 	}
-
 	if len(arr) > 0 {
-		dep = NewMapDependency(typ,arr)
+		dep = NewMapDependency(typ, arr)
 	}
 	return
 }
 
-func (df *CoreDependencyFactory) resolveStruct(typ reflect.Type,_ reflect.Value) (dep types.Dependency, err error) {
-	df.lock.RLock()
-	dep = df.pool[typ]
-	df.lock.RUnlock()
-
-	if nil != dep {
+func (df *CoreDependencyFactory) resolveStruct(typ reflect.Type, _ reflect.Value) (dep types.Dependency) {
+	if "" == typ.Name() {
+		dep = df.anonymousToDependency(typ)
 		return
 	}
 
-	arr := []*types.DependencyDescription{}
-	for i, n := 0, typ.NumField(); i < n; i++ {
-		arr = df.appendField(arr,typ.Field(i),i)
+	df.lock.RLock()
+	dep = df.pool[typ]
+	df.lock.RUnlock()
+	if nil != dep {
+		return
 	}
-
-	if len(arr) > 0 {
-		dep = NewStructDependency(typ, arr)
-
+	if dep = df.namedToDependency(typ); nil != dep {
 		df.lock.Lock()
 		df.pool[typ] = dep
 		df.lock.Unlock()
@@ -111,25 +112,60 @@ func (df *CoreDependencyFactory) resolveStruct(typ reflect.Type,_ reflect.Value)
 	return
 }
 
-func (df *CoreDependencyFactory) appendField(dep []*types.DependencyDescription,field reflect.StructField, index int)  []*types.DependencyDescription {
-	if uint(field.Name[0])-uint(65) >= uint(26) {
+func (df *CoreDependencyFactory) structToDependency(typ reflect.Type, skip func(string) bool) (dep types.Dependency) {
+	arr := []*types.DependencyDescription{}
+	ctx := &TagContext{
+		Factory:   df,
+		Skip:      skip,
+		TokenScan: utils.NewTokenScan(),
+	}
+	for i, n := 0, typ.NumField(); i < n; i++ {
+		arr = df.appendField(arr, typ.Field(i), ctx)
+	}
+	if len(arr) > 0 {
+		dep = NewStructDependency(typ, arr)
+	}
+	return
+}
+
+func (df *CoreDependencyFactory) namedToDependency(typ reflect.Type) types.Dependency {
+	return df.structToDependency(typ, func(tag string) bool {
+		return "" != tag && "-" != tag
+	})
+}
+
+func (df *CoreDependencyFactory) anonymousToDependency(typ reflect.Type) (dep types.Dependency) {
+	return df.structToDependency(typ, func(tag string) bool {
+		return "-" != tag
+	})
+}
+
+func (df *CoreDependencyFactory) appendField(dep []*types.DependencyDescription, field reflect.StructField, ctx *TagContext) []*types.DependencyDescription {
+	if uint(field.Name[0]-65) >= uint(26) {
 		return dep
 	}
-
-	tag := field.Tag.Get("inject")
-	if "" == tag {
+	if ctx.Tag = field.Tag.Get("inject"); !ctx.Skip(ctx.Tag) {
 		return dep
 	}
-
-	if "-" != tag {
-		temp := &types.DependencyDescription{
-			Name:field.Name,
-			Index:index,
-			Type:field.Type,
-		}
-		df.tagParser.Resolve(df,tag, NewDescriptor(temp))
-		dep = append(dep, temp)
+	if len(field.Index) > 1 {
+		panic(types.NewError(types.ErrIndexNotSupport, field.Type))
 	}
+	des := &types.DependencyDescription{Name: field.Name, Index: field.Index[0], Type: field.Type}
+	if "" != ctx.Tag {
+		ctx.Descriptor = NewDescriptor(des)
+		df.tagParser.Resolve(ctx)
+	}
+	df.checkAnonymous(des)
+	return append(dep, des)
+}
 
-	return dep
+func (df *CoreDependencyFactory) checkAnonymous(des *types.DependencyDescription) (ok bool) {
+	if 0 != des.Flags&types.DEPENDENCY_FLAG_EXTENDS {
+		ok = true
+	} else if temp := utils.DirectlyType(des.Type); reflect.Struct == temp.Kind() && "" == temp.Name() {
+		des.Flags |= types.DEPENDENCY_FLAG_EXTENDS
+		des.Depend = df.anonymousToDependency(temp)
+		ok = true
+	}
+	return
 }

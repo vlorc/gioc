@@ -7,21 +7,23 @@ import (
 	"github.com/vlorc/gioc/types"
 )
 
+type Personal struct {
+	Name   string `inject:"'name'"`
+	Age    *int   `inject:"'age' default"`
+	Gender int    `inject:"'gender' optional"`
+	Email  string `inject:"'email' optional"`
+}
+
 type User struct {
-	Id       int64 `inject:"lower"`
-	Personal ****struct {
-		Name   string `inject:"lower"`
-		Age    int    `inject:"id('age') optional"`
-		Gender int    `inject:"lower optional"`
-		Email  string `inject:"lower optional"`
-	} `inject:"extends"`
+	Id       int64               `inject:"lower"`
+	Personal func() ****Personal `inject:"lazy extends"`
 }
 
 func main() {
 	container := gioc.NewRootContainer()
 	for k, v := range map[string]interface{}{
 		"id":     int64(123),
-		"name":   "admin_001",
+		"name":   "admin",
 		"gender": 1,
 		"email":  "xxx@163.com",
 	} {
@@ -43,11 +45,10 @@ func main() {
 	if nil != err {
 		panic(err)
 	}
-	child.AsRegister().RegisterFactory(builder.AsFactory(), &info, "admin")
-	if err = child.Assign(&info, "admin"); nil != err {
+	child.AsRegister().RegisterFactory(builder.AsFactory(), &info, "")
+	if err = child.Assign(&info, ""); nil != err {
 		panic(err)
 	}
 
-	fmt.Println(info)
-	fmt.Println(****info.Personal)
+	fmt.Println(****info.Personal())
 }

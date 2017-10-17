@@ -27,6 +27,5 @@ func (d *CoreDependency) AsInject(src interface{}) types.DependencyInject {
 	if nil == ref {
 		return nil
 	}
-
 	return NewDependencyInject(d.AsScan(), ref)
 }

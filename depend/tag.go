@@ -4,100 +4,162 @@
 package depend
 
 import (
-	"github.com/vlorc/gioc/types"
 	"fmt"
-	"reflect"
+	"github.com/vlorc/gioc/types"
 	"github.com/vlorc/gioc/utils"
+	"reflect"
 	"strings"
 )
 
-func NewTagParser() *TagParser{
+func NewTagParser() *TagParser {
 	obj := &TagParser{}
-
 	obj.tagHandle = map[string][]TagHandle{
-		"optional":[]TagHandle{
+		"optional": []TagHandle{
 			flagsHandle(types.DEPENDENCY_FLAG_OPTIONAL),
 		},
-		"extends":[]TagHandle{
+		"extends": []TagHandle{
 			flagsHandle(types.DEPENDENCY_FLAG_EXTENDS),
 			extendsHandle,
 		},
-		"default":[]TagHandle{
+		"default": []TagHandle{
 			flagsHandle(types.DEPENDENCY_FLAG_DEFAULT),
 			defaultHandle,
 		},
-		"id":[]TagHandle{nameHandle},
-		"name":[]TagHandle{nameHandle},
-		"lower":[]TagHandle{lowerCaseHandle},
-		"upper":[]TagHandle{upperCaseHandle},
+		"lazy": []TagHandle{
+			flagsHandle(types.DEPENDENCY_FLAG_LAZY),
+			lazyHandle,
+		},
+		"id":    []TagHandle{nameHandle},
+		"name":  []TagHandle{nameHandle},
+		"lower": []TagHandle{lowerCaseHandle},
+		"upper": []TagHandle{upperCaseHandle},
 	}
 	return obj
 }
 
-func lowerCaseHandle(factory types.DependencyFactory,des types.Descriptor,_ []string) error {
-	des.SetName(strings.ToLower(des.Name()))
+func lowerCaseHandle(ctx *TagContext) error {
+	ctx.Descriptor.SetName(strings.ToLower(ctx.Descriptor.Name()))
 	return nil
 }
 
-func upperCaseHandle(factory types.DependencyFactory,des types.Descriptor,_ []string) error {
-	des.SetName(strings.ToUpper(des.Name()))
+func upperCaseHandle(ctx *TagContext) error {
+	ctx.Descriptor.SetName(strings.ToUpper(ctx.Descriptor.Name()))
 	return nil
 }
 
-
-func nameHandle(factory types.DependencyFactory,des types.Descriptor,param []string) error {
-	des.SetName(param[0])
+func nameHandle(ctx *TagContext) error {
+	ctx.Descriptor.SetName(ctx.Params[0].String())
 	return nil
 }
 
-func defaultHandle(factory types.DependencyFactory,des types.Descriptor,_ []string) error {
-	val := reflect.Zero(des.Type())
-	des.SetDefault(val)
+func defaultHandle(ctx *TagContext) error {
+	val := reflect.Zero(ctx.Descriptor.Type())
+	ctx.Descriptor.SetDefault(val)
 	return nil
 }
 
-func extendsHandle(factory types.DependencyFactory,des types.Descriptor,_ []string) error {
-	dep, err := factory.Instance(des.Type())
-	des.SetDepend(dep)
+func lazyHandle(ctx *TagContext) (err error) {
+	typ := utils.DirectlyType(ctx.Descriptor.Type())
+	if reflect.Func != typ.Kind() || typ.NumOut() != 1 || typ.NumIn() > 0 {
+		err = types.NewError(types.ErrTypeNotSupport, typ, ctx.Descriptor.Name())
+	}
+	return
+}
+
+func extendsHandle(ctx *TagContext) error {
+	typ := ctx.Descriptor.Type()
+	if 0 != ctx.Descriptor.Flags()&types.DEPENDENCY_FLAG_LAZY {
+		typ = utils.DirectlyType(ctx.Descriptor.Type()).Out(0)
+	}
+	dep, err := ctx.Factory.Instance(typ)
+	ctx.Descriptor.SetDepend(dep)
 	return err
 }
 
 func flagsHandle(flag types.DependencyFlag) TagHandle {
-	return func(_ types.DependencyFactory,des types.Descriptor,_ []string) error {
-		des.SetFlags(des.Flags() | flag)
+	return func(ctx *TagContext) error {
+		ctx.Descriptor.SetFlags(ctx.Descriptor.Flags() | flag)
 		return nil
 	}
 }
 
-func (tp *TagParser)Resolve(factory types.DependencyFactory,tag string, des types.Descriptor) {
-	s := utils.NewTokenScan()
-	s.Init(tag)
-
-	for {
-		token, offset, length := s.Scan()
-		switch token {
-		case utils.TOKEN_IDENT:
-			tp.Invoke(factory,tag[offset:length],des)
-		case utils.TOKEN_CHART,utils.TOKEN_STRING:
-			des.SetName(tag[offset + 1 :length - 1])
-		case utils.TOKEN_EOF:
-			return
+func (tp *TagParser) Resolve(ctx *TagContext) {
+	defer func() {
+		if r := recover(); nil != r {
+			panic(r)
 		}
-	}
+	}()
 
+	ctx.TokenScan.Init(strings.NewReader(ctx.Tag))
+	ctx.TokenScan.Begin()
+	for {
+		tp.nextToken(ctx)
+	}
+}
+
+func (tp *TagParser) pop(ctx *TagContext,handle ...TagHandle) (utils.Token,string) {
+	token, offset, length := ctx.TokenScan.Scan()
+	if utils.TOKEN_EOF == token {
+		tp.invoke(ctx,handle)
+		panic(nil)
+	}
+	return token,ctx.Tag[offset:length]
+}
+
+func (tp *TagParser) nextToken(ctx *TagContext) {
+	token, key := tp.pop(ctx)
+	tp.dispatch(ctx, token, key)
+}
+
+func (tp *TagParser) getParam(ctx *TagContext) {
+	for tp.nextParam(ctx) {
+
+	}
+}
+
+func (tp *TagParser) nextParam(ctx *TagContext) (ok bool) {
+	ok = true
+	token, key := tp.pop(ctx)
+	switch token {
+	case utils.TOKEN_RPAREN:
+		ok = false
+	case utils.TOKEN_CHART, utils.TOKEN_STRING:
+		ctx.Params = append(ctx.Params, NewParamString(key))
+	case utils.TOKEN_NUMBER:
+		ctx.Params = append(ctx.Params, NewParamNumber(key))
+	}
 	return
 }
 
-func (tp *TagParser)Invoke(factory types.DependencyFactory,key string, des types.Descriptor) {
-	handle,ok := tp.tagHandle[key]
-	if !ok {
-		panic(fmt.Errorf("can't find token '%s'",key))
+func (tp *TagParser) dispatch(ctx *TagContext, token utils.Token, key string) {
+	switch token {
+	case utils.TOKEN_IDENT:
+		tp.Invoke(ctx, key)
+	case utils.TOKEN_CHART, utils.TOKEN_STRING:
+		ctx.Descriptor.SetName(key[1 : len(key)-1])
 	}
+}
 
-	for _,f := range handle {
-		if err := f(factory,des,nil);nil != err {
+func (tp *TagParser) invoke(ctx *TagContext, handle []TagHandle) {
+	for _, f := range handle {
+		if err := f(ctx); nil != err {
 			panic(err)
 		}
 	}
 }
 
+func (tp *TagParser) Invoke(ctx *TagContext, key string) {
+	handle, ok := tp.tagHandle[key]
+	if !ok {
+		panic(fmt.Errorf("can't find token '%s'", key))
+	}
+
+	ctx.Params = nil
+	token, key := tp.pop(ctx,handle...)
+	if utils.TOKEN_LPAREN != token {
+		defer tp.dispatch(ctx, token, key)
+	} else {
+		tp.getParam(ctx)
+	}
+	tp.invoke(ctx,handle)
+}

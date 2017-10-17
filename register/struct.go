@@ -11,4 +11,4 @@ type CoreRegister struct {
 	selector types.Selector
 }
 
-type CoreRegisterFactory struct {}
+type CoreRegisterFactory struct{}

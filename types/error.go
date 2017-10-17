@@ -9,27 +9,31 @@ import (
 )
 
 func (e *Error) Error() string {
-	return e.Message
+	return e.String()
 }
 
 func (e *Error) String() string {
-	return e.Message
+	return e.format(e)
+}
+
+func formatError(e *Error) string {
+	format := errFormatTable[e.Code]
+	str := fmt.Sprintf(format, e.Type.Name(), e.Name)
+	e.format = func(*Error) string {
+		return str
+	}
+	return str
 }
 
 func NewError(code ErrorCode, impType interface{}, args ...string) error {
-	typ := utils.TypeOf(impType)
-	name := ""
-	format := errFormatTable[code]
-	if len(args) > 0 {
-		name = args[0]
-	}
-
 	err := &Error{
-		Type:    typ,
-		Name:    name,
-		Code:    code,
-		Message: fmt.Sprintf(format, typ.Name(), name),
+		Type:   utils.TypeOf(impType),
+		Name:   DEFAULT_NAME,
+		Code:   code,
+		format: formatError,
 	}
-
+	if len(args) > 0 {
+		err.Name = args[0]
+	}
 	return err
 }

@@ -27,7 +27,7 @@ func test_binder(t *testing.T, binder types.Binder) {
 	for v, k := range key {
 		err := binder.Bind(k, intFactory(v))
 		if nil != err {
-			t.Errorf("can't bind key %s error : %s", v, err.Error())
+			t.Errorf("can't bind key %s error : %s", k, err.Error())
 		}
 	}
 

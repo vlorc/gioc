@@ -107,7 +107,7 @@ func Test_SingleFactory(t *testing.T) {
 		return value, nil
 	}))
 
-	num := 1000
+	num := 250
 	wait.Add(num)
 	all.Add(num)
 
@@ -131,11 +131,9 @@ func test_methodFactory(t *testing.T, f interface{}) {
 	if nil != err {
 		t.Errorf("can't allocate a factory error : %s", err.Error())
 	}
-
 	if nil == factory {
 		t.Errorf("can't allocate a factory")
 	}
-
 	if nil == resultType {
 		t.Errorf("can't matching result type")
 	}

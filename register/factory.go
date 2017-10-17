@@ -17,6 +17,6 @@ func NewRegisterFactory() types.RegisterFactory {
 
 func NewRegister(selector types.Selector) types.Register {
 	return &CoreRegister{
-		selector:selector,
+		selector: selector,
 	}
 }

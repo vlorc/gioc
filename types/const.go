@@ -8,6 +8,7 @@ type DependencyFlag int
 type ErrorCode int
 
 const (
+	_                             = iota
 	ErrInstanceNotFound ErrorCode = iota
 	ErrFactoryNotFound
 	ErrTypeNotFound
@@ -20,6 +21,8 @@ const (
 	ErrTypeImplements
 	ErrTypeNotPointer
 	ErrTypeNotInterface
+	ErrTypeNotFunction
+	ErrIndexNotSupport
 )
 
 var errFormatTable = map[ErrorCode]string{
@@ -34,10 +37,13 @@ var errFormatTable = map[ErrorCode]string{
 	ErrTypeImplements:    `can't implements type '%s'`,
 	ErrTypeNotPointer:    `don't is pointer type '%s'`,
 	ErrTypeNotInterface:  `don't is interface type '%s'`,
+	ErrTypeNotFunction:   `don't is interface type '%s'`,
+	ErrIndexNotSupport:   `can't support type '%s'`,
 }
 
 const (
 	DEPENDENCY_FLAG_EXTENDS DependencyFlag = 1 << iota
+	DEPENDENCY_FLAG_LAZY
 	DEPENDENCY_FLAG_DEFAULT
 	DEPENDENCY_FLAG_OPTIONAL
 )

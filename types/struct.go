@@ -6,17 +6,25 @@ package types
 import "reflect"
 
 type Error struct {
-	Type    reflect.Type
-	Name    string
-	Code    ErrorCode
-	Message string
+	Type   reflect.Type
+	Name   string
+	Code   ErrorCode
+	format func(*Error) string
 }
 
 type DependencyDescription struct {
 	Type    reflect.Type
 	Name    string
 	Index   int
+	Flags   DependencyFlag
 	Default reflect.Value
 	Depend  Dependency
-	Flags   DependencyFlag
+}
+
+type BuildContext struct {
+	Descriptor DescriptorGetter
+	Inject     DependencyInject
+	Provider   Provider
+	FullBefore func(*BuildContext) bool
+	FullAfter  func(*BuildContext)
 }

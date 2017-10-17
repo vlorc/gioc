@@ -5,8 +5,8 @@ package mapper
 
 import (
 	"github.com/vlorc/gioc/types"
-	"sync"
 	"reflect"
+	"sync"
 )
 
 type NamedMapping struct {
@@ -15,6 +15,6 @@ type NamedMapping struct {
 }
 
 type SelectorMapping struct {
-	typ reflect.Type
+	typ      reflect.Type
 	selector types.SelectorGetter
 }

@@ -10,60 +10,65 @@ import (
 
 func NewParamReflect(value reflect.Value) (ref types.Reflect) {
 	if value.Len() > 0 {
-		ref = CoreParamReflect(value.Interface().([]reflect.Value))
+		ref = ParamReflect(value.Interface().([]reflect.Value))
 	}
 	return
 }
 
 func NewStructReflect(value reflect.Value) (ref types.Reflect) {
 	if reflect.Struct == value.Kind() {
-		ref = CoreStructReflect(value)
+		ref = StructReflect(value)
 	}
 	return
 }
 
 func NewArrayReflect(value reflect.Value) (ref types.Reflect) {
 	if value.Len() > 0 {
-		ref = CoreArrayReflect(value)
+		ref = ArrayReflect(value)
 	}
 	return
 }
 
 func NewMapReflect(value reflect.Value) (ref types.Reflect) {
 	if reflect.Map == value.Kind() {
-		ref = CoreMapReflect(value)
+		ref = MapReflect(value)
 	}
 	return
 }
 
-func (pr CoreParamReflect) Set(des types.DescriptorGetter, val reflect.Value) {
+func (pr ParamReflect) Set(des types.DescriptorGetter, val reflect.Value) {
 	pr[des.Index()] = val
 }
 
-func (pr CoreParamReflect) Get(des types.DescriptorGetter) reflect.Value {
-	return pr[des.Index()]
+func (pr ParamReflect) Get(des types.DescriptorGetter) reflect.Value {
+	val := pr[des.Index()]
+	if !val.IsValid() {
+		val = reflect.New(des.Type()).Elem()
+		pr[des.Index()] = val
+	}
+	return val
 }
 
-func (sr CoreStructReflect) Set(des types.DescriptorGetter, val reflect.Value) {
+func (sr StructReflect) Set(des types.DescriptorGetter, val reflect.Value) {
 	reflect.Value(sr).Field(des.Index()).Set(val)
 }
 
-func (sr CoreStructReflect) Get(des types.DescriptorGetter) reflect.Value {
+func (sr StructReflect) Get(des types.DescriptorGetter) reflect.Value {
 	return reflect.Value(sr).Field(des.Index())
 }
 
-func (ar CoreArrayReflect) Set(des types.DescriptorGetter, val reflect.Value) {
+func (ar ArrayReflect) Set(des types.DescriptorGetter, val reflect.Value) {
 	reflect.Value(ar).Index(des.Index()).Set(val)
 }
 
-func (ar CoreArrayReflect) Get(des types.DescriptorGetter) reflect.Value {
+func (ar ArrayReflect) Get(des types.DescriptorGetter) reflect.Value {
 	return reflect.Value(ar).Index(des.Index())
 }
 
-func (mr CoreMapReflect) Set(des types.DescriptorGetter, val reflect.Value) {
+func (mr MapReflect) Set(des types.DescriptorGetter, val reflect.Value) {
 	reflect.Value(mr).SetMapIndex(reflect.ValueOf(des.Name()), val)
 }
 
-func (mr CoreMapReflect) Get(des types.DescriptorGetter) reflect.Value {
+func (mr MapReflect) Get(des types.DescriptorGetter) reflect.Value {
 	return reflect.Value(mr).MapIndex(reflect.ValueOf(des.Name()))
 }

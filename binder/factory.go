@@ -22,13 +22,12 @@ func NewNameBinder() types.Binder {
 	}
 }
 
-func NewSelectorBinder(typ reflect.Type,selector types.Selector) types.Binder {
+func NewSelectorBinder(typ reflect.Type, selector types.Selector) types.Binder {
 	return &SelectorBind{
-		typ: typ,
+		typ:      typ,
 		selector: selector,
 	}
 }
-
 
 func NewProxyBinder(read types.Mapper, write types.Binder) types.Binder {
 	if nil == read {

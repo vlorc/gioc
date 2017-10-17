@@ -35,14 +35,14 @@ type SelectorSetter interface {
 	AsMapper(reflect.Type) Mapper
 	AsBinder(reflect.Type) Binder
 
-	SetBinder(reflect.Type,Binder) error
-	SetFactory(reflect.Type,string,BeanFactory) error
+	SetBinder(reflect.Type, Binder) error
+	SetFactory(reflect.Type, string, BeanFactory) error
 }
 
 type SelectorGetter interface {
 	MapperOf(reflect.Type) Mapper
 	BinderOf(reflect.Type) Binder
-	FactoryOf(reflect.Type,string) BeanFactory
+	FactoryOf(reflect.Type, string) BeanFactory
 }
 
 type Selector interface {
@@ -68,6 +68,10 @@ type DependencyFactory interface {
 
 type SelectorFactory interface {
 	Instance(BinderFactory) (Selector, error)
+}
+
+type InvokerFactory interface {
+	Instance(interface{}, Builder) (Invoker, error)
 }
 
 type Register interface {
@@ -116,12 +120,17 @@ type Descriptor interface {
 
 type DependencyScan interface {
 	DescriptorGetter
+	Reset()
 	Next() bool
+	AsDescriptorGetter() DescriptorGetter
+	AsDescriptorSetter() DescriptorSetter
 	Test(interface{}) bool
 }
 
 type DependencyInject interface {
 	DependencyScan
+	AsValue() reflect.Value
+	Convert(interface{})
 	SetInterface(interface{})
 	SetValue(reflect.Value)
 	SubInject(Provider) DependencyInject
@@ -150,13 +159,15 @@ type Reflect interface {
 type Builder interface {
 	BeanFactory
 	AsFactory() BeanFactory
-	Build(Provider, BeanFactory) (interface{}, error)
+	Build(Provider, ...func(*BuildContext)) (interface{}, error)
+}
+
+type Invoker interface {
+	Apply(...interface{}) []reflect.Value
+	ApplyWith(Provider, ...interface{}) []reflect.Value
 }
 
 var ErrorType = reflect.TypeOf((*error)(nil)).Elem()
 var ProviderType = reflect.TypeOf((*Provider)(nil)).Elem()
-
-var DependencyFactoryType = reflect.TypeOf((*DependencyFactory)(nil)).Elem()
 var RegisterFactoryType = reflect.TypeOf((*RegisterFactory)(nil)).Elem()
 var BinderFactoryType = reflect.TypeOf((*BinderFactory)(nil)).Elem()
-var BuilderFactoryType = reflect.TypeOf((*BuilderFactory)(nil)).Elem()

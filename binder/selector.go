@@ -12,10 +12,9 @@ func (sb *SelectorBind) AsMapper() types.Mapper {
 }
 
 func (sb *SelectorBind) Bind(key string, factory types.BeanFactory) (err error) {
-	return sb.selector.SetFactory(sb.typ,key,factory)
+	return sb.selector.SetFactory(sb.typ, key, factory)
 }
 
 func (sb *SelectorBind) Resolve(key string) types.BeanFactory {
-	return sb.selector.FactoryOf(sb.typ,key)
+	return sb.selector.FactoryOf(sb.typ, key)
 }
-

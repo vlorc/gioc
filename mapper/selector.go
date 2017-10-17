@@ -8,13 +8,13 @@ import (
 	"reflect"
 )
 
-func NewSelectorMapping(typ reflect.Type,selector types.SelectorGetter) types.Mapper {
+func NewSelectorMapping(typ reflect.Type, selector types.SelectorGetter) types.Mapper {
 	return &SelectorMapping{
-		typ:  typ,
+		typ:      typ,
 		selector: selector,
 	}
 }
 
 func (sm *SelectorMapping) Resolve(key string) types.BeanFactory {
-	return sm.selector.FactoryOf(sm.typ,key)
+	return sm.selector.FactoryOf(sm.typ, key)
 }
