@@ -27,13 +27,17 @@ func (ts *TypeSelector) AsBinder(typ reflect.Type) types.Binder {
 	ts.lock.RLock()
 	bind, ok := ts.table[typ]
 	ts.lock.RUnlock()
-
-	if !ok {
-		bind, _ = ts.factory.Instance(typ)
-		ts.lock.Lock()
-		ts.table[typ] = bind
-		ts.lock.Unlock()
+	if ok {
+		return bind
 	}
+
+	bind, err := ts.factory.Instance(typ)
+	if nil != err {
+		panic(err)
+	}
+	ts.lock.Lock()
+	ts.table[typ] = bind
+	ts.lock.Unlock()
 	return bind
 }
 

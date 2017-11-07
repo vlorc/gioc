@@ -50,7 +50,7 @@ func DirectlyValue(v reflect.Value) reflect.Value {
 	return v
 }
 
-// get a interface type
+// get an interface type
 func InterfaceOf(t reflect.Type) reflect.Type {
 	if t = DirectlyType(t); reflect.Interface != t.Kind() {
 		t = nil
@@ -64,6 +64,18 @@ func NewOf(src reflect.Value) reflect.Value {
 		tmp := reflect.New(src.Type().Elem())
 		src.Set(tmp)
 		src = tmp.Elem()
+	}
+	return src
+}
+
+
+func Convert(src reflect.Value,typ reflect.Type) reflect.Value {
+	if src.IsValid() {
+		if src.Type() != typ {
+			src = src.Convert(typ)
+		}
+	} else {
+		src = reflect.Zero(typ)
 	}
 	return src
 }

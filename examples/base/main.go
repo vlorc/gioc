@@ -22,19 +22,16 @@ func testInstance(register types.Register, provider types.Provider, name string)
 
 func main() {
 	container := gioc.NewRootContainer()
-
-	key := []string{
-		"age", "gender", "high", "width",
-	}
+	key := []string{"age", "gender", "high", "width"}
 
 	for _, v := range key {
-		testInstance(container.AsRegister(), container, v)
+		testInstance(container.AsRegister(), container.AsProvider(), v)
 	}
 
 	child := container.Child()
 	for _, v := range key {
 		var value int64
-		child.Assign(&value, v)
+		child.AsProvider().Assign(&value, v)
 		fmt.Println(v, ":", value)
 	}
 

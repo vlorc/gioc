@@ -29,7 +29,13 @@ func NewTypeSelector(factory types.BinderFactory) types.Selector {
 }
 
 func NewTypeNameSelector() types.Selector {
-	return &TypeNameSelector{
-		table: make(map[TypeName]types.BeanFactory),
+	return &NamedSelector{
+		selector: make(typeNameSelector),
+	}
+}
+
+func NewNamedSSelector() types.Selector {
+	return &NamedSelector{
+		selector: make(nameSelector),
 	}
 }

@@ -9,5 +9,5 @@ import (
 )
 
 func (this *TypeFactory) Instance(types.Provider) (interface{}, error) {
-	return reflect.New(this.types).Interface(), nil
+	return reflect.New(this.typ).Interface(), nil
 }

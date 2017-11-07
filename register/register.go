@@ -16,7 +16,7 @@ func (r *CoreRegister) AsSelector() types.Selector {
 }
 
 func (r *CoreRegister) RegisterMapper(mapping types.Mapper, impType interface{}) error {
-	return r.RegisterMapper(binder.NewProxyBinder(mapping, nil), impType)
+	return r.RegisterBinder(binder.NewProxyBinder(mapping, nil), impType)
 }
 
 func (r *CoreRegister) RegisterBinder(binder types.Binder, impType interface{}) error {
@@ -50,7 +50,6 @@ func (r *CoreRegister) RegisterPointer(pointer interface{}, args ...string) erro
 	}
 
 	srcValue = srcValue.Elem()
-
 	return r.registerFactory(
 		factory.NewPointerFactory(srcValue),
 		srcValue.Type(),
@@ -72,8 +71,8 @@ func (r *CoreRegister) RegisterFactory(beanFactory types.BeanFactory, impType in
 		args...)
 }
 
-func (r *CoreRegister) RegisterMethod(paramFactory types.BeanFactory, funcType interface{}, impType interface{}, args ...string) error {
-	beanFactory, srcType, err := factory.NewMethodFactory(funcType, paramFactory)
+func (r *CoreRegister) RegisterMethod(paramFactory types.BeanFactory, method interface{}, impType interface{}, args ...string) error {
+	beanFactory, srcType, err := factory.NewMethodFactory(method, paramFactory)
 	if nil != err {
 		return err
 	}
@@ -88,7 +87,6 @@ func (r *CoreRegister) RegisterMethod(paramFactory types.BeanFactory, funcType i
 			return types.NewError(types.ErrTypeNotMatch, srcType, args...)
 		}
 	}
-
 	return r.registerFactory(
 		beanFactory,
 		dstType,

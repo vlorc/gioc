@@ -38,7 +38,7 @@ func main() {
 	register(child, (*Personal)(nil))
 	register(child, getUser)
 
-	fmt.Println(child.Resolve((**User)(nil)))
+	fmt.Println(child.AsProvider().Resolve((**User)(nil)))
 }
 
 func getUser(param struct {
@@ -52,8 +52,8 @@ func register(container types.Container, impType interface{}, name ...string) ty
 	var dependFactory types.DependencyFactory
 	var builderFactory types.BuilderFactory
 	var builder types.Builder
-	container.Assign(&dependFactory)
-	container.Assign(&builderFactory)
+	container.AsProvider().Assign(&dependFactory)
+	container.AsProvider().Assign(&builderFactory)
 
 	typ := utils.TypeOf(impType)
 	depend, err := dependFactory.Instance(typ)

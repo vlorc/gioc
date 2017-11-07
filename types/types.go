@@ -14,6 +14,7 @@ type Provider interface {
 	ResolveType(reflect.Type, string, int) (interface{}, error)
 	ResolveNamed(interface{}, string, int) (interface{}, error)
 	Assign(interface{}, ...string) error
+	AssignType(reflect.Value, reflect.Type, string, int) error
 	AssignNamed(interface{}, interface{}, string, int) error
 }
 
@@ -86,7 +87,6 @@ type Register interface {
 }
 
 type Container interface {
-	Provider
 	AsProvider() Provider
 	AsRegister() Register
 	Seal() Container
@@ -169,8 +169,5 @@ type Invoker interface {
 
 var ErrorType = reflect.TypeOf((*error)(nil)).Elem()
 var ProviderType = reflect.TypeOf((*Provider)(nil)).Elem()
-
-var DependencyFactoryType = reflect.TypeOf((*DependencyFactory)(nil)).Elem()
 var RegisterFactoryType = reflect.TypeOf((*RegisterFactory)(nil)).Elem()
 var BinderFactoryType = reflect.TypeOf((*BinderFactory)(nil)).Elem()
-var BuilderFactoryType = reflect.TypeOf((*BuilderFactory)(nil)).Elem()

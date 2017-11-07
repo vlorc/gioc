@@ -5,34 +5,78 @@ package provider
 
 import (
 	"github.com/vlorc/gioc/types"
+	"github.com/vlorc/gioc/utils"
 	"reflect"
 )
 
-type ProxyProvider struct {
-	provider types.Provider
-}
-
-func (pp *ProxyProvider) Resolve(impType interface{}, args ...string) (interface{}, error) {
-	return pp.provider.Resolve(impType, args...)
-}
-
-func (pp *ProxyProvider) ResolveType(typ reflect.Type, name string, deep int) (interface{}, error) {
-	return pp.provider.ResolveType(typ, name, deep)
-}
-func (pp *ProxyProvider) ResolveNamed(impType interface{}, name string, deep int) (interface{}, error) {
-	return pp.provider.ResolveNamed(impType, name, deep)
-}
-
-func (pp *ProxyProvider) Assign(dst interface{}, args ...string) (err error) {
-	return pp.provider.Assign(dst, args...)
-}
-
-func (pp *ProxyProvider) AssignNamed(dst interface{}, impType interface{}, name string, deep int) error {
-	return pp.provider.AssignNamed(dst, impType, name, deep)
-}
-
-func NewProxyProvider(provider types.Provider) types.Provider {
-	return &ProxyProvider{
-		provider: provider,
+func (p *CoreProvider) Resolve(impType interface{}, args ...string) (interface{}, error) {
+	var name string = types.DEFAULT_NAME
+	if len(args) > 0 {
+		name = args[0]
 	}
+	return p.ResolveNamed(impType, name, -1)
+}
+
+func (p *CoreProvider) ResolveNamed(impType interface{}, name string, deep int) (interface{}, error) {
+	return p.ResolveType(utils.TypeOf(impType), name, deep)
+}
+
+func (p *CoreProvider) ResolveType(typ reflect.Type, name string, deep int) (instance interface{}, err error) {
+	if factory := p.selector.FactoryOf(typ, name); nil != factory {
+		instance, err = factory.Instance(p)
+		return
+	}
+
+	if deep < 0 {
+		deep = p.deep
+	}
+	if deep--; nil == p.parent() || deep < 0 {
+		err = types.NewError(types.ErrFactoryNotFound, typ, name)
+	} else {
+		instance, err = p.parent().ResolveType(typ, name, deep)
+	}
+	return
+}
+
+func (p *CoreProvider) Assign(dst interface{}, args ...string) error {
+	var name string = types.DEFAULT_NAME
+	if len(args) > 0 {
+		name = args[0]
+	}
+	return p.AssignType(utils.ValueOf(dst), nil, name, -1)
+}
+
+func (p *CoreProvider) AssignNamed(dst interface{}, impType interface{}, name string, deep int) (err error) {
+	defer utils.Recover(&err)
+
+	dstValue := utils.ValueOf(dst)
+	var srcType reflect.Type
+	if nil != impType{
+		srcType = utils.TypeOf(impType)
+	}
+	return p.AssignType(dstValue, srcType,name,deep)
+}
+
+func (p *CoreProvider) AssignType(dstValue reflect.Value, srcType reflect.Type, name string, deep int) (err error) {
+	defer utils.Recover(&err)
+
+	if !dstValue.CanSet() {
+		if reflect.Ptr != dstValue.Kind() {
+			err = types.NewError(types.ErrTypeNotSet, dstValue)
+			return
+		}
+		dstValue = dstValue.Elem()
+	}
+	if nil == srcType{
+		srcType = dstValue.Type()
+	}
+
+	instance, err := p.ResolveType(srcType, name, deep)
+	if nil != err {
+		return err
+	}
+
+	srcValue := utils.Convert(reflect.ValueOf(instance),srcType)
+	dstValue.Set(srcValue)
+	return
 }

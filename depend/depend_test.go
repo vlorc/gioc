@@ -45,7 +45,8 @@ func test_struct(t *testing.T, typ reflect.Type, table depTable) {
 func Test_AnonymousStruct(t *testing.T) {
 	bean := struct {
 		Id       int64
-		Name     *string `inject:"'alias' optional"`
+		Flags    uint `inject:"default(10)"`
+		Name     *string `inject:"'alias' optional default(nil)"`
 		Identity struct {
 			Username string `inject:"lower"`
 			Password string `inject:"upper"`
@@ -64,14 +65,24 @@ func Test_AnonymousStruct(t *testing.T) {
 			des: &types.DependencyDescription{
 				Index: 1,
 				Type:  typ.Field(1).Type,
-				Name:  "alias",
-				Flags: types.DEPENDENCY_FLAG_OPTIONAL,
+				Name:  "Flags",
+				Flags: types.DEPENDENCY_FLAG_DEFAULT,
+				Default: reflect.ValueOf(uint(10)),
 			},
 		},
 		2: {
 			des: &types.DependencyDescription{
 				Index: 2,
 				Type:  typ.Field(2).Type,
+				Name:  "alias",
+				Flags: types.DEPENDENCY_FLAG_OPTIONAL | types.DEPENDENCY_FLAG_DEFAULT,
+				Default: reflect.ValueOf((*string)(nil)),
+			},
+		},
+		3: {
+			des: &types.DependencyDescription{
+				Index: 3,
+				Type:  typ.Field(3).Type,
 				Name:  "Identity",
 				Flags: types.DEPENDENCY_FLAG_EXTENDS,
 			},
@@ -79,14 +90,14 @@ func Test_AnonymousStruct(t *testing.T) {
 				0: {
 					des: &types.DependencyDescription{
 						Index: 0,
-						Type:  typ.Field(2).Type.Field(0).Type,
+						Type:  typ.Field(3).Type.Field(0).Type,
 						Name:  "username",
 					},
 				},
 				1: {
 					des: &types.DependencyDescription{
 						Index: 1,
-						Type:  typ.Field(2).Type.Field(1).Type,
+						Type:  typ.Field(3).Type.Field(1).Type,
 						Name:  "PASSWORD",
 					},
 				},
@@ -107,6 +118,7 @@ func compare_Description(t *testing.T, dst types.DescriptorGetter, table struct 
 	des *types.DependencyDescription
 	sub depTable
 }) {
+
 	if nil == table.des {
 		t.Errorf("can't matching dependency field %s", dst.Name())
 	}
@@ -123,10 +135,12 @@ func compare_Description(t *testing.T, dst types.DescriptorGetter, table struct 
 		srcField := srcVal.Field(i)
 		key := srcVal.Type().Field(i).Name
 		dstField := dstVal.MethodByName(key).Call(nil)[0]
-		if srcField.Interface() != dstField.Interface() {
-			t.Errorf("can't matching dependency field %s,%s: %v != %v",
+		if !compare_value(t,srcField,dstField) {
+			t.Errorf("can't matching dependency field %s,%s : %T,%T %v != %v",
 				dst.Name(),
 				key,
+				dstField.Interface().(reflect.Value).Interface(),
+				srcField.Interface().(reflect.Value).Interface(),
 				dstField.Interface(),
 				srcField.Interface())
 		}
@@ -135,4 +149,23 @@ func compare_Description(t *testing.T, dst types.DescriptorGetter, table struct 
 	if 0 != hasExtends {
 		compare_Dependency(t, dst.Depend(), table.sub)
 	}
+}
+
+func compare_value(t *testing.T,v1, v2 reflect.Value) bool{
+	if !v1.IsValid() || !v2.IsValid() {
+		return v1.IsValid() == v2.IsValid()
+	}
+	if v1.Type() != v2.Type() {
+		return false
+	}
+
+	t1,ok1 := v1.Interface().(reflect.Value)
+	t2,ok2 := v2.Interface().(reflect.Value)
+	if ok1 != ok2 {
+		return false
+	}else if true == ok1 {
+		return compare_value(t,t1,t2)
+	}
+
+	return reflect.DeepEqual(v1.Interface(),v2.Interface())
 }
