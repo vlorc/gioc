@@ -8,8 +8,7 @@ import (
 )
 
 type CoreContainer struct {
-	types.Register
-	types.Provider
-	parent   func() types.Container
+	register types.Register
+	provider types.Provider
 	getChild func() map[types.Container]bool
 }

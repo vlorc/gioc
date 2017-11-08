@@ -6,16 +6,18 @@ package container
 import (
 	"github.com/vlorc/gioc/types"
 	"github.com/vlorc/gioc/utils"
+	"github.com/vlorc/gioc/provider"
 )
 
-func NewWithContainer(provider types.Provider, parent types.Container, deep int) types.Container {
+func NewWithContainer(provider types.Provider) types.Container {
 	var binderFactory types.BinderFactory
 	var selectorFactory types.SelectorFactory
 	var registerFactory types.RegisterFactory
-
+	var providerFactory types.ProviderFactory
 	provider.Assign(&binderFactory)
 	provider.Assign(&selectorFactory)
 	provider.Assign(&registerFactory)
+	provider.Assign(&providerFactory)
 
 	if nil == selectorFactory || nil == registerFactory {
 		return nil
@@ -28,25 +30,17 @@ func NewWithContainer(provider types.Provider, parent types.Container, deep int)
 	if nil != err {
 		panic(err)
 	}
-	return NewContainer(reg, parent, deep)
-}
-
-func NewChildContainer(provider types.Provider, parent types.Container, deep int) (c types.Container) {
-	var reg types.Register
-	if err := provider.Assign(&reg); nil != err {
-		c = NewWithContainer(provider, parent, deep)
-	} else {
-		c = NewContainer(reg, parent, deep)
+	pro, err := providerFactory.Instance(sel,provider)
+	if nil != err {
+		panic(err)
 	}
-	return
+	return NewContainer(reg,pro)
 }
 
-func NewContainer(register types.Register, parent types.Container, deep int) types.Container {
+func NewContainer(register types.Register,  provider types.Provider) types.Container {
 	c := &CoreContainer{
-		Register: register,
-		parent: func() types.Container {
-			return parent
-		},
+		register: register,
+		provider: provider,
 	}
 
 	utils.Once(&c.getChild, func() interface {}{
@@ -55,8 +49,6 @@ func NewContainer(register types.Register, parent types.Container, deep int) typ
 			return pool
 		}
 	})
-	p := c.AsProvider()
-	register.RegisterInstance(&p)
 	return c
 }
 

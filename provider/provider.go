@@ -26,15 +26,11 @@ func (p *CoreProvider) ResolveType(typ reflect.Type, name string, deep int) (ins
 		instance, err = factory.Instance(p)
 		return
 	}
-
-	if deep < 0 {
-		deep = p.deep
-	}
-	if deep--; nil == p.parent() || deep < 0 {
+	if nil == p.parent || 0 == deep {
 		err = types.NewError(types.ErrFactoryNotFound, typ, name)
-	} else {
-		instance, err = p.parent().ResolveType(typ, name, deep)
 	}
+
+	instance, err = p.parent.ResolveType(typ, name, deep - 1)
 	return
 }
 

@@ -28,9 +28,8 @@ type TokenScan struct {
 type TagContext struct {
 	Factory    types.DependencyFactory
 	Descriptor types.Descriptor
-	Params     []Param
-	Skip       func(string) bool
 	Tag        string
+	Params     []Param
 	TokenScan  *TokenScan
 }
 

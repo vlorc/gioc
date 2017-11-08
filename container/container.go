@@ -8,29 +8,42 @@ import (
 )
 
 func (c *CoreContainer) AsRegister() types.Register {
-	return c.Register
+	return c.register
 }
 
 func (c *CoreContainer) AsProvider() types.Provider {
-	return c.Provider
+	return c.provider
 }
 
 func (c *CoreContainer) Seal() types.Container {
-	return c
+	return &CoreContainer{
+		register: c.register,
+		provider: c.provider,
+		getChild: func() map[types.Container]bool {
+			return nil
+		},
+	}
 }
 
 func (c *CoreContainer) Readonly() types.Container {
-	return c
+	return &CoreContainer{
+		register: nil,
+		provider: c.provider,
+		getChild: func() map[types.Container]bool {
+			return c.getChild()
+		},
+	}
 }
 
-func (c *CoreContainer) Parent() types.Container {
-	return c.parent()
-}
+func (c *CoreContainer) NewChild() types.Container {
+	pool := c.getChild()
+	if nil == pool {
+		return nil
+	}
 
-func (c *CoreContainer) Child() types.Container {
-	child := NewChildContainer(c, c,0)
+	child := NewWithContainer(c.AsProvider())
 	if nil != child {
-		c.getChild()[child] = true
+		pool[child] = true
 	}
 	return child
 }

@@ -13,10 +13,18 @@ func NewProxyProvider(provider types.Provider) types.Provider {
 	}
 }
 
-func NewWithProvider(selector types.SelectorGetter) types.Provider {
+func NewWithProvider(selector types.SelectorGetter,provider types.Provider) types.Provider {
 	return &CoreProvider{
 		deep:0,
-		parent:nil,
+		parent:provider,
 		selector:selector,
 	}
+}
+
+func NewProviderFactory() types.ProviderFactory {
+	return &CoreProviderFactory{}
+}
+
+func (fi *CoreProviderFactory) Instance(selector types.SelectorGetter,provider types.Provider) (types.Provider, error) {
+	return NewWithProvider(selector,provider),nil
 }

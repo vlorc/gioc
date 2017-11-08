@@ -11,10 +11,6 @@ import (
 	"reflect"
 )
 
-func (r *CoreRegister) AsSelector() types.Selector {
-	return r.selector
-}
-
 func (r *CoreRegister) RegisterMapper(mapping types.Mapper, impType interface{}) error {
 	return r.RegisterBinder(binder.NewProxyBinder(mapping, nil), impType)
 }
@@ -56,14 +52,6 @@ func (r *CoreRegister) RegisterPointer(pointer interface{}, args ...string) erro
 		args...)
 }
 
-func (r *CoreRegister) registerFactory(beanFactory types.BeanFactory, impType reflect.Type, args ...string) error {
-	var name string = types.DEFAULT_NAME
-	if len(args) > 0 {
-		name = args[0]
-	}
-	return r.selector.SetFactory(impType, name, beanFactory)
-}
-
 func (r *CoreRegister) RegisterFactory(beanFactory types.BeanFactory, impType interface{}, args ...string) error {
 	return r.registerFactory(
 		beanFactory,
@@ -91,4 +79,12 @@ func (r *CoreRegister) RegisterMethod(paramFactory types.BeanFactory, method int
 		beanFactory,
 		dstType,
 		args...)
+}
+
+func (r *CoreRegister) registerFactory(beanFactory types.BeanFactory, impType reflect.Type, args ...string) error {
+	var name string = types.DEFAULT_NAME
+	if len(args) > 0 {
+		name = args[0]
+	}
+	return r.selector.SetFactory(impType, name, beanFactory)
 }

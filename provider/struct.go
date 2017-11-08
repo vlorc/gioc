@@ -8,11 +8,12 @@ import (
 )
 
 type CoreProvider struct {
-	deep     int
-	parent   func() types.Provider
+	parent   types.Provider
 	selector types.SelectorGetter
 }
 
 type ProxyProvider struct {
 	provider types.Provider
 }
+
+type CoreProviderFactory struct {}

@@ -94,7 +94,7 @@ func (tp *TagParser) dispatch(ctx *TagContext, token Token, key string) {
 	case TOKEN_IDENT:
 		tp.Invoke(ctx, key)
 	case TOKEN_CHART, TOKEN_STRING:
-		ctx.Descriptor.SetName(key[1 : len(key)-1])
+		ctx.Descriptor.SetName(key[1: len(key)-1])
 	}
 }
 

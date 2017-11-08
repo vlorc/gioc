@@ -51,6 +51,10 @@ type Selector interface {
 	SelectorGetter
 }
 
+type ProviderFactory interface {
+	Instance(SelectorGetter,Provider) (Provider, error)
+}
+
 type BuilderFactory interface {
 	Instance(BeanFactory, Dependency) (Builder, error)
 }
@@ -60,7 +64,7 @@ type BinderFactory interface {
 }
 
 type RegisterFactory interface {
-	Instance(Selector) (Register, error)
+	Instance(SelectorSetter) (Register, error)
 }
 
 type DependencyFactory interface {
@@ -76,7 +80,6 @@ type InvokerFactory interface {
 }
 
 type Register interface {
-	AsSelector() Selector
 	RegisterBinder(Binder, interface{}) error
 	RegisterMapper(Mapper, interface{}) error
 	RegisterPointer(interface{}, ...string) error
@@ -91,8 +94,7 @@ type Container interface {
 	AsRegister() Register
 	Seal() Container
 	Readonly() Container
-	Parent() Container
-	Child() Container
+	NewChild() Container
 }
 
 type DescriptorGetter interface {
