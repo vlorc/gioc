@@ -10,22 +10,22 @@ import (
 	"strings"
 )
 
-func lowerCaseHandle(ctx *TagContext) error {
+func lowerCaseHandle(ctx *types.ParseContext) error {
 	ctx.Descriptor.SetName(strings.ToLower(ctx.Descriptor.Name()))
 	return nil
 }
 
-func upperCaseHandle(ctx *TagContext) error {
+func upperCaseHandle(ctx *types.ParseContext) error {
 	ctx.Descriptor.SetName(strings.ToUpper(ctx.Descriptor.Name()))
 	return nil
 }
 
-func nameHandle(ctx *TagContext) error {
+func nameHandle(ctx *types.ParseContext) error {
 	ctx.Descriptor.SetName(ctx.Params[0].String())
 	return nil
 }
 
-func defaultHandle(ctx *TagContext) error {
+func defaultHandle(ctx *types.ParseContext) error {
 	var val reflect.Value
 	if len(ctx.Params) > 0 {
 		val = ctx.Params[0].Value()
@@ -33,19 +33,18 @@ func defaultHandle(ctx *TagContext) error {
 
 	val = utils.Convert(val,ctx.Descriptor.Type())
 	ctx.Descriptor.SetDefault(val)
-
 	return nil
 }
 
-func lazyHandle(ctx *TagContext) (err error) {
+func lazyHandle(ctx *types.ParseContext) (err error) {
 	typ := utils.DirectlyType(ctx.Descriptor.Type())
 	if reflect.Func != typ.Kind() || typ.NumOut() != 1 || typ.NumIn() > 0 {
-		err = types.NewError(types.ErrTypeNotSupport, typ, ctx.Descriptor.Name())
+		err = types.NewWithError(types.ErrTypeNotSupport, typ, ctx.Descriptor.Name())
 	}
 	return
 }
 
-func extendsHandle(ctx *TagContext) error {
+func extendsHandle(ctx *types.ParseContext) error {
 	typ := ctx.Descriptor.Type()
 	if 0 != ctx.Descriptor.Flags()&types.DEPENDENCY_FLAG_LAZY {
 		typ = utils.DirectlyType(ctx.Descriptor.Type()).Out(0)
@@ -55,8 +54,8 @@ func extendsHandle(ctx *TagContext) error {
 	return err
 }
 
-func flagsHandle(flag types.DependencyFlag) TagHandle {
-	return func(ctx *TagContext) error {
+func flagsHandle(flag types.DependencyFlag) types.IdentHandle {
+	return func(ctx *types.ParseContext) error {
 		ctx.Descriptor.SetFlags(ctx.Descriptor.Flags() | flag)
 		return nil
 	}

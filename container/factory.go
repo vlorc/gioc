@@ -19,7 +19,7 @@ func NewWithContainer(provider types.Provider) types.Container {
 	provider.Assign(&registerFactory)
 	provider.Assign(&providerFactory)
 
-	if nil == selectorFactory || nil == registerFactory {
+	if nil == selectorFactory || nil == registerFactory || nil == providerFactory{
 		return nil
 	}
 	sel, err := selectorFactory.Instance(binderFactory)

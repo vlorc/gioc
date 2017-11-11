@@ -3,6 +3,10 @@
 
 package types
 
+type Token int
+
+type Kind uint
+
 type DependencyFlag int
 
 type ErrorCode int
@@ -23,6 +27,7 @@ const (
 	ErrTypeNotInterface
 	ErrTypeNotFunction
 	ErrIndexNotSupport
+	ErrTokenNotSupport
 )
 
 var errFormatTable = map[ErrorCode]string{
@@ -39,6 +44,7 @@ var errFormatTable = map[ErrorCode]string{
 	ErrTypeNotInterface:  `don't is interface type '%s'`,
 	ErrTypeNotFunction:   `don't is interface type '%s'`,
 	ErrIndexNotSupport:   `can't support type '%s'`,
+	ErrTokenNotSupport:   `can't support token '%s'`,
 }
 
 const (
@@ -46,6 +52,31 @@ const (
 	DEPENDENCY_FLAG_LAZY
 	DEPENDENCY_FLAG_DEFAULT
 	DEPENDENCY_FLAG_OPTIONAL
+)
+
+const (
+	TOKEN_EOF     Token = -1
+	TOKEN_ERROR         = 2
+	TOKEN_CHART         = 4
+	TOKEN_ECHART        = 7
+	TOKEN_STRING        = 9
+	TOKEN_ESTRING       = 12
+	TOKEN_IDENT         = 13
+	TOKEN_LPAREN        = 14
+	TOKEN_RPAREN        = 15
+	TOKEN_COMMA         = 16
+	TOKEN_NUMBER        = 19
+	TOKEN_FLOAT         = 20
+	TOKEN_NULL           = 23
+)
+
+const (
+	Invalid Kind = iota
+	Int
+	Float
+	String
+	Boolean
+	Null
 )
 
 const DEFAULT_NAME string = ""

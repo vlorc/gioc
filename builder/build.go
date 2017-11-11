@@ -14,13 +14,13 @@ func BuildInstance(provider types.Provider, factory types.BeanFactory, depend ty
 		return
 	}
 	if nil == instance {
-		err = types.NewError(types.ErrInstanceNotFound, instance)
+		err = types.NewWithError(types.ErrInstanceNotFound, instance)
 		return
 	}
 	if inject := depend.AsInject(instance); nil != inject {
 		buildDefault(provider, inject, option...)
 	} else {
-		err = types.NewError(types.ErrInjectNotAllot, instance)
+		err = types.NewWithError(types.ErrInjectNotAllot, instance)
 	}
 	return
 }

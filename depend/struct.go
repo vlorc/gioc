@@ -31,7 +31,7 @@ type CoreDependencyFactory struct {
 	lock      sync.RWMutex
 	resolve   map[reflect.Kind]ResolveHandle
 	pool      map[reflect.Type]types.Dependency
-	tagParser *TagParser
+	parser    types.TextParser
 }
 
 type DescriptorGetter struct {

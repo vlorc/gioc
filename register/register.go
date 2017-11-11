@@ -23,7 +23,7 @@ func (r *CoreRegister) RegisterBinder(binder types.Binder, impType interface{}) 
 func (r *CoreRegister) RegisterInterface(instance interface{}, args ...string) error {
 	val := utils.DirectlyValue(utils.ValueOf(instance))
 	if reflect.Interface != val.Kind() || val.IsNil() {
-		return types.NewError(types.ErrTypeNotInterface, instance)
+		return types.NewWithError(types.ErrTypeNotInterface, instance)
 	}
 
 	return r.registerFactory(
@@ -42,7 +42,7 @@ func (r *CoreRegister) RegisterInstance(instance interface{}, args ...string) er
 func (r *CoreRegister) RegisterPointer(pointer interface{}, args ...string) error {
 	srcValue := reflect.ValueOf(pointer)
 	if reflect.Ptr != srcValue.Kind() {
-		return types.NewError(types.ErrTypeNotPointer, srcValue, args...)
+		return types.NewWithError(types.ErrTypeNotPointer, srcValue, args...)
 	}
 
 	srcValue = srcValue.Elem()
@@ -69,10 +69,10 @@ func (r *CoreRegister) RegisterMethod(paramFactory types.BeanFactory, method int
 	if nil != impType {
 		dstType = utils.TypeOf(impType)
 		if reflect.Interface == dstType.Kind() && !srcType.Implements(dstType) {
-			return types.NewError(types.ErrTypeImplements, srcType, args...)
+			return types.NewWithError(types.ErrTypeImplements, srcType, args...)
 		}
 		if srcType != dstType {
-			return types.NewError(types.ErrTypeNotMatch, srcType, args...)
+			return types.NewWithError(types.ErrTypeNotMatch, srcType, args...)
 		}
 	}
 	return r.registerFactory(

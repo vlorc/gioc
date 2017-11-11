@@ -6,9 +6,8 @@ package types
 import "reflect"
 
 type Error struct {
-	Type   reflect.Type
-	Name   string
 	Code   ErrorCode
+	Args   []interface{}
 	format func(*Error) string
 }
 
@@ -28,3 +27,13 @@ type BuildContext struct {
 	FullBefore func(*BuildContext) bool
 	FullAfter  func(*BuildContext)
 }
+
+type ParseContext struct {
+	Factory    DependencyFactory
+	Descriptor Descriptor
+	Params     []Param
+	Scan  	   TokenScan
+	Dump  	   func(int,int)string
+}
+
+type IdentHandle func(*ParseContext) error

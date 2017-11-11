@@ -3,8 +3,4 @@
 
 package utils
 
-import (
-	"bufio"
-)
-
 type EmptyLock struct{}

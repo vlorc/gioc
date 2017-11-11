@@ -6,13 +6,14 @@ package tag
 import (
 	"strconv"
 	"reflect"
+	"github.com/vlorc/gioc/types"
 )
 
-func NewParamString(v string) Param{
+func NewParamString(v string) types.Param{
 	return ParamString(v[1 : len(v) - 1])
 }
 
-func NewParamEscapeString(v string) Param{
+func NewParamEscapeString(v string) types.Param{
 	v,err := strconv.Unquote(v)
 	if nil != err {
 		panic(err)
@@ -20,16 +21,16 @@ func NewParamEscapeString(v string) Param{
 	return ParamString(v)
 }
 
-func NewParamNumber(v string) Param{
+func NewParamNumber(v string) types.Param{
 	return ParamNumber(ParamString(v).Number())
 }
 
-func NewParamFloat(v string) Param{
+func NewParamFloat(v string) types.Param{
 	return ParamFloat(ParamString(v).Float())
 }
 
-func NewParamNull(v bool) Param{
-	return ParamNull(v)
+func NewParamNull(_ string) types.Param{
+	return ParamNull(false)
 }
 
 func(ps ParamString)String() string {
@@ -60,8 +61,8 @@ func(ps ParamString)Boolean() bool {
 	return "" == ps
 }
 
-func(ps ParamString)Kind() Kind {
-	return String
+func(ps ParamString)Kind() types.Kind {
+	return types.String
 }
 
 func(pn ParamNumber)String() string {
@@ -80,8 +81,8 @@ func(pn ParamNumber)Boolean() bool {
 	return 0 != pn
 }
 
-func(pn ParamNumber)Kind() Kind {
-	return Int
+func(pn ParamNumber)Kind() types.Kind {
+	return types.Int
 }
 
 func(pn ParamNumber)Value() reflect.Value{
@@ -104,8 +105,8 @@ func(pf ParamFloat)Boolean() bool {
 	return 0 != pf
 }
 
-func(pf ParamFloat)Kind() Kind {
-	return Float
+func(pf ParamFloat)Kind() types.Kind {
+	return types.Float
 }
 
 func(pf ParamFloat)Value() reflect.Value{
@@ -128,8 +129,8 @@ func(pe ParamNull)Boolean() bool {
 	return bool(pe)
 }
 
-func(pe ParamNull)Kind() Kind {
-	return Null
+func(pe ParamNull)Kind() types.Kind {
+	return types.Null
 }
 
 func(pe ParamNull)Value() reflect.Value{

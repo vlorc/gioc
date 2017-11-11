@@ -27,7 +27,7 @@ func (p *CoreProvider) ResolveType(typ reflect.Type, name string, deep int) (ins
 		return
 	}
 	if nil == p.parent || 0 == deep {
-		err = types.NewError(types.ErrFactoryNotFound, typ, name)
+		err = types.NewWithError(types.ErrFactoryNotFound, typ, name)
 	}
 
 	instance, err = p.parent.ResolveType(typ, name, deep - 1)
@@ -58,7 +58,7 @@ func (p *CoreProvider) AssignType(dstValue reflect.Value, srcType reflect.Type, 
 
 	if !dstValue.CanSet() {
 		if reflect.Ptr != dstValue.Kind() {
-			err = types.NewError(types.ErrTypeNotSet, dstValue)
+			err = types.NewWithError(types.ErrTypeNotSet, dstValue)
 			return
 		}
 		dstValue = dstValue.Elem()

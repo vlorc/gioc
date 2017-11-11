@@ -13,7 +13,7 @@ import (
 func NewInvoker(method interface{}, builder types.Builder) types.Invoker {
 	srcVal := utils.ValueOf(method)
 	if reflect.Func != srcVal.Kind() {
-		panic(types.NewError(types.ErrTypeNotFunction, method))
+		panic(types.NewWithError(types.ErrTypeNotFunction, method))
 	}
 	return &CoreInvoker{
 		method:  srcVal,

@@ -7,7 +7,35 @@ Package type provides functionality for the interface and error defined.
 */
 package types
 
-import "reflect"
+import (
+	"reflect"
+	"io"
+)
+
+
+type Param interface {
+	String() string
+	Number() int64
+	Float() float64
+	Boolean() bool
+	Value() reflect.Value
+	Kind() Kind
+}
+
+type TokenScan interface {
+	Offset() int
+	Position() int
+	Reset()
+	Begin()
+	End() bool
+	Next() bool
+	Scan() (Token, int, int)
+	SetInput(io.Reader) TokenScan
+}
+
+type TextParser interface {
+	Resolve(*ParseContext) error
+}
 
 type Provider interface {
 	Resolve(interface{}, ...string) (interface{}, error)
@@ -16,6 +44,18 @@ type Provider interface {
 	Assign(interface{}, ...string) error
 	AssignType(reflect.Value, reflect.Type, string, int) error
 	AssignNamed(interface{}, interface{}, string, int) error
+}
+
+type ParamFactory interface {
+	Instance(Token,string) (Param, error)
+}
+
+type TokenScanFactory interface {
+	Instance() (TokenScan, error)
+}
+
+type TextParserFactory interface {
+	Instance(map[string][]IdentHandle, ParamFactory) (TextParser, error)
 }
 
 type BeanFactory interface {
