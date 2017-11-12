@@ -19,7 +19,7 @@ func (c *CoreContainer) Seal() types.Container {
 	return &CoreContainer{
 		register: c.register,
 		provider: c.provider,
-		getChild: func() map[types.Container]bool {
+		create: func(types.Provider) types.Container{
 			return nil
 		},
 	}
@@ -29,21 +29,10 @@ func (c *CoreContainer) Readonly() types.Container {
 	return &CoreContainer{
 		register: nil,
 		provider: c.provider,
-		getChild: func() map[types.Container]bool {
-			return c.getChild()
-		},
+		create: c.create,
 	}
 }
 
 func (c *CoreContainer) NewChild() types.Container {
-	pool := c.getChild()
-	if nil == pool {
-		return nil
-	}
-
-	child := NewWithContainer(c.AsProvider())
-	if nil != child {
-		pool[child] = true
-	}
-	return child
+	return c.create(c.AsProvider())
 }

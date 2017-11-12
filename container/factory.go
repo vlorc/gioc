@@ -5,8 +5,6 @@ package container
 
 import (
 	"github.com/vlorc/gioc/types"
-	"github.com/vlorc/gioc/utils"
-	"github.com/vlorc/gioc/provider"
 )
 
 func NewWithContainer(provider types.Provider) types.Container {
@@ -41,14 +39,8 @@ func NewContainer(register types.Register,  provider types.Provider) types.Conta
 	c := &CoreContainer{
 		register: register,
 		provider: provider,
+		create: NewWithContainer,
 	}
-
-	utils.Once(&c.getChild, func() interface {}{
-		pool := make(map[types.Container]bool)
-		return func() map[types.Container]bool {
-			return pool
-		}
-	})
 	return c
 }
 

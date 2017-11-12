@@ -28,7 +28,7 @@ func main() {
 		testInstance(container.AsRegister(), container.AsProvider(), v)
 	}
 
-	child := container.Child()
+	child := container.NewChild()
 	for _, v := range key {
 		var value int64
 		child.AsProvider().Assign(&value, v)

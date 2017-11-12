@@ -15,7 +15,6 @@ func NewProxyProvider(provider types.Provider) types.Provider {
 
 func NewWithProvider(selector types.SelectorGetter,provider types.Provider) types.Provider {
 	return &CoreProvider{
-		deep:0,
 		parent:provider,
 		selector:selector,
 	}

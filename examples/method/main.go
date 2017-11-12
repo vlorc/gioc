@@ -34,7 +34,7 @@ func main() {
 		container.AsRegister().RegisterInstance(v, k)
 	}
 
-	child := container.Child()
+	child := container.NewChild()
 	register(child, (*Personal)(nil))
 	register(child, getUser)
 

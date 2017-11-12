@@ -28,7 +28,7 @@ func main() {
 		container.AsRegister().RegisterInstance(v, k)
 	}
 
-	child := container.Child()
+	child := container.NewChild()
 	var info *User
 	var dependFactory types.DependencyFactory
 	var builderFactory types.BuilderFactory

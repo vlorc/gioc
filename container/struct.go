@@ -10,5 +10,5 @@ import (
 type CoreContainer struct {
 	register types.Register
 	provider types.Provider
-	getChild func() map[types.Container]bool
+	create func(types.Provider) types.Container
 }
