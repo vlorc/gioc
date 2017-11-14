@@ -11,7 +11,7 @@ type User struct {
 	Id       int64 `inject:"lower"`
 	Personal ****struct {
 		Name   string `inject:"lower"`
-		Age    int    `inject:"id('age') optional"`
+		Age    int    `inject:"id('age') default(99)"`
 		Gender int    `inject:"lower optional"`
 		Email  string `inject:"lower optional"`
 	} `inject:"extends"`

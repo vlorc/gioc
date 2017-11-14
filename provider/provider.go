@@ -28,9 +28,9 @@ func (p *CoreProvider) ResolveType(typ reflect.Type, name string, deep int) (ins
 	}
 	if nil == p.parent || 0 == deep {
 		err = types.NewWithError(types.ErrFactoryNotFound, typ, name)
+	} else {
+		instance, err = p.parent.ResolveType(typ, name, deep - 1)
 	}
-
-	instance, err = p.parent.ResolveType(typ, name, deep - 1)
 	return
 }
 
@@ -43,8 +43,6 @@ func (p *CoreProvider) Assign(dst interface{}, args ...string) error {
 }
 
 func (p *CoreProvider) AssignNamed(dst interface{}, impType interface{}, name string, deep int) (err error) {
-	defer utils.Recover(&err)
-
 	dstValue := utils.ValueOf(dst)
 	var srcType reflect.Type
 	if nil != impType{

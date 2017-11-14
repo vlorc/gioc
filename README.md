@@ -12,11 +12,14 @@
 
 gioc is a lightweight Ioc framework,it provides register and factory and depend solution
 
-
 # Features
 
 * Dependency Resolve
 * Singleton/Transient Support
+* Custom tag
+* Invoker Support
+* Lazy load
+
 ## Installing
 	go get github.com/vlorc/gioc
 
