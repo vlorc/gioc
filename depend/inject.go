@@ -30,14 +30,7 @@ func (di *CoreDependencyInject) SetInterface(v interface{}) {
 }
 
 func (di *CoreDependencyInject) Convert(v interface{}) {
-	val := reflect.ValueOf(v)
-	if val.IsValid() {
-		if val.Type() != di.Type() {
-			val = val.Convert(di.Type())
-		}
-	} else {
-		val = reflect.Zero(di.Type())
-	}
+	val := utils.Convert(reflect.ValueOf(v),di.Type())
 	di.Set(di.DependencyScan, val)
 }
 

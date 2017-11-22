@@ -7,6 +7,8 @@ import (
 	"github.com/vlorc/gioc/types"
 	"github.com/vlorc/gioc/utils"
 	"reflect"
+	"github.com/vlorc/gioc/text"
+	"strings"
 )
 
 func (df *CoreDependencyFactory) resolveArray(typ reflect.Type, val reflect.Value) (dep types.Dependency) {
@@ -114,13 +116,12 @@ func (df *CoreDependencyFactory) resolveStruct(typ reflect.Type, _ reflect.Value
 
 func (df *CoreDependencyFactory) structToDependency(typ reflect.Type, skip func(string) bool) (dep types.Dependency) {
 	arr := []*types.DependencyDescription{}
-	ctx := &TagContext{
-		Factory:   df,
-		Skip:      skip,
-		TokenScan: utils.NewTokenScan(),
+	ctx := &types.ParseContext{
+		Factory: df,
+		Scan: text.NewTokenScan(),
 	}
 	for i, n := 0, typ.NumField(); i < n; i++ {
-		arr = df.appendField(arr, typ.Field(i), ctx)
+		arr = df.appendField(arr, typ.Field(i), ctx,skip)
 	}
 	if len(arr) > 0 {
 		dep = NewStructDependency(typ, arr)
@@ -140,20 +141,29 @@ func (df *CoreDependencyFactory) anonymousToDependency(typ reflect.Type) (dep ty
 	})
 }
 
-func (df *CoreDependencyFactory) appendField(dep []*types.DependencyDescription, field reflect.StructField, ctx *TagContext) []*types.DependencyDescription {
+func (df *CoreDependencyFactory) appendField(
+	dep []*types.DependencyDescription,
+	field reflect.StructField,
+	ctx *types.ParseContext,
+	skip func(string) bool) []*types.DependencyDescription {
 	if uint(field.Name[0]-65) >= uint(26) {
 		return dep
 	}
-	if ctx.Tag = field.Tag.Get("inject"); !ctx.Skip(ctx.Tag) {
+	tag := field.Tag.Get("inject")
+	if !skip(tag) {
 		return dep
 	}
 	if len(field.Index) > 1 {
-		panic(types.NewError(types.ErrIndexNotSupport, field.Type))
+		panic(types.NewWithError(types.ErrIndexNotSupport, field.Type))
 	}
 	des := &types.DependencyDescription{Name: field.Name, Index: field.Index[0], Type: field.Type}
-	if "" != ctx.Tag {
+	if "" != tag {
 		ctx.Descriptor = NewDescriptor(des)
-		df.tagParser.Resolve(ctx)
+		ctx.Scan.SetInput(strings.NewReader(tag))
+		ctx.Dump = func(o int, l int) string {
+			return tag[o:l]
+		}
+		df.parser.Resolve(ctx)
 	}
 	df.checkAnonymous(des)
 	return append(dep, des)

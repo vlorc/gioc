@@ -5,19 +5,22 @@ package utils
 
 import (
 	"errors"
-	"runtime"
 	"testing"
+	"sync"
 )
 
 func Test_Recover(t *testing.T) {
 	var dst error
 	src := errors.New("error test")
+	wait := sync.WaitGroup{}
+	wait.Add(1)
 	go func() {
+		defer wait.Done()
 		defer Recover(&dst)
 		panic(src)
 	}()
 
-	if runtime.Gosched(); src != dst {
+	if wait.Wait(); src != dst {
 		t.Error("can't matching error")
 	}
 }

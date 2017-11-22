@@ -70,9 +70,9 @@ func Test_Invoker(t *testing.T) {
 	var dependFactory types.DependencyFactory
 	var builderFactory types.BuilderFactory
 	var invokerFactory types.InvokerFactory
-	root.Assign(&dependFactory)
-	root.Assign(&builderFactory)
-	root.Assign(&invokerFactory)
+	root.AsProvider().Assign(&dependFactory)
+	root.AsProvider().Assign(&builderFactory)
+	root.AsProvider().Assign(&invokerFactory)
 
 	dep, err := dependFactory.Instance(getKey)
 	if nil != err {

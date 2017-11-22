@@ -7,12 +7,13 @@ import (
 	"github.com/vlorc/gioc/types"
 	"github.com/vlorc/gioc/utils"
 	"reflect"
+	"github.com/vlorc/gioc/text"
 )
 
 func NewDependencyFactory() types.DependencyFactory {
 	obj := &CoreDependencyFactory{
 		pool:      make(map[reflect.Type]types.Dependency),
-		tagParser: NewTagParser(),
+		parser: 	text.NewTagParser(),
 	}
 	obj.resolve = map[reflect.Kind]ResolveHandle{
 		reflect.Array:  obj.resolveArray,
@@ -32,11 +33,11 @@ func (df *CoreDependencyFactory) instance(typ reflect.Type, val interface{}) (de
 
 	resolve, ok := df.resolve[typ.Kind()]
 	if !ok {
-		err = types.NewError(types.ErrTypeNotSupport, typ)
+		err = types.NewWithError(types.ErrTypeNotSupport, typ)
 		return
 	}
 	if dep = resolve(typ, reflect.ValueOf(val)); nil == dep {
-		err = types.NewError(types.ErrDependencyNotNeed, typ)
+		err = types.NewWithError(types.ErrDependencyNotNeed, typ)
 	}
 	return
 }

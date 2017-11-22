@@ -30,12 +30,12 @@ func main() {
 		container.AsRegister().RegisterInstance(v, k)
 	}
 
-	child := container.Child()
+	child := container.NewChild()
 	var info *User
 	var dependFactory types.DependencyFactory
 	var builderFactory types.BuilderFactory
-	child.Assign(&dependFactory)
-	child.Assign(&builderFactory)
+	child.AsProvider().Assign(&dependFactory)
+	child.AsProvider().Assign(&builderFactory)
 
 	depend, err := dependFactory.Instance(info)
 	if nil != err {
@@ -46,7 +46,7 @@ func main() {
 		panic(err)
 	}
 	child.AsRegister().RegisterFactory(builder.AsFactory(), &info, "")
-	if err = child.Assign(&info, ""); nil != err {
+	if err = child.AsProvider().Assign(&info, ""); nil != err {
 		panic(err)
 	}
 

@@ -11,7 +11,7 @@ type User struct {
 	Id       int64 `inject:"lower"`
 	Personal ****struct {
 		Name   string `inject:"lower"`
-		Age    int    `inject:"id('age') optional"`
+		Age    int    `inject:"id('age') default(99)"`
 		Gender int    `inject:"lower optional"`
 		Email  string `inject:"lower optional"`
 	} `inject:"extends"`
@@ -28,12 +28,12 @@ func main() {
 		container.AsRegister().RegisterInstance(v, k)
 	}
 
-	child := container.Child()
+	child := container.NewChild()
 	var info *User
 	var dependFactory types.DependencyFactory
 	var builderFactory types.BuilderFactory
-	child.Assign(&dependFactory)
-	child.Assign(&builderFactory)
+	child.AsProvider().Assign(&dependFactory)
+	child.AsProvider().Assign(&builderFactory)
 
 	depend, err := dependFactory.Instance(info)
 	if nil != err {
@@ -44,7 +44,7 @@ func main() {
 		panic(err)
 	}
 	child.AsRegister().RegisterFactory(builder.AsFactory(), &info, "admin")
-	if err = child.Assign(&info, "admin"); nil != err {
+	if err = child.AsProvider().Assign(&info, "admin"); nil != err {
 		panic(err)
 	}
 

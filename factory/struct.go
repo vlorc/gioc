@@ -30,7 +30,7 @@ type MutexFactory struct {
 }
 
 type TypeFactory struct {
-	types reflect.Type
+	typ reflect.Type
 }
 
 type PointerFactory struct {

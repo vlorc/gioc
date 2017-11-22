@@ -5,12 +5,10 @@ package depend
 
 import (
 	"github.com/vlorc/gioc/types"
-	"github.com/vlorc/gioc/utils"
 	"reflect"
 	"sync"
 )
 
-type TagHandle func(*TagContext) error
 type ResolveHandle func(reflect.Type, reflect.Value) types.Dependency
 
 type CoreDependency struct {
@@ -33,7 +31,7 @@ type CoreDependencyFactory struct {
 	lock      sync.RWMutex
 	resolve   map[reflect.Kind]ResolveHandle
 	pool      map[reflect.Type]types.Dependency
-	tagParser *TagParser
+	parser    types.TextParser
 }
 
 type DescriptorGetter struct {
@@ -47,25 +45,6 @@ type DescriptorSetter struct {
 type Descriptor struct {
 	types.DescriptorGetter
 	types.DescriptorSetter
-}
-
-type TagContext struct {
-	Factory    types.DependencyFactory
-	Descriptor types.Descriptor
-	Params      []Param
-	Skip       func(string) bool
-	Tag        string
-	TokenScan  *utils.TokenScan
-}
-
-type TagParser struct {
-	tagHandle map[string][]TagHandle
-}
-
-type Param interface {
-	String() string
-	Number() int64
-	Boolean() bool
 }
 
 type ParamReflect []reflect.Value

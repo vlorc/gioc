@@ -52,9 +52,9 @@ func FullInstance(ctx *types.BuildContext) {
 }
 
 func FullLazyInstance(ctx *types.BuildContext) {
-	MakeLazyInstance(ctx.Inject.AsValue(), ctx.Provider, ctx.Inject.AsDescriptorGetter())
+	makeLazyInstance(ctx.Inject.AsValue(), ctx.Provider, ctx.Inject.AsDescriptorGetter())
 }
 
 func FullLazyExtends(ctx *types.BuildContext) {
-	MakeLazyExtends(ctx.Inject.AsValue(), ctx.Provider, ctx.Inject.AsDescriptorGetter())
+	makeLazyExtends(ctx.Inject.AsValue(), ctx.Provider, ctx.Inject.AsDescriptorGetter())
 }

@@ -37,7 +37,7 @@ func NewMutexFactory(value types.BeanFactory) types.BeanFactory {
 
 func NewTypeFactory(value interface{}) types.BeanFactory {
 	return &TypeFactory{
-		types: utils.TypeOf(value),
+		typ: utils.TypeOf(value),
 	}
 }
 

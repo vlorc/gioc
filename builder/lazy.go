@@ -10,7 +10,7 @@ import (
 	"sync"
 )
 
-func MakeLazyLoad(dstVal reflect.Value, load func()) {
+func makeLazyLoad(dstVal reflect.Value, load func()) {
 	once := sync.Once{}
 	srcVal := reflect.MakeFunc(dstVal.Type(), func(args []reflect.Value) []reflect.Value {
 		once.Do(load)
@@ -19,8 +19,8 @@ func MakeLazyLoad(dstVal reflect.Value, load func()) {
 	dstVal.Set(srcVal)
 }
 
-func MakeLazyInstance(val reflect.Value, provider types.Provider, des types.DescriptorGetter) {
-	MakeLazyLoad(val, func() {
+func makeLazyInstance(val reflect.Value, provider types.Provider, des types.DescriptorGetter) {
+	makeLazyLoad(val, func() {
 		instance, err := provider.ResolveType(des.Type().Out(0), des.Name(), -1)
 		if nil != err {
 			panic(err)
@@ -32,8 +32,8 @@ func MakeLazyInstance(val reflect.Value, provider types.Provider, des types.Desc
 	})
 }
 
-func MakeLazyExtends(val reflect.Value, provider types.Provider, des types.DescriptorGetter) {
-	MakeLazyLoad(val, func() {
+func makeLazyExtends(val reflect.Value, provider types.Provider, des types.DescriptorGetter) {
+	makeLazyLoad(val, func() {
 		results := []reflect.Value{reflect.New(des.Type().Out(0)).Elem()}
 		buildDefault(provider, des.Depend().AsInject(utils.NewOf(results[0])))
 		val.Set(reflect.MakeFunc(val.Type(), func([]reflect.Value) []reflect.Value {

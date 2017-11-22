@@ -22,8 +22,8 @@
 - [ ] component
 
 ## Container
-- [ ] read only 
-- [ ] seal
+- [X] read only 
+- [X] seal
 - [X] child
 - [X] provider
 - [ ] life cycle

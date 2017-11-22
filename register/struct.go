@@ -8,7 +8,7 @@ import (
 )
 
 type CoreRegister struct {
-	selector types.Selector
+	selector types.SelectorSetter
 }
 
 type CoreRegisterFactory struct{}

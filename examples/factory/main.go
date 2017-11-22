@@ -9,43 +9,29 @@ import (
 
 func main() {
 	container := gioc.NewRootContainer()
-
 	age := 17
 
-	//the same as RegisterInstance
-	//regiter int of value factory
-	container.AsRegister().RegisterFactory(
-		factory.NewValueFactory(age),
-		&age, /*(*int)(nil)*/
-		"age",
-	)
+	// register an int type value factory,this is similar to RegisterInstance
+	container.AsRegister().RegisterFactory(factory.NewValueFactory(age),(*int)(nil),"age")
 
-	//regiter int of func factory
+	// create a custom func factory
 	inc := factory.NewFuncFactory(func(types.Provider) (interface{}, error) {
 		age++
 		return age, nil
 	})
 
-	container.AsRegister().RegisterFactory(
-		inc,
-		&age,
-		"inc",
-	)
+	// register an int type
+	container.AsRegister().RegisterFactory(inc,&age,"inc")
 
-	// singleton mode,convert the singleton factory
-	once := factory.NewSingleFactory(inc)
-	container.AsRegister().RegisterFactory(
-		once,
-		&age,
-		"once",
-	)
+	// convert custom factory into singleton mode factory
+	container.AsRegister().RegisterFactory(factory.NewSingleFactory(inc),&age,"once")
 
-	// get a int type of 'age'
-	fmt.Println(container.Resolve((*int)(nil), "age"))
+	// get an instance type int and name age
+	fmt.Println(container.AsProvider().Resolve((*int)(nil), "age"))
 
-	// get a age + 1
-	fmt.Println(container.Resolve((*int)(nil), "inc"))
+	// same as above,this value add 1 every times
+	fmt.Println(container.AsProvider().Resolve((*int)(nil), "inc"))
 
-	// get a age,once + 1
-	fmt.Println(container.Resolve((*int)(nil), "once"))
+	// same as above,but only once
+	fmt.Println(container.AsProvider().Resolve((*int)(nil), "once"))
 }

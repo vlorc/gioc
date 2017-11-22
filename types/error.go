@@ -18,22 +18,28 @@ func (e *Error) String() string {
 
 func formatError(e *Error) string {
 	format := errFormatTable[e.Code]
-	str := fmt.Sprintf(format, e.Type.Name(), e.Name)
+	str := fmt.Sprintf(format,e.Args...)
 	e.format = func(*Error) string {
 		return str
 	}
 	return str
 }
 
-func NewError(code ErrorCode, impType interface{}, args ...string) error {
+func NewWithError(code ErrorCode, impType interface{}, args ...string) error {
 	err := &Error{
-		Type:   utils.TypeOf(impType),
-		Name:   DEFAULT_NAME,
 		Code:   code,
 		format: formatError,
 	}
-	if len(args) > 0 {
-		err.Name = args[0]
+	if err.Args = []interface{}{utils.TypeOf(impType).Name(),""}; len(args) > 0 {
+		err.Args[1] = args[0]
 	}
 	return err
+}
+
+func NewError(code ErrorCode,args ...interface{}) error {
+	return &Error{
+		Code:  code,
+		Args: args,
+		format: formatError,
+	}
 }
