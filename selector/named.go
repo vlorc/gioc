@@ -27,9 +27,9 @@ func (ns *NamedSelector) AsMapper(typ reflect.Type) types.Mapper {
 	return ns.MapperOf(typ)
 }
 
-func (ns *NamedSelector) FactoryOf(typ reflect.Type, name string) types.BeanFactory{
+func (ns *NamedSelector) FactoryOf(typ reflect.Type, name string) types.BeanFactory {
 	ns.lock.RLock()
-	factory := ns.selector.FactoryOf(typ,name)
+	factory := ns.selector.FactoryOf(typ, name)
 	ns.lock.RUnlock()
 	return factory
 }
@@ -40,7 +40,7 @@ func (ns *NamedSelector) SetBinder(typ reflect.Type, binder types.Binder) error 
 
 func (ns *NamedSelector) SetFactory(typ reflect.Type, name string, factory types.BeanFactory) error {
 	ns.lock.Lock()
-	err := ns.selector.SetFactory(typ,name,factory)
+	err := ns.selector.SetFactory(typ, name, factory)
 	ns.lock.Unlock()
 	return err
 }
@@ -59,6 +59,6 @@ func (ns nameSelector) FactoryOf(typ reflect.Type, name string) types.BeanFactor
 }
 
 func (ns nameSelector) SetFactory(typ reflect.Type, name string, factory types.BeanFactory) error {
-	ns[name] = typeFactory{typ: typ,factory: factory}
+	ns[name] = typeFactory{typ: typ, factory: factory}
 	return nil
 }

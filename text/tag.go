@@ -9,24 +9,24 @@ import (
 
 func NewTagParser() types.TextParser {
 	return NewTextParser(map[string][]types.IdentHandle{
-		"optional": []types.IdentHandle{
+		"optional": {
 			flagsHandle(types.DEPENDENCY_FLAG_OPTIONAL),
 		},
-		"extends": []types.IdentHandle{
+		"extends": {
 			flagsHandle(types.DEPENDENCY_FLAG_EXTENDS),
 			extendsHandle,
 		},
-		"default": []types.IdentHandle{
+		"default": {
 			flagsHandle(types.DEPENDENCY_FLAG_DEFAULT),
 			defaultHandle,
 		},
-		"lazy": []types.IdentHandle{
+		"lazy": {
 			flagsHandle(types.DEPENDENCY_FLAG_LAZY),
 			lazyHandle,
 		},
-		"id":    []types.IdentHandle{nameHandle},
-		"name":  []types.IdentHandle{nameHandle},
-		"lower": []types.IdentHandle{lowerCaseHandle},
-		"upper": []types.IdentHandle{upperCaseHandle},
-	},NewParamFactory())
+		"id":    {nameHandle},
+		"name":  {nameHandle},
+		"lower": {lowerCaseHandle},
+		"upper": {upperCaseHandle},
+	}, NewParamFactory())
 }

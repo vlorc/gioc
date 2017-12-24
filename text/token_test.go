@@ -4,9 +4,9 @@
 package text
 
 import (
-	"testing"
-	"strings"
 	"github.com/vlorc/gioc/types"
+	"strings"
+	"testing"
 )
 
 func Test_TokenScan(t *testing.T) {

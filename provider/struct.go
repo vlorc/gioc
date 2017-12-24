@@ -16,4 +16,4 @@ type ProxyProvider struct {
 	provider types.Provider
 }
 
-type CoreProviderFactory struct {}
+type CoreProviderFactory struct{}

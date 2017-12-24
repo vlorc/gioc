@@ -5,8 +5,8 @@ package utils
 
 import (
 	"errors"
-	"testing"
 	"sync"
+	"testing"
 )
 
 func Test_Recover(t *testing.T) {

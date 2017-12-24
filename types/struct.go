@@ -32,8 +32,8 @@ type ParseContext struct {
 	Factory    DependencyFactory
 	Descriptor Descriptor
 	Params     []Param
-	Scan  	   TokenScan
-	Dump  	   func(int,int)string
+	Scan       TokenScan
+	Dump       func(int, int) string
 }
 
 type IdentHandle func(*ParseContext) error

@@ -20,3 +20,7 @@ func NewRegister(selector types.SelectorSetter) types.Register {
 		selector: selector,
 	}
 }
+
+func NewReadOnlyRegister() types.Register {
+	return ReadOnlyRegister{}
+}

@@ -12,13 +12,16 @@
 
 gioc is a lightweight Ioc framework,it provides register and factory and depend solution
 
-# Features
+## Features
 
 * Dependency Resolve
+* Dependency Inject
 * Singleton/Transient Support
-* Custom tag
+* Custom Tag
 * Invoker Support
-* Lazy load
+* [Lazy](https://github.com/vlorc/gioc/blob/master/examples/lazy/main.go) Load
+* [Struct](https://github.com/vlorc/gioc/blob/master/examples/depend/main.go) Extends Support
+* [Module](https://github.com/vlorc/gioc/blob/master/examples/module/main.go) Support
 
 ## Installing
 	go get github.com/vlorc/gioc
@@ -117,7 +120,11 @@ This project is under the apache License. See the LICENSE file for the full lice
 	+ use type and id index Factory
 	+ auto create Binder and Mapper
 	+ index mode isolation
-
++ Module
+    + import module
+    + export factory
+    + declare factory
+    
 # Roadmap
 For details on planned features and future direction please refer to [roadmap](https://github.com/vlorc/gioc/blob/master/ROADMAP.md)
 

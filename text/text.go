@@ -9,14 +9,14 @@ import (
 	"github.com/vlorc/gioc/utils"
 )
 
-func NewTextParser(handle map[string][]types.IdentHandle,paramFactory types.ParamFactory) types.TextParser {
+func NewTextParser(handle map[string][]types.IdentHandle, paramFactory types.ParamFactory) types.TextParser {
 	return &CoreTextParser{
-		handle: handle,
+		handle:       handle,
 		paramFactory: paramFactory,
 	}
 }
 
-func (tp *CoreTextParser) Resolve(ctx *types.ParseContext) (err error){
+func (tp *CoreTextParser) Resolve(ctx *types.ParseContext) (err error) {
 	defer utils.Recover(&err)
 	defer ctx.Scan.End()
 
@@ -26,13 +26,13 @@ func (tp *CoreTextParser) Resolve(ctx *types.ParseContext) (err error){
 	}
 }
 
-func (tp *CoreTextParser) pop(ctx *types.ParseContext,handle ...types.IdentHandle) (types.Token,string) {
+func (tp *CoreTextParser) pop(ctx *types.ParseContext, handle ...types.IdentHandle) (types.Token, string) {
 	token, offset, length := ctx.Scan.Scan()
 	if types.TOKEN_EOF == token {
-		tp.invoke(ctx,handle)
+		tp.invoke(ctx, handle)
 		panic(nil)
 	}
-	return token,ctx.Dump(offset,length)
+	return token, ctx.Dump(offset, length)
 }
 
 func (tp *CoreTextParser) nextToken(ctx *types.ParseContext) {
@@ -48,14 +48,14 @@ func (tp *CoreTextParser) getParam(ctx *types.ParseContext) {
 
 func (tp *CoreTextParser) nextParam(ctx *types.ParseContext) bool {
 	token, key := tp.pop(ctx)
-	if types.TOKEN_RPAREN == token{
+	if types.TOKEN_RPAREN == token {
 		return false
 	}
-	param,err := tp.paramFactory.Instance(token,key)
+	param, err := tp.paramFactory.Instance(token, key)
 	if nil != err {
 		panic(err)
 	}
-	ctx.Params = append(ctx.Params,param)
+	ctx.Params = append(ctx.Params, param)
 	return true
 }
 
@@ -64,7 +64,7 @@ func (tp *CoreTextParser) dispatch(ctx *types.ParseContext, token types.Token, k
 	case types.TOKEN_IDENT:
 		tp.Invoke(ctx, key)
 	case types.TOKEN_CHART, types.TOKEN_STRING:
-		ctx.Descriptor.SetName(key[1: len(key)-1])
+		ctx.Descriptor.SetName(key[1 : len(key)-1])
 	}
 }
 
@@ -83,11 +83,11 @@ func (tp *CoreTextParser) Invoke(ctx *types.ParseContext, key string) {
 	}
 
 	ctx.Params = nil
-	token, key := tp.pop(ctx,handle...)
+	token, key := tp.pop(ctx, handle...)
 	if types.TOKEN_LPAREN != token {
 		defer tp.dispatch(ctx, token, key)
 	} else {
 		tp.getParam(ctx)
 	}
-	tp.invoke(ctx,handle)
+	tp.invoke(ctx, handle)
 }

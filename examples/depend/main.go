@@ -9,11 +9,11 @@ import (
 
 type User struct {
 	Id       int64 `inject:"lower"`
-	Personal ****struct {
-		Name   string `inject:"lower"`
-		Age    int    `inject:"id('age') default(99)"`
-		Gender int    `inject:"lower optional"`
-		Email  string `inject:"lower optional"`
+	personal ****struct {
+		name   string
+		age    int    `inject:"default(99)"`
+		gender int    `inject:"optional"`
+		email  string `inject:"optional"`
 	} `inject:"extends"`
 }
 
@@ -48,6 +48,5 @@ func main() {
 		panic(err)
 	}
 
-	fmt.Println(info)
-	fmt.Println(****info.Personal)
+	fmt.Println(info, ****info.personal)
 }

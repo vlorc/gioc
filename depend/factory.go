@@ -4,16 +4,16 @@
 package depend
 
 import (
+	"github.com/vlorc/gioc/text"
 	"github.com/vlorc/gioc/types"
 	"github.com/vlorc/gioc/utils"
 	"reflect"
-	"github.com/vlorc/gioc/text"
 )
 
 func NewDependencyFactory() types.DependencyFactory {
 	obj := &CoreDependencyFactory{
-		pool:      make(map[reflect.Type]types.Dependency),
-		parser: 	text.NewTagParser(),
+		pool:   make(map[reflect.Type]types.Dependency),
+		parser: text.NewTagParser(),
 	}
 	obj.resolve = map[reflect.Kind]ResolveHandle{
 		reflect.Array:  obj.resolveArray,

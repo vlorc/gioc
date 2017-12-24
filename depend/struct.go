@@ -28,10 +28,10 @@ type CoreDependencyInject struct {
 }
 
 type CoreDependencyFactory struct {
-	lock      sync.RWMutex
-	resolve   map[reflect.Kind]ResolveHandle
-	pool      map[reflect.Type]types.Dependency
-	parser    types.TextParser
+	lock    sync.RWMutex
+	resolve map[reflect.Kind]ResolveHandle
+	pool    map[reflect.Type]types.Dependency
+	parser  types.TextParser
 }
 
 type DescriptorGetter struct {

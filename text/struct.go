@@ -4,14 +4,14 @@
 package text
 
 import (
-	"github.com/vlorc/gioc/types"
 	"bufio"
+	"github.com/vlorc/gioc/types"
 )
 
 type ParamString string
 type ParamNumber int64
 type ParamFloat float64
-type ParamNull bool
+type ParamNull struct{}
 
 type CoreTokenScan struct {
 	state    int
@@ -22,12 +22,12 @@ type CoreTokenScan struct {
 }
 
 type CoreTextParser struct {
-	handle map[string][]types.IdentHandle
+	handle       map[string][]types.IdentHandle
 	paramFactory types.ParamFactory
 }
 
 type CoreParamFactory struct {
-	table map[types.Token]func(string)types.Param
+	table map[types.Token]func(string) types.Param
 }
-type CoreTokenScanFactory struct {}
-type CoreTextParserFactory struct {}
+type CoreTokenScanFactory struct{}
+type CoreTextParserFactory struct{}

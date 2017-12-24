@@ -31,7 +31,7 @@ func defaultHandle(ctx *types.ParseContext) error {
 		val = ctx.Params[0].Value()
 	}
 
-	val = utils.Convert(val,ctx.Descriptor.Type())
+	val = utils.Convert(val, ctx.Descriptor.Type())
 	ctx.Descriptor.SetDefault(val)
 	return nil
 }

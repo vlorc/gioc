@@ -6,6 +6,7 @@ package depend
 import (
 	"github.com/vlorc/gioc/types"
 	"reflect"
+	"unsafe"
 )
 
 func NewParamReflect(value reflect.Value) (ref types.Reflect) {
@@ -50,11 +51,17 @@ func (pr ParamReflect) Get(des types.DescriptorGetter) reflect.Value {
 }
 
 func (sr StructReflect) Set(des types.DescriptorGetter, val reflect.Value) {
-	reflect.Value(sr).Field(des.Index()).Set(val)
+	sr.Get(des).Set(val)
 }
 
 func (sr StructReflect) Get(des types.DescriptorGetter) reflect.Value {
-	return reflect.Value(sr).Field(des.Index())
+	val := reflect.Value(sr).Field(des.Index())
+	if 0 != types.DEPENDENCY_FLAG_UNSAFE&des.Flags() {
+		val = reflect.NewAt(val.Type(), unsafe.Pointer(val.UnsafeAddr()))
+		val = val.Elem()
+	}
+	return val
+
 }
 
 func (ar ArrayReflect) Set(des types.DescriptorGetter, val reflect.Value) {

@@ -29,7 +29,7 @@ func (p *CoreProvider) ResolveType(typ reflect.Type, name string, deep int) (ins
 	if nil == p.parent || 0 == deep {
 		err = types.NewWithError(types.ErrFactoryNotFound, typ, name)
 	} else {
-		instance, err = p.parent.ResolveType(typ, name, deep - 1)
+		instance, err = p.parent.ResolveType(typ, name, deep-1)
 	}
 	return
 }
@@ -45,10 +45,10 @@ func (p *CoreProvider) Assign(dst interface{}, args ...string) error {
 func (p *CoreProvider) AssignNamed(dst interface{}, impType interface{}, name string, deep int) (err error) {
 	dstValue := utils.ValueOf(dst)
 	var srcType reflect.Type
-	if nil != impType{
+	if nil != impType {
 		srcType = utils.TypeOf(impType)
 	}
-	return p.AssignType(dstValue, srcType,name,deep)
+	return p.AssignType(dstValue, srcType, name, deep)
 }
 
 func (p *CoreProvider) AssignType(dstValue reflect.Value, srcType reflect.Type, name string, deep int) (err error) {
@@ -61,7 +61,7 @@ func (p *CoreProvider) AssignType(dstValue reflect.Value, srcType reflect.Type, 
 		}
 		dstValue = dstValue.Elem()
 	}
-	if nil == srcType{
+	if nil == srcType {
 		srcType = dstValue.Type()
 	}
 
@@ -70,7 +70,7 @@ func (p *CoreProvider) AssignType(dstValue reflect.Value, srcType reflect.Type, 
 		return err
 	}
 
-	srcValue := utils.Convert(reflect.ValueOf(instance),srcType)
+	srcValue := utils.Convert(reflect.ValueOf(instance), srcType)
 	dstValue.Set(srcValue)
 	return
 }

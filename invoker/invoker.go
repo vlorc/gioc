@@ -27,7 +27,7 @@ func (i *CoreInvoker) Apply(args ...interface{}) []reflect.Value {
 
 func (i *CoreInvoker) ApplyWith(provider types.Provider, args ...interface{}) []reflect.Value {
 	temp, err := i.builder.Build(provider, func(ctx *types.BuildContext) {
-		ctx.FullBefore = builder.MakeIndexFullBefore(args)
+		ctx.FullBefore = builder.IndexFullBefore(args)
 	})
 	if nil != err {
 		return nil

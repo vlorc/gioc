@@ -11,4 +11,6 @@ type CoreRegister struct {
 	selector types.SelectorSetter
 }
 
+type ReadOnlyRegister struct{}
+
 type CoreRegisterFactory struct{}

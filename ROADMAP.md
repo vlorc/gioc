@@ -1,5 +1,11 @@
 # RoadMap
 
+## Module
+- [X] import module
+- [X] bootstrap module
+- [X] declare factory
+- [X] export factory
+
 ## Dependency 
 - [x] array resolve
 - [x] map resolve
