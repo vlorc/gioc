@@ -21,7 +21,7 @@ type TypeSelector struct {
 }
 
 type NamedSelector struct {
-	lock  sync.RWMutex
+	lock     sync.RWMutex
 	selector FactorySelector
 }
 
@@ -29,12 +29,12 @@ type typeNameSelector map[typeName]types.BeanFactory
 type nameSelector map[string]typeFactory
 
 type typeName struct {
-	typ reflect.Type
+	typ  reflect.Type
 	name string
 }
 
 type typeFactory struct {
-	typ reflect.Type
+	typ     reflect.Type
 	factory types.BeanFactory
 }
 

@@ -58,3 +58,10 @@ func NewFuncFactory(value func(types.Provider) (interface{}, error)) types.BeanF
 func NewParamFactory(length int) types.BeanFactory {
 	return ParamFactory(length)
 }
+
+func NewExportFactory(factory types.BeanFactory, provider func() types.Provider) types.BeanFactory {
+	return &ExportFactory{
+		provider: provider,
+		factory:  factory,
+	}
+}

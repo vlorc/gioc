@@ -17,7 +17,7 @@ func NewWithContainer(provider types.Provider) types.Container {
 	provider.Assign(&registerFactory)
 	provider.Assign(&providerFactory)
 
-	if nil == selectorFactory || nil == registerFactory || nil == providerFactory{
+	if nil == selectorFactory || nil == registerFactory || nil == providerFactory {
 		return nil
 	}
 	sel, err := selectorFactory.Instance(binderFactory)
@@ -28,19 +28,18 @@ func NewWithContainer(provider types.Provider) types.Container {
 	if nil != err {
 		panic(err)
 	}
-	pro, err := providerFactory.Instance(sel,provider)
+	pro, err := providerFactory.Instance(sel, provider)
 	if nil != err {
 		panic(err)
 	}
-	return NewContainer(reg,pro)
+	return NewContainer(reg, pro)
 }
 
-func NewContainer(register types.Register,  provider types.Provider) types.Container {
+func NewContainer(register types.Register, provider types.Provider) types.Container {
 	c := &CoreContainer{
 		register: register,
 		provider: provider,
-		create: NewWithContainer,
+		create:   NewWithContainer,
 	}
 	return c
 }
-

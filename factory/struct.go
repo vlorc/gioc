@@ -21,7 +21,13 @@ type MethodFactory struct {
 }
 
 type ProxyFactory struct {
+	types.Provider
 	factory types.BeanFactory
+}
+
+type ExportFactory struct {
+	provider func() types.Provider
+	factory  types.BeanFactory
 }
 
 type MutexFactory struct {

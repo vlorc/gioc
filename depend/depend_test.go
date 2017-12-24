@@ -45,7 +45,7 @@ func test_struct(t *testing.T, typ reflect.Type, table depTable) {
 func Test_AnonymousStruct(t *testing.T) {
 	bean := struct {
 		Id       int64
-		Flags    uint `inject:"default(10)"`
+		Flags    uint    `inject:"default(10)"`
 		Name     *string `inject:"'alias' optional default(nil)"`
 		Identity struct {
 			Username string `inject:"lower"`
@@ -63,19 +63,19 @@ func Test_AnonymousStruct(t *testing.T) {
 		},
 		1: {
 			des: &types.DependencyDescription{
-				Index: 1,
-				Type:  typ.Field(1).Type,
-				Name:  "Flags",
-				Flags: types.DEPENDENCY_FLAG_DEFAULT,
+				Index:   1,
+				Type:    typ.Field(1).Type,
+				Name:    "Flags",
+				Flags:   types.DEPENDENCY_FLAG_DEFAULT,
 				Default: reflect.ValueOf(uint(10)),
 			},
 		},
 		2: {
 			des: &types.DependencyDescription{
-				Index: 2,
-				Type:  typ.Field(2).Type,
-				Name:  "alias",
-				Flags: types.DEPENDENCY_FLAG_OPTIONAL | types.DEPENDENCY_FLAG_DEFAULT,
+				Index:   2,
+				Type:    typ.Field(2).Type,
+				Name:    "alias",
+				Flags:   types.DEPENDENCY_FLAG_OPTIONAL | types.DEPENDENCY_FLAG_DEFAULT,
 				Default: reflect.ValueOf((*string)(nil)),
 			},
 		},
@@ -135,7 +135,7 @@ func compare_Description(t *testing.T, dst types.DescriptorGetter, table struct 
 		srcField := srcVal.Field(i)
 		key := srcVal.Type().Field(i).Name
 		dstField := dstVal.MethodByName(key).Call(nil)[0]
-		if !compare_value(t,srcField,dstField) {
+		if !compare_value(t, srcField, dstField) {
 			t.Errorf("can't matching dependency field %s,%s : %T,%T %v != %v",
 				dst.Name(),
 				key,
@@ -151,7 +151,7 @@ func compare_Description(t *testing.T, dst types.DescriptorGetter, table struct 
 	}
 }
 
-func compare_value(t *testing.T,v1, v2 reflect.Value) bool{
+func compare_value(t *testing.T, v1, v2 reflect.Value) bool {
 	if !v1.IsValid() || !v2.IsValid() {
 		return v1.IsValid() == v2.IsValid()
 	}
@@ -159,13 +159,13 @@ func compare_value(t *testing.T,v1, v2 reflect.Value) bool{
 		return false
 	}
 
-	t1,ok1 := v1.Interface().(reflect.Value)
-	t2,ok2 := v2.Interface().(reflect.Value)
+	t1, ok1 := v1.Interface().(reflect.Value)
+	t2, ok2 := v2.Interface().(reflect.Value)
 	if ok1 != ok2 {
 		return false
-	}else if true == ok1 {
-		return compare_value(t,t1,t2)
+	} else if true == ok1 {
+		return compare_value(t, t1, t2)
 	}
 
-	return reflect.DeepEqual(v1.Interface(),v2.Interface())
+	return reflect.DeepEqual(v1.Interface(), v2.Interface())
 }

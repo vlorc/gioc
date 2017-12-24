@@ -10,10 +10,12 @@ import (
 	"github.com/vlorc/gioc/depend"
 	"github.com/vlorc/gioc/factory"
 	"github.com/vlorc/gioc/invoker"
+	"github.com/vlorc/gioc/module"
 	"github.com/vlorc/gioc/provider"
 	"github.com/vlorc/gioc/register"
 	"github.com/vlorc/gioc/selector"
 	"github.com/vlorc/gioc/types"
+	"github.com/vlorc/gioc/utils"
 )
 
 // create a root container
@@ -39,4 +41,12 @@ func NewRootContainer() types.Container {
 		)
 	}
 	return root
+}
+
+// create a root module
+func NewRootModule(table ...module.ModuleInitHandle) types.Module {
+	return module.NewModuleFor(
+		utils.Lazy(NewRootContainer).(func() types.Container),
+		table...,
+	)
 }

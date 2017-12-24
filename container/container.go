@@ -4,6 +4,7 @@
 package container
 
 import (
+	"github.com/vlorc/gioc/register"
 	"github.com/vlorc/gioc/types"
 )
 
@@ -19,7 +20,7 @@ func (c *CoreContainer) Seal() types.Container {
 	return &CoreContainer{
 		register: c.register,
 		provider: c.provider,
-		create: func(types.Provider) types.Container{
+		create: func(types.Provider) types.Container {
 			return nil
 		},
 	}
@@ -27,9 +28,9 @@ func (c *CoreContainer) Seal() types.Container {
 
 func (c *CoreContainer) Readonly() types.Container {
 	return &CoreContainer{
-		register: nil,
+		register: register.NewReadOnlyRegister(),
 		provider: c.provider,
-		create: c.create,
+		create:   c.create,
 	}
 }
 

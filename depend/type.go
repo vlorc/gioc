@@ -4,10 +4,10 @@
 package depend
 
 import (
+	"github.com/vlorc/gioc/text"
 	"github.com/vlorc/gioc/types"
 	"github.com/vlorc/gioc/utils"
 	"reflect"
-	"github.com/vlorc/gioc/text"
 	"strings"
 )
 
@@ -118,10 +118,10 @@ func (df *CoreDependencyFactory) structToDependency(typ reflect.Type, skip func(
 	arr := []*types.DependencyDescription{}
 	ctx := &types.ParseContext{
 		Factory: df,
-		Scan: text.NewTokenScan(),
+		Scan:    text.NewTokenScan(),
 	}
 	for i, n := 0, typ.NumField(); i < n; i++ {
-		arr = df.appendField(arr, typ.Field(i), ctx,skip)
+		arr = df.appendField(arr, typ.Field(i), ctx, skip)
 	}
 	if len(arr) > 0 {
 		dep = NewStructDependency(typ, arr)
@@ -146,9 +146,6 @@ func (df *CoreDependencyFactory) appendField(
 	field reflect.StructField,
 	ctx *types.ParseContext,
 	skip func(string) bool) []*types.DependencyDescription {
-	if uint(field.Name[0]-65) >= uint(26) {
-		return dep
-	}
 	tag := field.Tag.Get("inject")
 	if !skip(tag) {
 		return dep
@@ -157,6 +154,9 @@ func (df *CoreDependencyFactory) appendField(
 		panic(types.NewWithError(types.ErrIndexNotSupport, field.Type))
 	}
 	des := &types.DependencyDescription{Name: field.Name, Index: field.Index[0], Type: field.Type}
+	if uint(des.Name[0]-65) >= uint(26) {
+		des.Flags |= types.DEPENDENCY_FLAG_UNSAFE
+	}
 	if "" != tag {
 		ctx.Descriptor = NewDescriptor(des)
 		ctx.Scan.SetInput(strings.NewReader(tag))

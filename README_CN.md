@@ -12,6 +12,17 @@
 
 gioc是一个轻量级的Ioc框架，它提供注册表和工厂、依赖解决方案
 
+## 特性
+
+* 依赖解析
+* 依赖注入
+* 单例、瞬态
+* 自定义tag
+* 调用器
+* [惰性加载](https://github.com/vlorc/gioc/blob/master/examples/lazy/main.go)
+* [结构体扩展](https://github.com/vlorc/gioc/blob/master/examples/depend/main.go)
+* [模块](https://github.com/vlorc/gioc/blob/master/examples/module/main.go)
+
 ## 安装
 	go get github.com/vlorc/gioc
 
@@ -84,7 +95,7 @@ func main() {
 	+ 提供实例填充
 + Factory(工厂)
 	+ 负责生成实例
-	+ 基本工厂有价值工厂，方法工厂，代理工厂，单一工厂，类型工厂
+	+ 基本工厂有价值工厂，方法工厂，代理工厂，单例工厂，类型工厂
 + Mapper(映射器)
 	+ 通过ID获取工厂
 + Binder(绑定器)
@@ -110,6 +121,11 @@ func main() {
 	+ 使用类型和id索引工厂
 	+ 自动创建绑定器和映射器
 	+ 索引模式隔离
++ Module(模板)
+    + 导入模块
+    + 导出工厂
+    + 声明工厂
+
 
 # 路线图
 有关计划特性和未来方向的详细信息请参考[路线图](https://github.com/vlorc/gioc/blob/master/ROADMAP.md)

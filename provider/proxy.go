@@ -23,7 +23,7 @@ func (pp *ProxyProvider) Assign(dst interface{}, args ...string) (err error) {
 }
 
 func (pp *ProxyProvider) AssignType(dst reflect.Value, typ reflect.Type, name string, deep int) error {
-	return pp.provider.AssignType(dst,typ,name,deep)
+	return pp.provider.AssignType(dst, typ, name, deep)
 }
 
 func (pp *ProxyProvider) AssignNamed(dst interface{}, impType interface{}, name string, deep int) error {

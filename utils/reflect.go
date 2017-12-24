@@ -68,8 +68,7 @@ func NewOf(src reflect.Value) reflect.Value {
 	return src
 }
 
-
-func Convert(src reflect.Value,typ reflect.Type) reflect.Value {
+func Convert(src reflect.Value, typ reflect.Type) reflect.Value {
 	if src.IsValid() {
 		if src.Type() != typ {
 			src = src.Convert(typ)

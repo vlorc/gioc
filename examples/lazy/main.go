@@ -8,15 +8,15 @@ import (
 )
 
 type Personal struct {
-	Name   string `inject:"'name'"`
-	Age    *int   `inject:"'age' default"`
-	Gender int    `inject:"'gender' optional"`
-	Email  string `inject:"'email' optional"`
+	name   string `inject:"'name'"`
+	age    *int   `inject:"'age' default"`
+	gender int    `inject:"'gender' optional"`
+	email  string `inject:"'email' optional"`
 }
 
 type User struct {
-	Id       int64               `inject:"lower"`
-	Personal func() ****Personal `inject:"lazy extends"`
+	id       int64               `inject:"lower"`
+	personal func() ****Personal `inject:"lazy extends"`
 }
 
 func main() {
@@ -50,5 +50,5 @@ func main() {
 		panic(err)
 	}
 
-	fmt.Println(****info.Personal())
+	fmt.Println(****info.personal())
 }

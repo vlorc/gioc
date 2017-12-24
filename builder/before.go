@@ -5,7 +5,7 @@ package builder
 
 import "github.com/vlorc/gioc/types"
 
-func MakeIndexFullBefore(param []interface{}) func(*types.BuildContext) bool {
+func IndexFullBefore(param []interface{}) func(*types.BuildContext) bool {
 	return func(ctx *types.BuildContext) bool {
 		ok := ctx.Descriptor.Index() < len(param)
 		if ok {
@@ -15,7 +15,7 @@ func MakeIndexFullBefore(param []interface{}) func(*types.BuildContext) bool {
 	}
 }
 
-func MakeNameFullBefore(table map[string]interface{}) func(*types.BuildContext) bool {
+func NameFullBefore(table map[string]interface{}) func(*types.BuildContext) bool {
 	return func(ctx *types.BuildContext) bool {
 		val, ok := table[ctx.Descriptor.Name()]
 		if ok {
@@ -25,7 +25,7 @@ func MakeNameFullBefore(table map[string]interface{}) func(*types.BuildContext) 
 	}
 }
 
-func MakeDescriptorFullBefore(table map[string]types.Descriptor) func(*types.BuildContext) bool {
+func DescriptorFullBefore(table map[string]types.Descriptor) func(*types.BuildContext) bool {
 	return func(ctx *types.BuildContext) bool {
 		val, ok := table[ctx.Descriptor.Name()]
 		if ok {

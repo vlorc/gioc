@@ -28,6 +28,7 @@ const (
 	ErrTypeNotFunction
 	ErrIndexNotSupport
 	ErrTokenNotSupport
+	ErrNotRegister
 )
 
 var errFormatTable = map[ErrorCode]string{
@@ -45,6 +46,7 @@ var errFormatTable = map[ErrorCode]string{
 	ErrTypeNotFunction:   `don't is interface type '%s'`,
 	ErrIndexNotSupport:   `can't support type '%s'`,
 	ErrTokenNotSupport:   `can't support token '%s'`,
+	ErrNotRegister:       `can't register,it's readonly`,
 }
 
 const (
@@ -52,6 +54,7 @@ const (
 	DEPENDENCY_FLAG_LAZY
 	DEPENDENCY_FLAG_DEFAULT
 	DEPENDENCY_FLAG_OPTIONAL
+	DEPENDENCY_FLAG_UNSAFE
 )
 
 const (
@@ -67,7 +70,7 @@ const (
 	TOKEN_COMMA         = 16
 	TOKEN_NUMBER        = 19
 	TOKEN_FLOAT         = 20
-	TOKEN_NULL           = 23
+	TOKEN_NULL          = 23
 )
 
 const (
