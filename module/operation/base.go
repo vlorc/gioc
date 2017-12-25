@@ -5,6 +5,7 @@ package operation
 
 import (
 	"github.com/vlorc/gioc/types"
+	"github.com/vlorc/gioc/builder"
 )
 
 func lazyProvider(con func() types.Container) func() types.Provider {
@@ -13,21 +14,14 @@ func lazyProvider(con func() types.Container) func() types.Provider {
 	}
 }
 
-func Dependency(val interface{}) DeclareHandle {
+func Dependency(val ...interface{}) DeclareHandle {
 	return func(ctx *DeclareContext) {
-		var dependFactory types.DependencyFactory
-		ctx.Context.Container().AsProvider().Assign(&dependFactory)
-		dep, err := dependFactory.Instance(val)
-		if nil == err {
-			ctx.Depend = dep
-			ctx.Value = val
+		if len(val) <= 0{
+			val = [1]interface{}{ctx.Type}[:]
 		}
-	}
-}
-
-func Value(val interface{}) DeclareHandle {
-	return func(ctx *DeclareContext) {
-		ctx.Value = val
+		if toDependency(ctx,val[0]) && nil != ctx.Factory {
+			ctx.Factory = builder.NewBuilder(ctx.Factory,ctx.Depend).AsFactory()
+		}
 	}
 }
 
@@ -37,16 +31,20 @@ func Type(typ interface{}) DeclareHandle {
 	}
 }
 
-func Name(name string) DeclareHandle {
+func Id(id string) DeclareHandle {
 	return func(ctx *DeclareContext) {
-		ctx.Name = name
+		ctx.Name = id
 	}
 }
 
-func Factory() DeclareHandle {
-	return toFactory
+func Name(name string) DeclareHandle {
+	return Id(name)
 }
 
-func Export() DeclareHandle {
-	return toExport
+func Factory(factory types.BeanFactory) DeclareHandle {
+	return func(ctx *DeclareContext) {
+		ctx.Factory = factory
+	}
 }
+
+

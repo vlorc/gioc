@@ -26,6 +26,7 @@ const (
 	ErrTypeNotPointer
 	ErrTypeNotInterface
 	ErrTypeNotFunction
+	ErrTypeNotConvert
 	ErrIndexNotSupport
 	ErrTokenNotSupport
 	ErrNotRegister
@@ -44,6 +45,7 @@ var errFormatTable = map[ErrorCode]string{
 	ErrTypeNotPointer:    `don't is pointer type '%s'`,
 	ErrTypeNotInterface:  `don't is interface type '%s'`,
 	ErrTypeNotFunction:   `don't is interface type '%s'`,
+	ErrTypeNotConvert:    `don't convert type '%s'`,
 	ErrIndexNotSupport:   `can't support type '%s'`,
 	ErrTokenNotSupport:   `can't support token '%s'`,
 	ErrNotRegister:       `can't register,it's readonly`,

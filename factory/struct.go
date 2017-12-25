@@ -43,6 +43,11 @@ type PointerFactory struct {
 	value reflect.Value
 }
 
+type ConvertFactory struct {
+	factory types.BeanFactory
+	typ reflect.Type
+}
+
 type ParamFactory int
 
 type FuncFactory func(types.Provider) (interface{}, error)

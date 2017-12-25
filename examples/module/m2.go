@@ -1,19 +1,20 @@
 package main
 
 import (
+	"sync/atomic"
 	. "github.com/vlorc/gioc/module"
 	. "github.com/vlorc/gioc/module/operation"
 )
 
 var Module2 = NewModuleFactory(
 	Declare(
-		Method(getId(0)), Name("id"), Export(),
+		Instance(new(int64)), Id("id"),
+	),
+	Export(
+		Method(nextId), Id("id"),
 	),
 )
 
-func getId(id int64) func() int64 {
-	return func() int64 {
-		id++
-		return id
-	}
+func nextId(param struct{id *int64}) int64 {
+	return atomic.AddInt64(param.id,1)
 }

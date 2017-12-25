@@ -4,10 +4,9 @@
 package module
 
 import (
-	"github.com/vlorc/gioc/factory"
 	"github.com/vlorc/gioc/types"
 	"github.com/vlorc/gioc/utils"
-	"reflect"
+	"github.com/vlorc/gioc/invoker"
 )
 
 func newModule(parent, container func() types.Container) *CoreModule {
@@ -38,7 +37,7 @@ func moduleInit(module *CoreModule, table ...ModuleInitHandle) (types.Module, er
 	for _, v := range table {
 		v(ctx)
 	}
-	moduleBootstrap(module, ctx.Bootstrap)
+	moduleBootstrap(module,ctx.Bootstrap)
 	return module, nil
 }
 
@@ -46,41 +45,8 @@ func moduleBootstrap(module *CoreModule, fn []interface{}) {
 	if len(fn) <= 0 {
 		return
 	}
-	var dependFactory types.DependencyFactory
-	var buildFactory types.BuilderFactory
-	module.parent().AsProvider().Assign(&dependFactory)
-	module.parent().AsProvider().Assign(&buildFactory)
-
 	for _, v := range fn {
-		moduleBootstrapApply(module, v, dependFactory, buildFactory)
+		invoker.NewInvoker(v,nil).ApplyWith(module.container().AsProvider())
 	}
 }
 
-func moduleBootstrapApply(
-	module *CoreModule,
-	fn interface{},
-	dependFactory types.DependencyFactory,
-	buildFactory types.BuilderFactory) {
-	val := reflect.ValueOf(fn)
-	if reflect.Func != val.Kind() {
-		return
-	}
-	if 0 == val.Type().NumIn() {
-		val.Call(nil)
-		return
-	}
-	dep, err := dependFactory.Instance(fn)
-	if nil != err {
-		return
-	}
-
-	build, err := buildFactory.Instance(factory.NewParamFactory(dep.Length()), dep)
-	if nil != err {
-		return
-	}
-	param, err := build.Build(module.container().AsProvider())
-	if nil != err {
-		return
-	}
-	val.Call(param.([]reflect.Value))
-}

@@ -21,7 +21,7 @@ func main() {
 		}) {
 			fmt.Println(param)
 		}, func(param struct{ id int64 }) {
-			fmt.Println("next id: ", param.id)
+			fmt.Println("next id:", param.id)
 		}),
 	)
 }
