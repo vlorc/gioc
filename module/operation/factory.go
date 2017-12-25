@@ -4,10 +4,11 @@
 package operation
 
 import (
+	"reflect"
 	"github.com/vlorc/gioc/factory"
 	"github.com/vlorc/gioc/types"
 	"github.com/vlorc/gioc/utils"
-	"reflect"
+	"github.com/vlorc/gioc/builder"
 )
 
 func Singleton() DeclareHandle {
@@ -24,71 +25,59 @@ func Mutex() DeclareHandle {
 
 func Func(val func(types.Provider) (interface{}, error)) DeclareHandle {
 	return func(ctx *DeclareContext) {
+		ctx.Reset()
 		ctx.Factory = factory.NewFuncFactory(val)
 	}
 }
 
-func Method(val interface{}) DeclareHandle {
+func Method(val interface{},index ...int) DeclareHandle {
 	return func(ctx *DeclareContext) {
+		ctx.Reset()
 		typ := reflect.ValueOf(val).Type()
 		if reflect.Func != typ.Kind() || typ.NumOut() <= 0 {
 			return
 		}
 		if typ.NumIn() <= 0 {
-			ctx.Factory, ctx.Type, _ = factory.NewMethodFactory(val, nil)
+			ctx.Factory, ctx.Type, _ = factory.NewMethodFactory(val, nil,index...)
+		}else if toDependency(ctx,val) {
+			toMethodFactory(ctx,val,index...)
+		}
+	}
+}
+
+func Interface(val interface{},typ ...interface{}) DeclareHandle {
+	return func(ctx *DeclareContext) {
+		ctx.Reset()
+		if len(typ) <= 0 {
+			toInterface(ctx,val)
 			return
 		}
-		if Dependency(val)(ctx); nil != ctx.Depend {
-			newMethodFactory(ctx)
-		}
+		ctx.Factory = factory.NewTypeFactory(val)
+		ctx.Type = utils.TypeOf(typ[0])
 	}
 }
 
 func Instance(val interface{}) DeclareHandle {
 	return func(ctx *DeclareContext) {
+		ctx.Reset()
 		ctx.Factory = factory.NewValueFactory(val)
-		ctx.Type = val
+		ctx.Type = reflect.TypeOf(val)
 	}
 }
 
 func Pointer(val interface{}) DeclareHandle {
 	return func(ctx *DeclareContext) {
-		tmp := reflect.ValueOf(val)
-		ctx.Factory = factory.NewPointerFactory(tmp)
-		ctx.Type = tmp.Elem().Type()
+		ctx.Reset()
+		if tmp := reflect.ValueOf(val); reflect.Ptr == tmp.Kind() {
+			ctx.Factory = factory.NewPointerFactory(tmp)
+			ctx.Type = tmp.Elem().Type()
+		}
 	}
 }
 
-func toFactory(ctx *DeclareContext) {
-	if nil != ctx.Factory {
-		return
-	}
-	if nil != ctx.Depend {
-		toBuildFactory(ctx)
-	} else if nil != ctx.Type {
-		ctx.Factory = factory.NewTypeFactory(ctx.Type)
-	}
-}
-
-func getBuild(ctx *DeclareContext, bean types.BeanFactory) types.Builder {
-	var buildFactory types.BuilderFactory
-	ctx.Context.Container().AsProvider().Assign(&buildFactory)
-	build, _ := buildFactory.Instance(bean, ctx.Depend)
-	return build
-}
-
-func toBuildFactory(ctx *DeclareContext) {
-	typ := utils.TypeOf(ctx.Value)
-	if reflect.Func == typ.Kind() {
-		newMethodFactory(ctx)
-		return
-	}
-	ctx.Factory = getBuild(ctx, factory.NewTypeFactory(ctx.Value)).AsFactory()
-}
-
-func newMethodFactory(ctx *DeclareContext) {
-	param := getBuild(ctx, factory.NewParamFactory(ctx.Depend.Length()))
-	bean, typ, err := factory.NewMethodFactory(ctx.Value, param.AsFactory())
+func toMethodFactory(ctx *DeclareContext,val interface{},index ...int) {
+	param := builder.NewBuilder(factory.NewParamFactory(ctx.Depend.Length()), ctx.Depend)
+	bean, typ, err := factory.NewMethodFactory(val, param.AsFactory(),index...)
 	if nil != err {
 		panic(err)
 	}
@@ -96,10 +85,44 @@ func newMethodFactory(ctx *DeclareContext) {
 	ctx.Factory = bean
 }
 
+func toRegistered(ctx *DeclareContext) {
+	ctx.Context.Container().AsRegister().RegisterFactory(
+		ctx.Factory,
+		ctx.Type,
+		ctx.Name)
+}
+
 func toExport(ctx *DeclareContext) {
+	var bean types.BeanFactory
+	if nil != ctx.Depend {
+		bean = factory.NewExportFactory(ctx.Factory, lazyProvider(ctx.Context.Container))
+	} else {
+		bean = ctx.Factory
+	}
 	ctx.Context.Parent().AsRegister().RegisterFactory(
-		factory.NewExportFactory(ctx.Factory, lazyProvider(ctx.Context.Container)),
+		bean,
 		ctx.Type,
 		ctx.Name,
 	)
+}
+
+func toDependency(ctx *DeclareContext,val interface{}) (ok bool) {
+	var dependFactory types.DependencyFactory
+	ctx.Context.Parent().AsProvider().Assign(&dependFactory)
+	dep, err := dependFactory.Instance(val)
+	if nil == err {
+		ok = true
+		ctx.Depend = dep
+	}
+	return
+}
+
+func toInterface(ctx *DeclareContext,val interface{}) bool{
+	src := utils.DirectlyValue(utils.ValueOf(val))
+	ok := reflect.Interface == src.Kind() && !src.IsNil()
+	if ok{
+		ctx.Factory = factory.NewValueFactory(src.Interface())
+		ctx.Type = src.Type()
+	}
+	return ok
 }

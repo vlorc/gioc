@@ -6,16 +6,12 @@ import (
 )
 
 var Module1 = NewModuleFactory(
-	Declare(
-		Instance(11), Name("age"), Export(),
-	),
-	Declare(
-		Instance(2), Name("gender"), Export(),
-	),
-	Declare(
-		Instance("xxx@163.com"), Name("email"), Export(),
-	),
-	Declare(
-		Instance("admin_001"), Name("name"), Export(),
+	Export(
+		Mapping(map[string]interface{}{
+			"age":11,
+			"gender":2,
+		}),
+		Instance("xxx@163.com"), Id("email"),
+		Instance("admin_001"), Id("name"),
 	),
 )

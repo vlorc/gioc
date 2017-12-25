@@ -15,19 +15,7 @@ func lazyProvider(con func() types.Container) func() types.Provider {
 
 func Dependency(val interface{}) DeclareHandle {
 	return func(ctx *DeclareContext) {
-		var dependFactory types.DependencyFactory
-		ctx.Context.Container().AsProvider().Assign(&dependFactory)
-		dep, err := dependFactory.Instance(val)
-		if nil == err {
-			ctx.Depend = dep
-			ctx.Value = val
-		}
-	}
-}
-
-func Value(val interface{}) DeclareHandle {
-	return func(ctx *DeclareContext) {
-		ctx.Value = val
+		toDependency(ctx,val)
 	}
 }
 
@@ -37,16 +25,20 @@ func Type(typ interface{}) DeclareHandle {
 	}
 }
 
-func Name(name string) DeclareHandle {
+func Id(id string) DeclareHandle {
 	return func(ctx *DeclareContext) {
-		ctx.Name = name
+		ctx.Name = id
 	}
 }
 
-func Factory() DeclareHandle {
-	return toFactory
+func Name(name string) DeclareHandle {
+	return Id(name)
 }
 
-func Export() DeclareHandle {
-	return toExport
+func Factory(factory types.BeanFactory) DeclareHandle {
+	return func(ctx *DeclareContext) {
+		ctx.Factory = factory
+	}
 }
+
+

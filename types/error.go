@@ -29,8 +29,14 @@ func NewWithError(code ErrorCode, impType interface{}, args ...string) error {
 	err := &Error{
 		Code:   code,
 		format: formatError,
+		Args: []interface{}{"",""},
 	}
-	if err.Args = []interface{}{utils.TypeOf(impType).Name(), ""}; len(args) > 0 {
+	if typ := utils.TypeOf(impType); "" != typ.Name() {
+		err.Args[0] = typ.Name()
+	} else {
+		err.Args[0] = typ.String()
+	}
+	if len(args) > 0 {
 		err.Args[1] = args[0]
 	}
 	return err

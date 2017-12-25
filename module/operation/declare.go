@@ -5,30 +5,24 @@ package operation
 
 import (
 	"github.com/vlorc/gioc/module"
-	"github.com/vlorc/gioc/types"
 )
-
-type DeclareContext struct {
-	Name    string
-	Value   interface{}
-	Type    interface{}
-	Factory types.BeanFactory
-	Depend  types.Dependency
-	Context *module.ModuleInitContext
-}
 
 type DeclareHandle func(*DeclareContext)
 
 func Declare(handle ...DeclareHandle) module.ModuleInitHandle {
+	return declare(toRegistered,handle)
+}
+
+func Export(handle ...DeclareHandle) module.ModuleInitHandle {
+	return declare(toExport,handle)
+}
+
+func declare(done func(*DeclareContext),handle []DeclareHandle) module.ModuleInitHandle {
 	return func(ctx *module.ModuleInitContext) {
-		c := &DeclareContext{
-			Context: ctx,
-		}
+		dc := &DeclareContext{done: done,Context: ctx}
 		for _, v := range handle {
-			v(c)
+			v(dc)
 		}
-		if nil != c.Factory && nil != c.Type {
-			ctx.Container().AsRegister().RegisterFactory(c.Factory, c.Type, c.Name)
-		}
+		dc.Reset()
 	}
 }

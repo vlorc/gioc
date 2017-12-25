@@ -41,5 +41,6 @@ func NewContainer(register types.Register, provider types.Provider) types.Contai
 		provider: provider,
 		create:   NewWithContainer,
 	}
+	register.RegisterInterface(&provider)
 	return c
 }

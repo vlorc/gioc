@@ -8,13 +8,10 @@ import (
 	"reflect"
 )
 
-type CoreInvoker struct {
-	method  reflect.Value
-	param   []reflect.Value
-	builder func(types.Provider) types.Builder
+func (npi NoParamInvoker) Apply( ...interface{}) []reflect.Value {
+	return npi.ApplyWith(nil)
 }
 
-type NoParamInvoker reflect.Value
-type SimpleInvoker reflect.Value
-
-type CoreInvokerFactory struct {}
+func (npi NoParamInvoker) ApplyWith(types.Provider,...interface{}) []reflect.Value {
+	return reflect.Value(npi).Call(nil)
+}
