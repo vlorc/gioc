@@ -13,13 +13,27 @@ import (
 
 func Singleton() DeclareHandle {
 	return func(ctx *DeclareContext) {
-		ctx.Factory = factory.NewSingleFactory(ctx.Factory)
+		if nil != ctx.Factory{
+			ctx.Factory = factory.NewSingleFactory(ctx.Factory)
+		}
 	}
 }
 
 func Mutex() DeclareHandle {
 	return func(ctx *DeclareContext) {
-		ctx.Factory = factory.NewMutexFactory(ctx.Factory)
+		if nil != ctx.Factory{
+			ctx.Factory = factory.NewMutexFactory(ctx.Factory)
+		}
+	}
+}
+
+func Convert(val interface{}) DeclareHandle {
+	return func(ctx *DeclareContext) {
+		if nil != ctx.Factory{
+			typ := utils.TypeOf(val)
+			ctx.Factory = factory.NewConvertFactory(ctx.Factory,typ)
+			ctx.Type = typ
+		}
 	}
 }
 
@@ -45,18 +59,6 @@ func Method(val interface{},index ...int) DeclareHandle {
 	}
 }
 
-func Interface(val interface{},typ ...interface{}) DeclareHandle {
-	return func(ctx *DeclareContext) {
-		ctx.Reset()
-		if len(typ) <= 0 {
-			toInterface(ctx,val)
-			return
-		}
-		ctx.Factory = factory.NewTypeFactory(val)
-		ctx.Type = utils.TypeOf(typ[0])
-	}
-}
-
 func Instance(val interface{}) DeclareHandle {
 	return func(ctx *DeclareContext) {
 		ctx.Reset()
@@ -65,12 +67,21 @@ func Instance(val interface{}) DeclareHandle {
 	}
 }
 
+func New(val interface{}) DeclareHandle {
+	return func(ctx *DeclareContext) {
+		ctx.Reset()
+		typ := utils.TypeOf(val)
+		ctx.Factory = factory.NewTypeFactory(typ)
+		ctx.Type = reflect.PtrTo(typ)
+	}
+}
+
 func Pointer(val interface{}) DeclareHandle {
 	return func(ctx *DeclareContext) {
 		ctx.Reset()
-		if tmp := reflect.ValueOf(val); reflect.Ptr == tmp.Kind() {
-			ctx.Factory = factory.NewPointerFactory(tmp)
-			ctx.Type = tmp.Elem().Type()
+		if src := reflect.ValueOf(val); reflect.Ptr == src.Kind() && !src.IsNil(){
+			ctx.Factory = factory.NewPointerFactory(src)
+			ctx.Type = src.Type().Elem()
 		}
 	}
 }
@@ -115,14 +126,4 @@ func toDependency(ctx *DeclareContext,val interface{}) (ok bool) {
 		ctx.Depend = dep
 	}
 	return
-}
-
-func toInterface(ctx *DeclareContext,val interface{}) bool{
-	src := utils.DirectlyValue(utils.ValueOf(val))
-	ok := reflect.Interface == src.Kind() && !src.IsNil()
-	if ok{
-		ctx.Factory = factory.NewValueFactory(src.Interface())
-		ctx.Type = src.Type()
-	}
-	return ok
 }

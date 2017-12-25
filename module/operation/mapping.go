@@ -21,16 +21,9 @@ func Mapping(val interface{}) DeclareHandle {
 }
 
 func mapping(ctx *DeclareContext,val interface{}) {
-	src := reflect.ValueOf(val)
-	switch src.Kind() {
-	case reflect.Func:
+	if reflect.Func == reflect.TypeOf(val).Kind() {
 		Method(val)(ctx)
-	case reflect.Ptr:
-		if toInterface(ctx,val) {
-			break
-		}
-		fallthrough
-	default:
+	} else {
 		Instance(val)(ctx)
 	}
 }
