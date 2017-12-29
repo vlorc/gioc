@@ -71,11 +71,11 @@ func main() {
     // convert custom factory into singleton mode factory
     container.AsRegister().RegisterFactory(factory.NewSingleFactory(inc),&age,"once")
     // get an instance type int and name age
-    fmt.Println(container.Resolve((*int)(nil), "age"))
+    fmt.Println(container.AsProvider().Resolve((*int)(nil), "age"))
     // same as above,this value add 1 every times
-    fmt.Println(container.Resolve((*int)(nil), "inc"))
+    fmt.Println(container.AsProvider().Resolve((*int)(nil), "inc"))
     // same as above,but only once
-    fmt.Println(container.Resolve((*int)(nil), "once"))
+    fmt.Println(container.AsProvider().Resolve((*int)(nil), "once"))
 }
 ```
 

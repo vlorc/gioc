@@ -29,7 +29,7 @@ func mapping(ctx *DeclareContext,val interface{}) {
 }
 
 func mappingStruct(ctx *DeclareContext,val interface{}) {
-
+	Dependency()
 }
 
 func mappingArray(ctx *DeclareContext,array []interface{}) {

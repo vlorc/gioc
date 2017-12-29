@@ -30,7 +30,7 @@ func (ds *CoreDependencyScan) Type() reflect.Type {
 }
 
 func (ds *CoreDependencyScan) Default() reflect.Value {
-	return ds.dep[ds.pos].Default
+	return ds.dep[ds.pos].Default()
 }
 
 func (ds *CoreDependencyScan) Name() string {

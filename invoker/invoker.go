@@ -12,7 +12,7 @@ import (
 )
 
 func lazyBuilder(val reflect.Value) func(types.Provider) types.Builder{
-	return func(provider types.Provider) types.Builder {
+	return utils.Lazy(func(provider types.Provider) types.Builder {
 		var dependFactory types.DependencyFactory
 		provider.Assign(&dependFactory)
 		dep, err := dependFactory.Instance(val)
@@ -20,7 +20,7 @@ func lazyBuilder(val reflect.Value) func(types.Provider) types.Builder{
 			panic(err)
 		}
 		return builder.NewBuilder(factory.NewParamFactory(dep.Length()), dep)
-	}
+	}).(func(types.Provider) types.Builder)
 }
 
 func NewInvoker(method interface{}, builder types.Builder) types.Invoker {

@@ -25,14 +25,19 @@ func nameHandle(ctx *types.ParseContext) error {
 	return nil
 }
 
-func defaultHandle(ctx *types.ParseContext) error {
+func getDefault(ctx *types.ParseContext) func()reflect.Value {
 	var val reflect.Value
 	if len(ctx.Params) > 0 {
 		val = ctx.Params[0].Value()
 	}
-
 	val = utils.Convert(val, ctx.Descriptor.Type())
-	ctx.Descriptor.SetDefault(val)
+	return func() reflect.Value {
+		return val
+	}
+}
+
+func defaultHandle(ctx *types.ParseContext) error {
+	ctx.Descriptor.SetDefault(getDefault(ctx))
 	return nil
 }
 

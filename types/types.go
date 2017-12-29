@@ -214,7 +214,7 @@ type DescriptorGetter interface {
 type DescriptorSetter interface {
 	SetType(reflect.Type)
 	SetName(string)
-	SetDefault(reflect.Value)
+	SetDefault(func()reflect.Value)
 	SetFlags(DependencyFlag)
 	SetIndex(int)
 	SetDepend(Dependency)

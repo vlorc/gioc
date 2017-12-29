@@ -17,7 +17,7 @@ func lazyProvider(con func() types.Container) func() types.Provider {
 func Dependency(val ...interface{}) DeclareHandle {
 	return func(ctx *DeclareContext) {
 		if len(val) <= 0{
-			val = [1]interface{}{ctx.Type}[:]
+			val = []interface{}{ctx.Type}
 		}
 		if toDependency(ctx,val[0]) && nil != ctx.Factory {
 			ctx.Factory = builder.NewBuilder(ctx.Factory,ctx.Depend).AsFactory()

@@ -5,7 +5,6 @@ package factory
 
 import (
 	"github.com/vlorc/gioc/types"
-	"github.com/vlorc/gioc/utils"
 	"reflect"
 )
 

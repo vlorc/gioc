@@ -29,6 +29,17 @@ func NewModuleFactory(table ...ModuleInitHandle) types.ModuleFactory {
 	}
 }
 
+func NewModuleForFactory(table ...ModuleInitHandle) types.ModuleFactory {
+	return &CoreModuleForFactory{
+		table: table,
+	}
+}
+
 func (mf *CoreModuleFactory) Instance(parent func() types.Container) (types.Module, error) {
 	return moduleInit(newWithModule(parent), mf.table...)
+}
+
+
+func (mff *CoreModuleForFactory) Instance(parent func() types.Container) (types.Module, error) {
+	return moduleInit(newModule(parent,parent), mff.table...)
 }
