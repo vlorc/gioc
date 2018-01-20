@@ -31,14 +31,21 @@ func Type(typ interface{}) DeclareHandle {
 	}
 }
 
-func Id(id string) DeclareHandle {
+func Id(id string,args ...string) DeclareHandle {
 	return func(ctx *DeclareContext) {
+		for _,v := range args {
+			c := *ctx
+			c.Name = v
+			c.done(&c)
+		}
 		ctx.Name = id
 	}
 }
 
 func Name(name string) DeclareHandle {
-	return Id(name)
+	return func(ctx *DeclareContext) {
+		ctx.Name = name
+	}
 }
 
 func Factory(factory types.BeanFactory) DeclareHandle {
@@ -46,5 +53,3 @@ func Factory(factory types.BeanFactory) DeclareHandle {
 		ctx.Factory = factory
 	}
 }
-
-

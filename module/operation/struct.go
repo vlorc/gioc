@@ -23,3 +23,8 @@ func (dc *DeclareContext)Reset() {
 	}
 	*dc = DeclareContext{done:dc.done,Context:dc.Context}
 }
+
+type EventContext struct {
+	*module.ModuleInitContext
+	Listener types.EventListener
+}

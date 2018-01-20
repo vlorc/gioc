@@ -30,3 +30,10 @@ func NewSimpleInvoker(method interface{}) types.Invoker{
 	}
 	panic(types.NewWithError(types.ErrTypeNotFunction, method))
 }
+
+func NewInvokerWith(provider func()types.Provider,invoker types.Invoker) types.Invoker {
+	return &WithInvoker{
+		provider:provider,
+		invoker:invoker,
+	}
+}

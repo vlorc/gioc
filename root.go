@@ -16,6 +16,8 @@ import (
 	"github.com/vlorc/gioc/selector"
 	"github.com/vlorc/gioc/types"
 	"github.com/vlorc/gioc/utils"
+	."github.com/vlorc/gioc/module/operation"
+	"github.com/vlorc/gioc/event"
 )
 
 // create a root container
@@ -47,6 +49,8 @@ func NewRootContainer() types.Container {
 func NewRootModule(table ...module.ModuleInitHandle) types.Module {
 	return module.NewModuleFor(
 		utils.Lazy(NewRootContainer).(func() types.Container),
-		table...,
+		Import(event.EventModuleFor("root","parent")),
+		Join(table...),
+		Event(Emit("ready"),Emit("init")),
 	)
 }

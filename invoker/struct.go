@@ -18,3 +18,8 @@ type NoParamInvoker reflect.Value
 type SimpleInvoker reflect.Value
 
 type CoreInvokerFactory struct {}
+
+type WithInvoker struct {
+	provider func() types.Provider
+	invoker types.Invoker
+}

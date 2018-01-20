@@ -64,6 +64,13 @@ type ModuleFactory interface {
 	Instance(func() Container) (Module, error)
 }
 
+type EventListener interface {
+	On(string, interface{}) error
+	Emit(string, ...interface{}) error
+	OnWith(func() Provider, string, interface{}) error
+	EmitWith(func() Provider, string, ...interface{}) error
+}
+
 type ParamFactory interface {
 	// create a Param by token and value
 	Instance(Token, string) (Param, error)
@@ -214,7 +221,7 @@ type DescriptorGetter interface {
 type DescriptorSetter interface {
 	SetType(reflect.Type)
 	SetName(string)
-	SetDefault(func()reflect.Value)
+	SetDefault(func() reflect.Value)
 	SetFlags(DependencyFlag)
 	SetIndex(int)
 	SetDepend(Dependency)
