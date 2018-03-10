@@ -5,10 +5,10 @@ package event
 
 import "github.com/vlorc/gioc/types"
 
-func NewEventListener(provider func()types.Provider) types.EventListener {
+func NewEventListener(provider func() types.Provider) types.EventListener {
 	return &CoreEventListener{
-		provider:provider,
-		listeners:make(map[string][]types.Invoker),
+		provider:  provider,
+		listeners: make(map[string][]types.Invoker),
 	}
 }
 

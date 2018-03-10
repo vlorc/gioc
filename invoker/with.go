@@ -4,15 +4,14 @@
 package invoker
 
 import (
-	"reflect"
 	"github.com/vlorc/gioc/types"
+	"reflect"
 )
 
-func (wi *WithInvoker) Apply(args  ...interface{}) []reflect.Value {
-	return wi.invoker.ApplyWith(wi.provider(),args...)
+func (wi *WithInvoker) Apply(args ...interface{}) []reflect.Value {
+	return wi.invoker.ApplyWith(wi.provider(), args...)
 }
 
-func (wi *WithInvoker) ApplyWith(_ types.Provider,args ...interface{}) []reflect.Value {
+func (wi *WithInvoker) ApplyWith(_ types.Provider, args ...interface{}) []reflect.Value {
 	return wi.Apply(args...)
 }
-

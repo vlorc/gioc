@@ -8,10 +8,10 @@ import (
 	"reflect"
 )
 
-func (npi NoParamInvoker) Apply( ...interface{}) []reflect.Value {
+func (npi NoParamInvoker) Apply(...interface{}) []reflect.Value {
 	return npi.ApplyWith(nil)
 }
 
-func (npi NoParamInvoker) ApplyWith(types.Provider,...interface{}) []reflect.Value {
+func (npi NoParamInvoker) ApplyWith(types.Provider, ...interface{}) []reflect.Value {
 	return reflect.Value(npi).Call(nil)
 }

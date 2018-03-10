@@ -6,8 +6,8 @@ import (
 	"github.com/vlorc/gioc/types"
 )
 
-func EventModuleFor(id ...string) types.ModuleFactory{
+func EventModuleFor(id ...string) types.ModuleFactory {
 	return NewModuleForFactory(
-		Declare(Method(NewEventListenerWith),Singleton(),Id("",id...)),
+		Declare(Method(NewEventListenerWith), Singleton(), Id("", id...)),
 	)
 }

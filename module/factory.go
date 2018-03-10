@@ -39,7 +39,6 @@ func (mf *CoreModuleFactory) Instance(parent func() types.Container) (types.Modu
 	return moduleInit(newWithModule(parent), mf.table...)
 }
 
-
 func (mff *CoreModuleForFactory) Instance(parent func() types.Container) (types.Module, error) {
-	return moduleInit(newModule(parent,parent), mff.table...)
+	return moduleInit(newModule(parent, parent), mff.table...)
 }

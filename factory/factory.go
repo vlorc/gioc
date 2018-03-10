@@ -68,8 +68,7 @@ func NewExportFactory(factory types.BeanFactory, provider func() types.Provider)
 
 func NewConvertFactory(factory types.BeanFactory, typ reflect.Type) types.BeanFactory {
 	return &ConvertFactory{
-		factory:  factory,
-		typ: typ,
+		factory: factory,
+		typ:     typ,
 	}
 }
-

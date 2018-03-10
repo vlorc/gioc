@@ -16,7 +16,7 @@ type DependencyDescription struct {
 	Name    string
 	Index   int
 	Flags   DependencyFlag
-	Default func()reflect.Value
+	Default func() reflect.Value
 	Depend  Dependency
 }
 

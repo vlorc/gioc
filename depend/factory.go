@@ -13,7 +13,7 @@ import (
 func NewDependencyFactory() types.DependencyFactory {
 	obj := &CoreDependencyFactory{
 		pool:   make(map[reflect.Type]types.Dependency),
-		parser: text.NewTextParser(DefaultHandle,text.NewParamFactory()),
+		parser: text.NewTextParser(DefaultHandle, text.NewParamFactory()),
 	}
 	obj.resolve = map[reflect.Kind]ResolveHandle{
 		reflect.Array:  obj.resolveArray,

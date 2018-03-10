@@ -4,9 +4,9 @@
 package module
 
 import (
+	"github.com/vlorc/gioc/invoker"
 	"github.com/vlorc/gioc/types"
 	"github.com/vlorc/gioc/utils"
-	"github.com/vlorc/gioc/invoker"
 )
 
 func newModule(parent, container func() types.Container) *CoreModule {
@@ -37,7 +37,7 @@ func moduleInit(module *CoreModule, table ...ModuleInitHandle) (types.Module, er
 	for _, v := range table {
 		v(ctx)
 	}
-	moduleBootstrap(module,ctx.Bootstrap)
+	moduleBootstrap(module, ctx.Bootstrap)
 	return module, nil
 }
 
@@ -46,7 +46,6 @@ func moduleBootstrap(module *CoreModule, fn []interface{}) {
 		return
 	}
 	for _, v := range fn {
-		invoker.NewInvoker(v,nil).ApplyWith(module.container().AsProvider())
+		invoker.NewInvoker(v, nil).ApplyWith(module.container().AsProvider())
 	}
 }
-

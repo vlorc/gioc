@@ -3,8 +3,8 @@ package main
 import (
 	. "github.com/vlorc/gioc"
 	. "github.com/vlorc/gioc/module/operation"
-	"net/http"
 	"net"
+	"net/http"
 )
 
 func main() {
@@ -14,8 +14,8 @@ func main() {
 			ListenModule,
 			ServerModule,
 		),
-		Bootstrap(func(param struct{ server *http.Server `inject:"''"`; listen net.Listener `inject:"''"`}) {
-			param.server.Serve(param.listen)
+		Bootstrap(func(server *http.Server, listen net.Listener) {
+			server.Serve(listen)
 		}),
 	)
 }

@@ -8,15 +8,15 @@ import (
 	"reflect"
 )
 
-func (cf *ConvertFactory) Instance(provider types.Provider) (instance interface{},err error) {
-	instance,err = cf.factory.Instance(provider)
+func (cf *ConvertFactory) Instance(provider types.Provider) (instance interface{}, err error) {
+	instance, err = cf.factory.Instance(provider)
 	if nil != err {
 		return
 	}
 	if val := reflect.ValueOf(instance); val.Type().ConvertibleTo(cf.typ) {
 		instance = val.Convert(cf.typ).Interface()
 	} else {
-		err = types.NewWithError(types.ErrTypeNotConvert,val)
+		err = types.NewWithError(types.ErrTypeNotConvert, val)
 	}
 	return
 }

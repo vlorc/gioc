@@ -45,7 +45,7 @@ type PointerFactory struct {
 
 type ConvertFactory struct {
 	factory types.BeanFactory
-	typ reflect.Type
+	typ     reflect.Type
 }
 
 type ParamFactory int

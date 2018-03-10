@@ -8,16 +8,16 @@ import (
 	"github.com/vlorc/gioc/builder"
 	"github.com/vlorc/gioc/container"
 	"github.com/vlorc/gioc/depend"
+	"github.com/vlorc/gioc/event"
 	"github.com/vlorc/gioc/factory"
 	"github.com/vlorc/gioc/invoker"
 	"github.com/vlorc/gioc/module"
+	. "github.com/vlorc/gioc/module/operation"
 	"github.com/vlorc/gioc/provider"
 	"github.com/vlorc/gioc/register"
 	"github.com/vlorc/gioc/selector"
 	"github.com/vlorc/gioc/types"
 	"github.com/vlorc/gioc/utils"
-	."github.com/vlorc/gioc/module/operation"
-	"github.com/vlorc/gioc/event"
 )
 
 // create a root container
@@ -49,8 +49,8 @@ func NewRootContainer() types.Container {
 func NewRootModule(table ...module.ModuleInitHandle) types.Module {
 	return module.NewModuleFor(
 		utils.Lazy(NewRootContainer).(func() types.Container),
-		Import(event.EventModuleFor("root","parent")),
+		Import(event.EventModuleFor("root", "parent")),
 		Join(table...),
-		Event(Emit("ready"),Emit("init")),
+		Event(Emit("ready"), Emit("init")),
 	)
 }

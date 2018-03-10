@@ -9,8 +9,8 @@ import (
 )
 
 type CoreEventListener struct {
-	lock sync.RWMutex
-	provider func() types.Provider
-	defaults []types.Invoker
-	listeners  map[string][]types.Invoker
+	lock      sync.RWMutex
+	provider  func() types.Provider
+	defaults  []types.Invoker
+	listeners map[string][]types.Invoker
 }

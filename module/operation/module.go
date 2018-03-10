@@ -21,7 +21,7 @@ func Import(factory ...types.ModuleFactory) module.ModuleInitHandle {
 
 func Join(handle ...module.ModuleInitHandle) module.ModuleInitHandle {
 	return func(ctx *module.ModuleInitContext) {
-		for _,v := range handle {
+		for _, v := range handle {
 			v(ctx)
 		}
 	}
@@ -33,8 +33,8 @@ func Bootstrap(fn ...interface{}) module.ModuleInitHandle {
 	}
 }
 
-func Score(container func()types.Container) module.ModuleInitHandle {
+func Score(container func() types.Container) module.ModuleInitHandle {
 	return func(ctx *module.ModuleInitContext) {
-		ctx.Container = utils.Lazy(container).(func()types.Container)
+		ctx.Container = utils.Lazy(container).(func() types.Container)
 	}
 }

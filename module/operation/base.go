@@ -4,8 +4,8 @@
 package operation
 
 import (
-	"github.com/vlorc/gioc/types"
 	"github.com/vlorc/gioc/builder"
+	"github.com/vlorc/gioc/types"
 )
 
 func lazyProvider(con func() types.Container) func() types.Provider {
@@ -16,11 +16,11 @@ func lazyProvider(con func() types.Container) func() types.Provider {
 
 func Dependency(val ...interface{}) DeclareHandle {
 	return func(ctx *DeclareContext) {
-		if len(val) <= 0{
+		if len(val) <= 0 {
 			val = []interface{}{ctx.Type}
 		}
-		if toDependency(ctx,val[0]) && nil != ctx.Factory {
-			ctx.Factory = builder.NewBuilder(ctx.Factory,ctx.Depend).AsFactory()
+		if toDependency(ctx, val[0]) && nil != ctx.Factory {
+			ctx.Factory = builder.NewBuilder(ctx.Factory, ctx.Depend).AsFactory()
 		}
 	}
 }
@@ -31,9 +31,9 @@ func Type(typ interface{}) DeclareHandle {
 	}
 }
 
-func Id(id string,args ...string) DeclareHandle {
+func Id(id string, args ...string) DeclareHandle {
 	return func(ctx *DeclareContext) {
-		for _,v := range args {
+		for _, v := range args {
 			c := *ctx
 			c.Name = v
 			c.done(&c)

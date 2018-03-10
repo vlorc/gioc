@@ -8,7 +8,7 @@ import (
 )
 
 func (bf *CoreBuilderFactory) Instance(factory types.BeanFactory, depend types.Dependency) (types.Builder, error) {
-	return NewBuilder(factory,depend), nil
+	return NewBuilder(factory, depend), nil
 }
 
 func NewBuilderFactory() types.BuilderFactory {

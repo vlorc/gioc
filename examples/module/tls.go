@@ -1,15 +1,19 @@
 package main
 
 import (
-	"net"
 	"crypto/tls"
 	. "github.com/vlorc/gioc/module"
 	. "github.com/vlorc/gioc/module/operation"
+	"net"
 )
 
 var TlsModule = NewModuleFactory(
 	Declare(
-		Method(func(param struct{config *tls.Config `inject:"'default' optional"`; certFile string `inject:"optional"`;keyFile string `inject:"optional"`}) (cfg *tls.Config,err error){
+		Method(func(param struct {
+			config   *tls.Config `inject:"'default' optional"`
+			certFile string      `inject:"optional"`
+			keyFile  string      `inject:"optional"`
+		}) (cfg *tls.Config, err error) {
 			if "" == param.certFile || "" == param.keyFile {
 				return
 			}
@@ -21,14 +25,17 @@ var TlsModule = NewModuleFactory(
 			cfg.Certificates = make([]tls.Certificate, 1)
 			cfg.Certificates[0], err = tls.LoadX509KeyPair(param.certFile, param.keyFile)
 			return
-		}),Singleton(),
+		}), Singleton(),
 	),
 	Export(
-		Method(func(param struct{listen net.Listener `inject:"''"`; config *tls.Config `inject:"''"` }) net.Listener{
+		Method(func(param struct {
+			listen net.Listener `inject:"''"`
+			config *tls.Config  `inject:"''"`
+		}) net.Listener {
 			if nil != param.config {
-				return tls.NewListener(param.listen,param.config)
+				return tls.NewListener(param.listen, param.config)
 			}
 			return param.listen
-		}),Singleton(),
+		}), Singleton(),
 	),
 )

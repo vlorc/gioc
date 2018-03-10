@@ -55,7 +55,7 @@ func (dg *DescriptorSetter) SetName(name string) {
 	dg.des.Name = name
 }
 
-func (dg *DescriptorSetter) SetDefault(def func()reflect.Value) {
+func (dg *DescriptorSetter) SetDefault(def func() reflect.Value) {
 	dg.des.Default = def
 }
 

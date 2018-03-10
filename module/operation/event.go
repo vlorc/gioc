@@ -10,39 +10,39 @@ import (
 type EventHandle func(*EventContext)
 
 func Event(handle ...EventHandle) module.ModuleInitHandle {
-	return EventScore("",handle...)
+	return EventScore("", handle...)
 }
 
-func EventScore(name string,handle ...EventHandle) module.ModuleInitHandle {
+func EventScore(name string, handle ...EventHandle) module.ModuleInitHandle {
 	return func(ctx *module.ModuleInitContext) {
-		c := &EventContext{ctx,nil}
-		c.Parent().AsProvider().Assign(&c.Listener,name)
-		for _,v := range handle {
+		c := &EventContext{ctx, nil}
+		c.Parent().AsProvider().Assign(&c.Listener, name)
+		for _, v := range handle {
 			v(c)
 		}
 	}
 }
 
-func On(event string,fn interface{}) EventHandle{
+func On(event string, fn interface{}) EventHandle {
 	return func(ctx *EventContext) {
-		ctx.Listener.On(event,fn)
+		ctx.Listener.On(event, fn)
 	}
 }
 
-func OnWith(event string,fn interface{}) EventHandle{
+func OnWith(event string, fn interface{}) EventHandle {
 	return func(ctx *EventContext) {
-		ctx.Listener.OnWith(lazyProvider(ctx.Container),event,fn)
+		ctx.Listener.OnWith(lazyProvider(ctx.Container), event, fn)
 	}
 }
 
-func Emit(event string,args ...interface{}) EventHandle{
+func Emit(event string, args ...interface{}) EventHandle {
 	return func(ctx *EventContext) {
-		ctx.Listener.Emit(event,args...)
+		ctx.Listener.Emit(event, args...)
 	}
 }
 
-func EmitWith(event string,args ...interface{}) EventHandle{
+func EmitWith(event string, args ...interface{}) EventHandle {
 	return func(ctx *EventContext) {
-		ctx.Listener.EmitWith(lazyProvider(ctx.Container),event,args...)
+		ctx.Listener.EmitWith(lazyProvider(ctx.Container), event, args...)
 	}
 }

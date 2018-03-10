@@ -15,21 +15,37 @@ var DefaultHandle = map[string][]types.IdentHandle{
 		flagsHandle(types.DEPENDENCY_FLAG_OPTIONAL),
 	},
 	"extends": {
-		flagsHandle(types.DEPENDENCY_FLAG_EXTENDS),
 		extendsHandle,
+		flagsHandle(types.DEPENDENCY_FLAG_EXTENDS),
 	},
 	"default": {
-		flagsHandle(types.DEPENDENCY_FLAG_DEFAULT),
 		defaultHandle,
+		flagsHandle(types.DEPENDENCY_FLAG_DEFAULT),
 	},
 	"lazy": {
-		flagsHandle(types.DEPENDENCY_FLAG_LAZY),
 		lazyHandle,
+		flagsHandle(types.DEPENDENCY_FLAG_LAZY),
 	},
 	"id":    {nameHandle},
 	"name":  {nameHandle},
 	"lower": {lowerCaseHandle},
 	"upper": {upperCaseHandle},
+	"make": {
+		makeHandle,
+		flagsHandle(types.DEPENDENCY_FLAG_DEFAULT | types.DEPENDENCY_FLAG_SKIP),
+	},
+	"new": {
+		newHandle,
+		flagsHandle(types.DEPENDENCY_FLAG_DEFAULT | types.DEPENDENCY_FLAG_SKIP),
+	},
+	"skip": {
+		skipHandle,
+		flagsHandle(types.DEPENDENCY_FLAG_SKIP),
+	},
+	"*": {
+		anyHandle,
+		flagsHandle(types.DEPENDENCY_FLAG_ANY),
+	},
 }
 
 func lowerCaseHandle(ctx *types.ParseContext) error {
@@ -64,8 +80,7 @@ func defaultHandle(ctx *types.ParseContext) error {
 }
 
 func lazyHandle(ctx *types.ParseContext) (err error) {
-	typ := utils.DirectlyType(ctx.Descriptor.Type())
-	if reflect.Func != typ.Kind() || typ.NumOut() != 1 || typ.NumIn() > 0 {
+	if typ := ctx.Descriptor.Type(); reflect.Func != typ.Kind() || typ.NumOut() != 1 || typ.NumIn() > 0 {
 		err = types.NewWithError(types.ErrTypeNotSupport, typ, ctx.Descriptor.Name())
 	}
 	return
@@ -86,4 +101,80 @@ func flagsHandle(flag types.DependencyFlag) types.IdentHandle {
 		ctx.Descriptor.SetFlags(ctx.Descriptor.Flags() | flag)
 		return nil
 	}
+}
+
+func newHandle(ctx *types.ParseContext) (err error) {
+	if reflect.Ptr != ctx.Descriptor.Type().Kind() {
+		err = types.NewWithError(types.ErrTypeNotSupport, ctx.Descriptor.Type(), ctx.Descriptor.Name())
+	} else {
+		ctx.Descriptor.SetDefault(newDefault(ctx.Descriptor.Type().Elem()))
+	}
+	return
+}
+
+func makeHandle(ctx *types.ParseContext) (err error) {
+	ln, cn := 0, 0
+	if len(ctx.Params) > 0 {
+		if ln = int(ctx.Params[0].Number()); len(ctx.Params) > 1 {
+			cn = int(ctx.Params[1].Number())
+		} else {
+			cn = ln
+		}
+	}
+	switch ctx.Descriptor.Type().Kind() {
+	case reflect.Chan:
+		ctx.Descriptor.SetDefault(makeChanDefault(ctx.Descriptor.Type(), cn))
+	case reflect.Map:
+		ctx.Descriptor.SetDefault(makeMapDefault(ctx.Descriptor.Type(), cn))
+	case reflect.Slice:
+		ctx.Descriptor.SetDefault(makeSliceDefault(ctx.Descriptor.Type(), ln, cn))
+	default:
+		err = types.NewWithError(types.ErrTypeNotSupport, ctx.Descriptor.Type(), ctx.Descriptor.Name())
+	}
+	return
+}
+
+func makeSliceDefault(typ reflect.Type, ln, cn int) func() reflect.Value {
+	return func() reflect.Value {
+		return reflect.MakeSlice(typ, ln, cn)
+	}
+}
+
+func makeMapDefault(typ reflect.Type, ln int) func() reflect.Value {
+	if ln > 0 {
+		return func() reflect.Value {
+			return reflect.MakeMapWithSize(typ, ln)
+		}
+	}
+	return func() reflect.Value {
+		return reflect.MakeMap(typ)
+	}
+}
+
+func makeChanDefault(typ reflect.Type, ln int) func() reflect.Value {
+	return func() reflect.Value {
+		return reflect.MakeChan(typ, ln)
+	}
+}
+
+func newDefault(typ reflect.Type) func() reflect.Value {
+	return func() reflect.Value {
+		return reflect.New(typ)
+	}
+}
+
+func anyHandle(ctx *types.ParseContext) error {
+	if reflect.Slice != ctx.Descriptor.Type().Kind() ||
+		0 == ctx.Descriptor.Flags()&types.DEPENDENCY_FLAG_LAZY ||
+		reflect.Slice != ctx.Descriptor.Type().Out(0).Kind() {
+		return types.NewWithError(types.ErrTypeNotSupport, ctx.Descriptor.Type(), ctx.Descriptor.Name())
+	}
+	return nil
+}
+
+func skipHandle(ctx *types.ParseContext) error {
+	if 0 == ctx.Descriptor.Flags()&types.DEPENDENCY_FLAG_DEFAULT {
+		return types.NewWithError(types.ErrTypeNotSupport, ctx.Descriptor.Type(), ctx.Descriptor.Name())
+	}
+	return nil
 }
