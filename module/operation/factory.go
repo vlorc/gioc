@@ -4,16 +4,16 @@
 package operation
 
 import (
-	"reflect"
+	"github.com/vlorc/gioc/builder"
 	"github.com/vlorc/gioc/factory"
 	"github.com/vlorc/gioc/types"
 	"github.com/vlorc/gioc/utils"
-	"github.com/vlorc/gioc/builder"
+	"reflect"
 )
 
 func Singleton() DeclareHandle {
 	return func(ctx *DeclareContext) {
-		if nil != ctx.Factory{
+		if nil != ctx.Factory {
 			ctx.Factory = factory.NewSingleFactory(ctx.Factory)
 		}
 	}
@@ -21,7 +21,7 @@ func Singleton() DeclareHandle {
 
 func Mutex() DeclareHandle {
 	return func(ctx *DeclareContext) {
-		if nil != ctx.Factory{
+		if nil != ctx.Factory {
 			ctx.Factory = factory.NewMutexFactory(ctx.Factory)
 		}
 	}
@@ -29,9 +29,9 @@ func Mutex() DeclareHandle {
 
 func Convert(val interface{}) DeclareHandle {
 	return func(ctx *DeclareContext) {
-		if nil != ctx.Factory{
+		if nil != ctx.Factory {
 			typ := utils.TypeOf(val)
-			ctx.Factory = factory.NewConvertFactory(ctx.Factory,typ)
+			ctx.Factory = factory.NewConvertFactory(ctx.Factory, typ)
 			ctx.Type = typ
 		}
 	}
@@ -44,7 +44,7 @@ func Func(val func(types.Provider) (interface{}, error)) DeclareHandle {
 	}
 }
 
-func Method(val interface{},index ...int) DeclareHandle {
+func Method(val interface{}, index ...int) DeclareHandle {
 	return func(ctx *DeclareContext) {
 		ctx.Reset()
 		typ := reflect.ValueOf(val).Type()
@@ -52,9 +52,9 @@ func Method(val interface{},index ...int) DeclareHandle {
 			return
 		}
 		if typ.NumIn() <= 0 {
-			ctx.Factory, ctx.Type, _ = factory.NewMethodFactory(val, nil,index...)
-		}else if toDependency(ctx,val) {
-			toMethodFactory(ctx,val,index...)
+			ctx.Factory, ctx.Type, _ = factory.NewMethodFactory(val, nil, index...)
+		} else if toDependency(ctx, val) {
+			toMethodFactory(ctx, val, index...)
 		}
 	}
 }
@@ -79,16 +79,16 @@ func New(val interface{}) DeclareHandle {
 func Pointer(val interface{}) DeclareHandle {
 	return func(ctx *DeclareContext) {
 		ctx.Reset()
-		if src := reflect.ValueOf(val); reflect.Ptr == src.Kind() && !src.IsNil(){
+		if src := reflect.ValueOf(val); reflect.Ptr == src.Kind() && !src.IsNil() {
 			ctx.Factory = factory.NewPointerFactory(src)
 			ctx.Type = src.Type().Elem()
 		}
 	}
 }
 
-func toMethodFactory(ctx *DeclareContext,val interface{},index ...int) {
+func toMethodFactory(ctx *DeclareContext, val interface{}, index ...int) {
 	param := builder.NewBuilder(factory.NewParamFactory(ctx.Depend.Length()), ctx.Depend)
-	bean, typ, err := factory.NewMethodFactory(val, param.AsFactory(),index...)
+	bean, typ, err := factory.NewMethodFactory(val, param.AsFactory(), index...)
 	if nil != err {
 		panic(err)
 	}
@@ -117,7 +117,7 @@ func toExport(ctx *DeclareContext) {
 	)
 }
 
-func toDependency(ctx *DeclareContext,val interface{}) (ok bool) {
+func toDependency(ctx *DeclareContext, val interface{}) (ok bool) {
 	var dependFactory types.DependencyFactory
 	ctx.Context.Parent().AsProvider().Assign(&dependFactory)
 	dep, err := dependFactory.Instance(val)

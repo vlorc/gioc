@@ -9,7 +9,7 @@ import (
 )
 
 type DeclareContext struct {
-	done   func(*DeclareContext)
+	done    func(*DeclareContext)
 	Name    string
 	Type    interface{}
 	Factory types.BeanFactory
@@ -17,9 +17,14 @@ type DeclareContext struct {
 	Context *module.ModuleInitContext
 }
 
-func (dc *DeclareContext)Reset() {
+func (dc *DeclareContext) Reset() {
 	if nil != dc.Factory && nil != dc.Type {
 		dc.done(dc)
 	}
-	*dc = DeclareContext{done:dc.done,Context:dc.Context}
+	*dc = DeclareContext{done: dc.done, Context: dc.Context}
+}
+
+type EventContext struct {
+	*module.ModuleInitContext
+	Listener types.EventListener
 }

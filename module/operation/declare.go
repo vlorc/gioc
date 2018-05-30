@@ -10,16 +10,16 @@ import (
 type DeclareHandle func(*DeclareContext)
 
 func Declare(handle ...DeclareHandle) module.ModuleInitHandle {
-	return declare(toRegistered,handle)
+	return declare(toRegistered, handle)
 }
 
 func Export(handle ...DeclareHandle) module.ModuleInitHandle {
-	return declare(toExport,handle)
+	return declare(toExport, handle)
 }
 
-func declare(done func(*DeclareContext),handle []DeclareHandle) module.ModuleInitHandle {
+func declare(done func(*DeclareContext), handle []DeclareHandle) module.ModuleInitHandle {
 	return func(ctx *module.ModuleInitContext) {
-		dc := &DeclareContext{done: done,Context: ctx}
+		dc := &DeclareContext{done: done, Context: ctx}
 		for _, v := range handle {
 			v(dc)
 		}

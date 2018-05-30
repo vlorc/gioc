@@ -9,6 +9,10 @@ type CoreModuleFactory struct {
 	table []ModuleInitHandle
 }
 
+type CoreModuleForFactory struct {
+	table []ModuleInitHandle
+}
+
 type CoreModule struct {
 	parent    func() types.Container
 	container func() types.Container

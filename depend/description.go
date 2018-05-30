@@ -32,7 +32,7 @@ func (dg *DescriptorGetter) Name() string {
 }
 
 func (dg *DescriptorGetter) Default() reflect.Value {
-	return dg.des.Default
+	return dg.des.Default()
 }
 
 func (dg *DescriptorGetter) Flags() types.DependencyFlag {
@@ -55,7 +55,7 @@ func (dg *DescriptorSetter) SetName(name string) {
 	dg.des.Name = name
 }
 
-func (dg *DescriptorSetter) SetDefault(def reflect.Value) {
+func (dg *DescriptorSetter) SetDefault(def func() reflect.Value) {
 	dg.des.Default = def
 }
 

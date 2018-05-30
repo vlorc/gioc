@@ -72,7 +72,7 @@ func Convert(src reflect.Value, typ reflect.Type) reflect.Value {
 	if src.IsValid() {
 		if src.Type() != typ {
 			src = src.Convert(typ)
-	}
+		}
 	} else {
 		src = reflect.Zero(typ)
 	}

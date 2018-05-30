@@ -5,13 +5,11 @@ import (
 	. "github.com/vlorc/gioc/module/operation"
 )
 
-var Module1 = NewModuleFactory(
+var ConfigModule = NewModuleFactory(
 	Export(
 		Mapping(map[string]interface{}{
-			"age":11,
-			"gender":2,
+			"port": 80,
+			"host": "127.0.0.1",
 		}),
-		Instance("xxx@163.com"), Id("email"),
-		Instance("admin_001"), Id("name"),
 	),
 )

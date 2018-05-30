@@ -1,27 +1,21 @@
 package main
 
 import (
-	"fmt"
 	. "github.com/vlorc/gioc"
 	. "github.com/vlorc/gioc/module/operation"
+	"net"
+	"net/http"
 )
 
 func main() {
 	NewRootModule(
 		Import(
-			Module1,
-			Module2,
+			ConfigModule,
+			ListenModule,
+			ServerModule,
 		),
-		Bootstrap(func(param struct {
-			id     int64
-			age    int
-			gender int
-			email  string
-			name   string
-		}) {
-			fmt.Println(param)
-		}, func(param struct{ id int64 }) {
-			fmt.Println("next id:", param.id)
+		Bootstrap(func(server *http.Server, listen net.Listener) {
+			server.Serve(listen)
 		}),
 	)
 }
