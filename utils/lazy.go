@@ -13,6 +13,13 @@ func LazyProxy(init func([]reflect.Value) []reflect.Value) func([]reflect.Value)
 	var once sync.Once
 	proxy = func(args []reflect.Value) []reflect.Value {
 		once.Do(func() {
+			defer func() {
+				if err := recover(); nil != err {
+					proxy = func(args []reflect.Value) []reflect.Value {
+						panic(err)
+					}
+				}
+			}()
 			proxy = ApplyProxy(init(args))
 		})
 		return proxy(args)

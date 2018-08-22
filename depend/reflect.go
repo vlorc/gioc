@@ -4,9 +4,10 @@
 package depend
 
 import (
-	"github.com/vlorc/gioc/types"
 	"reflect"
 	"unsafe"
+
+	"github.com/vlorc/gioc/types"
 )
 
 func NewParamReflect(value reflect.Value) (ref types.Reflect) {
