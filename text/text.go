@@ -48,6 +48,9 @@ func (tp *CoreTextParser) getParam(ctx *types.ParseContext) {
 
 func (tp *CoreTextParser) nextParam(ctx *types.ParseContext) bool {
 	token, key := tp.pop(ctx)
+	if types.TOKEN_EOF == token {
+		panic(fmt.Errorf("can't get param '%s'", key))
+	}
 	if types.TOKEN_RPAREN == token {
 		return false
 	}

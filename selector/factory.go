@@ -34,7 +34,7 @@ func NewTypeNameSelector() types.Selector {
 	}
 }
 
-func NewNamedSSelector() types.Selector {
+func NewNamedSelector() types.Selector {
 	return &NamedSelector{
 		selector: make(nameSelector),
 	}

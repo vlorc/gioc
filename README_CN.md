@@ -55,7 +55,7 @@ NewRootModule(
 
 * 导出实例
 ```golang
-NewRootModule(
+NewModuleFactory(
     Export(
         Instance(1), Id("id"),
         Instance("ioc"), Id("name"),
