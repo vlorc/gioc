@@ -20,7 +20,7 @@ func (ds *CoreDependencyScan) Reset() {
 	ds.pos = len(ds.dep)
 }
 
-func (ds *CoreDependencyScan) Next() (ok bool) {
+func (ds *CoreDependencyScan) Next() bool {
 	ds.pos -= 1
 	return ds.pos >= 0
 }
