@@ -38,6 +38,10 @@ var DefaultHandle = map[string][]types.IdentHandle{
 		newHandle,
 		flagsHandle(types.DEPENDENCY_FLAG_DEFAULT | types.DEPENDENCY_FLAG_SKIP),
 	},
+	"request": {
+		requestHandle,
+		flagsHandle(types.DEPENDENCY_FLAG_DEFAULT | types.DEPENDENCY_FLAG_REQUEST),
+	},
 	"skip": {
 		skipHandle,
 		flagsHandle(types.DEPENDENCY_FLAG_SKIP),
@@ -174,6 +178,13 @@ func anyHandle(ctx *types.ParseContext) error {
 
 func skipHandle(ctx *types.ParseContext) error {
 	if 0 == ctx.Descriptor.Flags()&types.DEPENDENCY_FLAG_DEFAULT {
+		return types.NewWithError(types.ErrTypeNotSupport, ctx.Descriptor.Type(), ctx.Descriptor.Name())
+	}
+	return nil
+}
+
+func requestHandle(ctx *types.ParseContext) error {
+	if reflect.Func != ctx.Descriptor.Type().Kind() {
 		return types.NewWithError(types.ErrTypeNotSupport, ctx.Descriptor.Type(), ctx.Descriptor.Name())
 	}
 	return nil
