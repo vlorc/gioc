@@ -1,38 +1,30 @@
 package main
 
 import (
-	"fmt"
-	"github.com/vlorc/gioc"
-	"github.com/vlorc/gioc/types"
-	"math/rand"
-	"time"
+	. "github.com/vlorc/gioc"
+	. "github.com/vlorc/gioc/module"
+	. "github.com/vlorc/gioc/module/operation"
 )
 
-var source = rand.New(rand.NewSource(time.Now().UnixNano()))
+// config.go
+var ConfigModule = NewModuleFactory(
+	Export(
+		Mapping(map[string]interface{}{
+			"id":   1,
+			"name": "ioc",
+		}),
+	),
+)
 
-func testInstance(register types.Register, provider types.Provider, name string) {
-	src := source.Int63()
-	dst := source.Int63()
-
-	register.RegisterInstance(src, name)
-	provider.Assign(&dst, name)
-
-	fmt.Printf("[%s] src:%v dst:%v equal:%v\n", name, src, dst, src == dst)
-}
-
+// main.go
 func main() {
-	container := gioc.NewRootContainer()
-	key := []string{"age", "gender", "high", "width"}
-
-	for _, v := range key {
-		testInstance(container.AsRegister(), container.AsProvider(), v)
-	}
-
-	child := container.NewChild()
-	for _, v := range key {
-		var value int64
-		child.AsProvider().Assign(&value, v)
-		fmt.Println(v, ":", value)
-	}
-
+	NewRootModule(
+		Import(ConfigModule),
+		Bootstrap(func(param struct {
+			id   int
+			name string
+		}) {
+			println("id: ", param.id, " name: ", param.name)
+		}),
+	)
 }

@@ -1,32 +1,40 @@
 package main
 
 import (
-	"fmt"
-	"github.com/vlorc/gioc"
-	"github.com/vlorc/gioc/factory"
-	"github.com/vlorc/gioc/types"
+	. "github.com/vlorc/gioc"
+	. "github.com/vlorc/gioc/module"
+	. "github.com/vlorc/gioc/module/operation"
 )
 
+// config.go
+var ConfigModule = NewModuleFactory(
+	Declare(
+		Instance(new(int64)),
+	),
+	Export(
+		Method(func(id *int64) int64 {
+			return *id
+		}), Id("id"),
+		Method(func(id *int64) int64 {
+			*id++
+			return *id
+		}), Id("inc"),
+		Method(func(param struct{ inc int64 }) int64 {
+			return param.inc
+		}), Id("once"), Singleton(),
+	),
+)
+
+// main.go
 func main() {
-	container := gioc.NewRootContainer()
-	age := 17
-
-	// register an int type value factory,this is similar to RegisterInstance
-	container.AsRegister().RegisterFactory(factory.NewValueFactory(age), (*int)(nil), "age")
-	// create a custom func factory
-	inc := factory.NewFuncFactory(func(types.Provider) (interface{}, error) {
-		age++
-		return age, nil
-	})
-
-	// register an int type
-	container.AsRegister().RegisterFactory(inc, &age, "inc")
-	// convert custom factory into singleton mode factory
-	container.AsRegister().RegisterFactory(factory.NewSingleFactory(inc), &age, "once")
-	// get an instance type int and name age
-	fmt.Println(container.AsProvider().Resolve((*int)(nil), "age"))
-	// same as above,this value add 1 every times
-	fmt.Println(container.AsProvider().Resolve((*int)(nil), "inc"))
-	// same as above,but only once
-	fmt.Println(container.AsProvider().Resolve((*int)(nil), "once"))
+	NewRootModule(
+		Import(ConfigModule),
+		Bootstrap(func(param struct {
+			id   int64        `inject:"default(100)"`
+			inc  func() int64 `inject:"lazy"`
+			once *int64
+		}) {
+			println("id: ", param.id, " inc: ", param.inc(), " once: ", *param.once)
+		}),
+	)
 }
