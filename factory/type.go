@@ -8,6 +8,6 @@ import (
 	"reflect"
 )
 
-func (this *TypeFactory) Instance(types.Provider) (interface{}, error) {
-	return reflect.New(this.typ).Interface(), nil
+func (tf *TypeFactory) Instance(types.Provider) (interface{}, error) {
+	return reflect.New(tf.typ).Interface(), nil
 }

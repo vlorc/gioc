@@ -86,7 +86,7 @@ func init() {
 	}
 
 	transfer[2] = func(d *CoreTokenScan, _ int, _ int, _ int) {
-		panic(errors.New("Illegal char"))
+		panic(errors.New("illegal char"))
 	}
 
 	transfer[1] = func(d *CoreTokenScan, n int, _ int, l int) {

@@ -184,7 +184,7 @@ func skipHandle(ctx *types.ParseContext) error {
 }
 
 func requestHandle(ctx *types.ParseContext) error {
-	if reflect.Func != ctx.Descriptor.Type().Kind() {
+	if typ := ctx.Descriptor.Type(); reflect.Func != typ.Kind() || typ.NumOut() != 1 {
 		return types.NewWithError(types.ErrTypeNotSupport, ctx.Descriptor.Type(), ctx.Descriptor.Name())
 	}
 	return nil

@@ -4,23 +4,13 @@
 package register
 
 import (
-	"github.com/vlorc/gioc/binder"
 	"github.com/vlorc/gioc/factory"
 	"github.com/vlorc/gioc/types"
 	"github.com/vlorc/gioc/utils"
 	"reflect"
 )
 
-func (r *CoreRegister) RegisterMapper(mapping types.Mapper, impType interface{}) error {
-	return r.RegisterBinder(binder.NewProxyBinder(mapping, nil), impType)
-}
-
-func (r *CoreRegister) RegisterBinder(binder types.Binder, impType interface{}) error {
-	typ := utils.TypeOf(impType)
-	return r.selector.SetBinder(typ, binder)
-}
-
-func (r *CoreRegister) RegisterInterface(instance interface{}, args ...string) error {
+func (r *coreRegister) RegisterInterface(instance interface{}, args ...string) error {
 	val := utils.DirectlyValue(utils.ValueOf(instance))
 	if reflect.Interface != val.Kind() || val.IsNil() {
 		return types.NewWithError(types.ErrTypeNotInterface, instance)
@@ -32,14 +22,14 @@ func (r *CoreRegister) RegisterInterface(instance interface{}, args ...string) e
 		args...)
 }
 
-func (r *CoreRegister) RegisterInstance(instance interface{}, args ...string) error {
+func (r *coreRegister) RegisterInstance(instance interface{}, args ...string) error {
 	return r.registerFactory(
 		factory.NewValueFactory(instance),
 		reflect.TypeOf(instance),
 		args...)
 }
 
-func (r *CoreRegister) RegisterPointer(pointer interface{}, args ...string) error {
+func (r *coreRegister) RegisterPointer(pointer interface{}, args ...string) error {
 	srcValue := reflect.ValueOf(pointer)
 	if reflect.Ptr != srcValue.Kind() {
 		return types.NewWithError(types.ErrTypeNotPointer, srcValue, args...)
@@ -52,14 +42,14 @@ func (r *CoreRegister) RegisterPointer(pointer interface{}, args ...string) erro
 		args...)
 }
 
-func (r *CoreRegister) RegisterFactory(beanFactory types.BeanFactory, impType interface{}, args ...string) error {
+func (r *coreRegister) RegisterFactory(beanFactory types.BeanFactory, impType interface{}, args ...string) error {
 	return r.registerFactory(
 		beanFactory,
 		utils.TypeOf(impType),
 		args...)
 }
 
-func (r *CoreRegister) RegisterMethod(paramFactory types.BeanFactory, method interface{}, impType interface{}, args ...string) error {
+func (r *coreRegister) RegisterMethod(paramFactory types.BeanFactory, method interface{}, impType interface{}, args ...string) error {
 	beanFactory, srcType, err := factory.NewMethodFactory(method, paramFactory)
 	if nil != err {
 		return err
@@ -81,10 +71,16 @@ func (r *CoreRegister) RegisterMethod(paramFactory types.BeanFactory, method int
 		args...)
 }
 
-func (r *CoreRegister) registerFactory(beanFactory types.BeanFactory, impType reflect.Type, args ...string) error {
-	var name string = types.DEFAULT_NAME
+func (r *coreRegister) registerFactory(beanFactory types.BeanFactory, impType reflect.Type, args ...string) error {
+	var name string
 	if len(args) > 0 {
 		name = args[0]
 	}
-	return r.selector.SetFactory(impType, name, beanFactory)
+
+	r.selector.Set(impType, name, beanFactory)
+	return nil
+}
+
+func (r *coreRegister) AsSelector() types.Selector {
+	return r.selector
 }

@@ -4,7 +4,6 @@
 package gioc
 
 import (
-	"github.com/vlorc/gioc/binder"
 	"github.com/vlorc/gioc/builder"
 	"github.com/vlorc/gioc/container"
 	"github.com/vlorc/gioc/depend"
@@ -22,18 +21,16 @@ import (
 
 // create a root container
 func NewRootContainer() types.Container {
-	sel := selector.NewTypeSelector(binder.NewBinderFactory())
+	general := selector.NewGeneralSelector()
 	root := container.NewContainer(
-		register.NewRegister(sel),
-		provider.NewWithProvider(sel, nil),
+		register.NewRegister(general),
+		provider.NewWithProvider(nil, general),
 	)
 
 	for _, v := range []interface{}{
 		depend.NewDependencyFactory,
 		builder.NewBuilderFactory,
-		selector.NewSelectorFactory,
 		invoker.NewInvokerFactory,
-		register.NewRegisterFactory,
 		provider.NewProviderFactory,
 	} {
 		f, typ, _ := factory.NewMethodFactory(v, nil)

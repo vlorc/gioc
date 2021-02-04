@@ -56,6 +56,10 @@ type Provider interface {
 	// dst and impType must be a pointer
 	// impType for nil using dst type
 	AssignNamed(dst interface{}, impType interface{}, name string, deep int) error
+	// get factory by type and name
+	FactoryOf(typ reflect.Type, name string, deep int) BeanFactory
+
+	AsSelector() SelectorGetter
 }
 
 type Module interface{}
@@ -90,41 +94,28 @@ type BeanFactory interface {
 	Instance(provider Provider) (interface{}, error)
 }
 
-// a read only binder
-type Mapper interface {
-	// get an factory by name
-	Resolve(name string) BeanFactory
-}
+type GeneralFactory interface {
+	BeanFactory
 
-// the relation between name and factory
-type Binder interface {
-	Mapper
-	// convert to a read only mapper
-	AsMapper() Mapper
-	// set a factory by name
-	Bind(name string, factory BeanFactory) error
+	Type() reflect.Type
+
+	Name() string
 }
 
 // selector write
 type SelectorSetter interface {
-	// create and set a mapper by type
-	AsMapper(reflect.Type) Mapper
-	// create and set a binder by type
-	AsBinder(reflect.Type) Binder
-	// set a custom binder by type
-	SetBinder(reflect.Type, Binder) error
-	// set a custom factory by type
-	SetFactory(reflect.Type, string, BeanFactory) error
+	Set(typ reflect.Type, name string, factory BeanFactory)
+
+	Add(typ reflect.Type, name string, factory BeanFactory)
+
+	Put(typ reflect.Type, name string, factory BeanFactory) bool
 }
 
 /// selector read only
 type SelectorGetter interface {
-	// get mapper by type
-	MapperOf(reflect.Type) Mapper
-	// get binder by type
-	BinderOf(reflect.Type) Binder
-	// get factory by type and name
-	FactoryOf(reflect.Type, string) BeanFactory
+	Get(typ reflect.Type, name string) GeneralFactory
+
+	Range(callback func(GeneralFactory) bool, types ...reflect.Type)
 }
 
 // selector
@@ -136,25 +127,13 @@ type Selector interface {
 // provider factory
 type ProviderFactory interface {
 	// create a builder by selector and the parent provider
-	Instance(getter SelectorGetter, parent Provider) (Provider, error)
-}
-
-// builder factory
-type BuilderFactory interface {
-	// create a builder by factory and depend
-	Instance(factory BeanFactory, depend Dependency) (Builder, error)
-}
-
-// binder factory
-type BinderFactory interface {
-	// create a binder by typ
-	Instance(typ reflect.Type) (Binder, error)
+	Instance(parent Provider, getter SelectorGetter) (Provider, error)
 }
 
 // register factory
 type RegisterFactory interface {
-	// create a register by setter
-	Instance(setter SelectorSetter) (Register, error)
+	// create a register
+	Instance(setter Selector) (Register, error)
 }
 
 // dependency factory
@@ -167,7 +146,7 @@ type DependencyFactory interface {
 // selector factory
 type SelectorFactory interface {
 	// create a selector by binder
-	Instance(binder BinderFactory) (Selector, error)
+	Instance() (Selector, error)
 }
 
 // invoker factory
@@ -178,12 +157,6 @@ type InvokerFactory interface {
 
 // register
 type Register interface {
-	// register a custom binder
-	// impType must be a pointer
-	RegisterBinder(binder Binder, impType interface{}) error
-	// register a custom mapper
-	// impType must be a pointer
-	RegisterMapper(mapper Mapper, impType interface{}) error
 	// register a pointer
 	RegisterPointer(pointer interface{}, name ...string) error
 	// register an instance,use the type of instance
@@ -196,6 +169,8 @@ type Register interface {
 	// register a custom method
 	// impType must be a pointer,it's the return value type of method
 	RegisterMethod(factory BeanFactory, method interface{}, impType interface{}, name ...string) error
+
+	AsSelector() Selector
 }
 
 // the container is provider and register
@@ -310,4 +285,3 @@ type Invoker interface {
 var ErrorType = reflect.TypeOf((*error)(nil)).Elem()
 var ProviderType = reflect.TypeOf((*Provider)(nil)).Elem()
 var RegisterFactoryType = reflect.TypeOf((*RegisterFactory)(nil)).Elem()
-var BinderFactoryType = reflect.TypeOf((*BinderFactory)(nil)).Elem()

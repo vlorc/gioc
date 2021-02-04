@@ -21,7 +21,6 @@ type MethodFactory struct {
 }
 
 type ProxyFactory struct {
-	types.Provider
 	factory types.BeanFactory
 }
 

@@ -86,5 +86,3 @@ const (
 	Boolean
 	Null
 )
-
-const DEFAULT_NAME string = ""

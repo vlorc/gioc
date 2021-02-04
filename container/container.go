@@ -28,7 +28,7 @@ func (c *CoreContainer) Seal() types.Container {
 
 func (c *CoreContainer) Readonly() types.Container {
 	return &CoreContainer{
-		register: register.NewReadOnlyRegister(),
+		register: register.NewReadOnlyRegister(c.provider.AsSelector()),
 		provider: c.provider,
 		create:   c.create,
 	}

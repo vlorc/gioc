@@ -7,13 +7,9 @@ import (
 	"github.com/vlorc/gioc/types"
 )
 
-type CoreProvider struct {
+type coreProvider struct {
 	parent   types.Provider
 	selector types.SelectorGetter
 }
 
-type ProxyProvider struct {
-	provider types.Provider
-}
-
-type CoreProviderFactory struct{}
+type coreProviderFactory struct{}

@@ -7,23 +7,17 @@ import (
 	"github.com/vlorc/gioc/types"
 )
 
-func NewProxyProvider(provider types.Provider) types.Provider {
-	return &ProxyProvider{
-		provider: provider,
-	}
-}
-
-func NewWithProvider(selector types.SelectorGetter, provider types.Provider) types.Provider {
-	return &CoreProvider{
-		parent:   provider,
+func NewWithProvider(parent types.Provider, selector types.SelectorGetter) types.Provider {
+	return &coreProvider{
+		parent:   parent,
 		selector: selector,
 	}
 }
 
 func NewProviderFactory() types.ProviderFactory {
-	return &CoreProviderFactory{}
+	return &coreProviderFactory{}
 }
 
-func (fi *CoreProviderFactory) Instance(selector types.SelectorGetter, provider types.Provider) (types.Provider, error) {
-	return NewWithProvider(selector, provider), nil
+func (*coreProviderFactory) Instance(parent types.Provider, selector types.SelectorGetter) (types.Provider, error) {
+	return NewWithProvider(parent, selector), nil
 }

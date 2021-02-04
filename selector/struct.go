@@ -9,33 +9,43 @@ import (
 	"sync"
 )
 
-type FactorySelector interface {
-	SetFactory(reflect.Type, string, types.BeanFactory) error
-	FactoryOf(reflect.Type, string) types.BeanFactory
+type generalSelector struct {
+	mux sync.RWMutex
+
+	pool []types.GeneralFactory
+
+	primary map[typeName]int
+
+	types map[reflect.Type][]int
+
+	name map[string]int
 }
 
-type TypeSelector struct {
-	lock    sync.RWMutex
-	table   map[reflect.Type]types.Binder
-	factory types.BinderFactory
+type readOnlySelector struct {
+	getter types.SelectorGetter
 }
 
-type NamedSelector struct {
-	lock     sync.RWMutex
-	selector FactorySelector
+type beanFactory struct {
+	factory types.BeanFactory
+	typ     reflect.Type
+	name    string
 }
-
-type typeNameSelector map[typeName]types.BeanFactory
-type nameSelector map[string]typeFactory
 
 type typeName struct {
 	typ  reflect.Type
 	name string
 }
 
-type typeFactory struct {
-	typ     reflect.Type
-	factory types.BeanFactory
-}
+type coreSelectorFactory struct{}
 
-type CoreSelectorFactory struct{}
+var _ types.GeneralFactory = &beanFactory{}
+
+func (f *beanFactory) Type() reflect.Type {
+	return f.typ
+}
+func (f *beanFactory) Name() string {
+	return f.name
+}
+func (f *beanFactory) Instance(provider types.Provider) (interface{}, error) {
+	return f.factory.Instance(provider)
+}
