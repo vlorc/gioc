@@ -11,7 +11,7 @@ import (
 )
 
 func (r *coreRegister) RegisterInterface(instance interface{}, args ...string) error {
-	val := utils.DirectlyValue(utils.ValueOf(instance))
+	val := utils.IndirectValue(utils.ValueOf(instance))
 	if reflect.Interface != val.Kind() || val.IsNil() {
 		return types.NewWithError(types.ErrTypeNotInterface, instance)
 	}

@@ -9,9 +9,9 @@ import (
 )
 
 type CoreInvoker struct {
-	method  reflect.Value
-	param   []reflect.Value
-	builder func(types.Provider) types.Builder
+	method     reflect.Value
+	param      []reflect.Value
+	dependency func(types.Provider) types.Dependency
 }
 
 type NoParamInvoker reflect.Value

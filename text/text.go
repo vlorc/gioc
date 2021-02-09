@@ -67,7 +67,7 @@ func (tp *CoreTextParser) dispatch(ctx *types.ParseContext, token types.Token, k
 	case types.TOKEN_IDENT:
 		tp.Invoke(ctx, key)
 	case types.TOKEN_CHART, types.TOKEN_STRING:
-		ctx.Descriptor.SetName(key[1 : len(key)-1])
+		ctx.Dependency.Name = []types.StringFactory{types.RawStringFactory(key[1 : len(key)-1])}
 	}
 }
 

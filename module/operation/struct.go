@@ -9,12 +9,12 @@ import (
 )
 
 type DeclareContext struct {
-	done    func(*DeclareContext)
-	Name    string
-	Type    interface{}
-	Factory types.BeanFactory
-	Depend  types.Dependency
-	Context *module.ModuleInitContext
+	done       func(*DeclareContext)
+	Name       string
+	Type       interface{}
+	Factory    types.BeanFactory
+	Dependency types.Dependency
+	Context    *module.ModuleInitContext
 }
 
 func (dc *DeclareContext) Reset() {

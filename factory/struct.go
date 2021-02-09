@@ -34,7 +34,7 @@ type MutexFactory struct {
 	factory types.BeanFactory
 }
 
-type TypeFactory struct {
+type newFactory struct {
 	typ reflect.Type
 }
 
@@ -50,3 +50,21 @@ type ConvertFactory struct {
 type ParamFactory int
 
 type FuncFactory func(types.Provider) (interface{}, error)
+
+type chainFactory []types.BeanFactory
+
+type resolveFactory struct {
+	typ  reflect.Type
+	name []types.StringFactory
+}
+
+type typeResolveFactory struct {
+	typ  reflect.Type
+	name string
+}
+
+type DependencyFactory struct {
+	factory    types.BeanFactory
+	dependency types.Dependency
+	after      []func(interface{}) interface{}
+}

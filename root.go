@@ -4,9 +4,8 @@
 package gioc
 
 import (
-	"github.com/vlorc/gioc/builder"
 	"github.com/vlorc/gioc/container"
-	"github.com/vlorc/gioc/depend"
+	"github.com/vlorc/gioc/dependency"
 	"github.com/vlorc/gioc/event"
 	"github.com/vlorc/gioc/factory"
 	"github.com/vlorc/gioc/invoker"
@@ -28,8 +27,7 @@ func NewRootContainer() types.Container {
 	)
 
 	for _, v := range []interface{}{
-		depend.NewDependencyFactory,
-		builder.NewBuilderFactory,
+		dependency.NewDependencyFactory,
 		invoker.NewInvokerFactory,
 		provider.NewProviderFactory,
 	} {

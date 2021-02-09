@@ -40,24 +40,31 @@ type Provider interface {
 	// get instance by type pointer and name
 	// impType must be a pointer
 	Resolve(impType interface{}, name ...string) (interface{}, error)
+
 	// get instance by type and name and deep
 	ResolveType(typ reflect.Type, name string, deep int) (interface{}, error)
+
 	// get instance by type pointer and name and deep
 	// impType must be a pointer
 	ResolveNamed(impType interface{}, name string, deep int) (interface{}, error)
+
 	// assigned to instance by type pointer and name
 	// dst must be a pointer
 	Assign(dst interface{}, name ...string) error
+
 	// assigned to instance by type and name and deep
 	// dst must be can set
 	// typ for nil using dst type
 	AssignType(dst reflect.Value, typ reflect.Type, name string, deep int) error
+
 	// assigned to instance by type pointer and name and deep
 	// dst and impType must be a pointer
 	// impType for nil using dst type
 	AssignNamed(dst interface{}, impType interface{}, name string, deep int) error
-	// get factory by type and name
-	FactoryOf(typ reflect.Type, name string, deep int) BeanFactory
+
+	Get(typ reflect.Type, name string, deep int) BeanFactory
+
+	Range(callback func(GeneralFactory) bool, types ...reflect.Type) bool
 
 	AsSelector() SelectorGetter
 }
@@ -89,6 +96,11 @@ type TextParserFactory interface {
 	Instance(table map[string][]IdentHandle, factory ParamFactory) (TextParser, error)
 }
 
+type StringFactory interface {
+	// get an instance by provider
+	Instance(provider Provider) (string, error)
+}
+
 type BeanFactory interface {
 	// get an instance by provider
 	Instance(provider Provider) (interface{}, error)
@@ -115,7 +127,7 @@ type SelectorSetter interface {
 type SelectorGetter interface {
 	Get(typ reflect.Type, name string) GeneralFactory
 
-	Range(callback func(GeneralFactory) bool, types ...reflect.Type)
+	Range(callback func(GeneralFactory) bool, types ...reflect.Type) bool
 }
 
 // selector
@@ -152,7 +164,7 @@ type SelectorFactory interface {
 // invoker factory
 type InvokerFactory interface {
 	// method and builder
-	Instance(method interface{}, param Builder) (Invoker, error)
+	Instance(method interface{}, dependency Dependency) (Invoker, error)
 }
 
 // register
@@ -180,63 +192,22 @@ type Container interface {
 	Seal() Container
 	Readonly() Container
 	NewChild() Container
-}
-
-// dependency descriptor read only
-type DescriptorGetter interface {
-	Type() reflect.Type
 	Name() string
-	Default() reflect.Value
-	Flags() DependencyFlag
-	Index() int
-	Depend() Dependency
-}
-
-// dependency descriptor write
-type DescriptorSetter interface {
-	SetType(reflect.Type)
-	SetName(string)
-	SetDefault(func() reflect.Value)
-	SetFlags(DependencyFlag)
-	SetIndex(int)
-	SetDepend(Dependency)
-}
-
-// dependency descriptor
-type Descriptor interface {
-	DescriptorSetter
-	DescriptorGetter
 }
 
 // dependency scan
 type DependencyScan interface {
-	DescriptorGetter
-	// position reset
 	Reset()
-	// has next
-	Next() bool
-	// convert to a read only descriptor
-	AsDescriptorGetter() DescriptorGetter
-	// convert to a write descriptor
-	AsDescriptorSetter() DescriptorSetter
-	// the test can be set by impTyp
-	// impTyp must be a pointer
-	Test(impTyp interface{}) bool
-}
 
-// dependency inject
-type DependencyInject interface {
-	DependencyScan
-	// convert to value
-	AsValue() reflect.Value
-	// convert and set interface
-	Convert(interface{})
-	// set interface
-	SetInterface(interface{})
-	// set value
-	SetValue(reflect.Value)
-	// get a inject by provider
-	SubInject(provider Provider) DependencyInject
+	Next() bool
+
+	Index() Indexer
+
+	Flags() DependencyFlag
+
+	Type() reflect.Type
+
+	Factory(provider Provider) BeanFactory
 }
 
 // dependency
@@ -247,41 +218,36 @@ type Dependency interface {
 	Length() int
 	// convert to dependency scan
 	AsScan() DependencyScan
-	// convert to dependency inject by instance
-	AsInject(interface{}) DependencyInject
+
+	AsReflect(imp interface{}) Reflect
 }
 
-// property setter
-type PropertySetter interface {
-	// set value by dependency descriptor
-	Set(DescriptorGetter, reflect.Value)
+type Indexer interface {
+	Value() int
+	String() string
 }
 
-type PropertyGetter interface {
-	// get value by dependency descriptor
-	Get(DescriptorGetter) reflect.Value
+type ReflectFactory interface {
+	Instance(imp interface{}) (Reflect, error)
 }
 
 // be use for setting instance
 type Reflect interface {
-	PropertySetter
-	PropertyGetter
-}
-
-// builder is instance fill procedure
-type Builder interface {
-	AsFactory() BeanFactory
-	Build(Provider, ...func(*BuildContext)) (interface{}, error)
+	// set value by dependency descriptor
+	Set(Indexer, reflect.Value)
+	// get value by dependency descriptor
+	Get(Indexer) reflect.Value
 }
 
 // invoker
 type Invoker interface {
 	// call method
-	Apply(...interface{}) []reflect.Value
+	Apply(...interface{}) ([]reflect.Value, error)
 	// call method and instance fill
-	ApplyWith(Provider, ...interface{}) []reflect.Value
+	ApplyWith(Provider, ...interface{}) ([]reflect.Value, error)
 }
 
+var Type = reflect.TypeOf((*reflect.Type)(nil)).Elem()
 var ErrorType = reflect.TypeOf((*error)(nil)).Elem()
 var ProviderType = reflect.TypeOf((*Provider)(nil)).Elem()
 var RegisterFactoryType = reflect.TypeOf((*RegisterFactory)(nil)).Elem()

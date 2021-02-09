@@ -52,14 +52,15 @@ func (s *generalSelector) Get(typ reflect.Type, name string) types.GeneralFactor
 	return nil
 }
 
-func (s *generalSelector) rangeWithPool(callback func(types.GeneralFactory) bool) {
+func (s *generalSelector) rangeWithPool(callback func(types.GeneralFactory) bool) bool {
 	pool := s.pool
 
 	for _, b := range pool {
 		if !callback(b) {
-			break
+			return false
 		}
 	}
+	return true
 }
 
 func (s *generalSelector) rangeByType(callback func(types.GeneralFactory) bool, typ reflect.Type) bool {
@@ -76,16 +77,16 @@ func (s *generalSelector) rangeByType(callback func(types.GeneralFactory) bool, 
 	return true
 }
 
-func (s *generalSelector) Range(callback func(types.GeneralFactory) bool, types ...reflect.Type) {
+func (s *generalSelector) Range(callback func(types.GeneralFactory) bool, types ...reflect.Type) bool {
 	if len(types) <= 0 {
-		s.rangeWithPool(callback)
-		return
+		return s.rangeWithPool(callback)
 	}
 	for _, typ := range types {
 		if nil != typ && !s.rangeByType(callback, typ) {
-			break
+			return false
 		}
 	}
+	return true
 }
 
 func (s *generalSelector) setFactory(factory types.GeneralFactory, name string, typ reflect.Type, insert bool) {

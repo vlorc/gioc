@@ -4,10 +4,15 @@
 package factory
 
 import (
+	"fmt"
 	"github.com/vlorc/gioc/types"
 	"reflect"
 )
 
-func (tf *TypeFactory) Instance(types.Provider) (interface{}, error) {
-	return reflect.New(tf.typ).Interface(), nil
+func (f *newFactory) Instance(types.Provider) (interface{}, error) {
+	return reflect.New(f.typ).Interface(), nil
+}
+
+func (f *newFactory) String() string {
+	return fmt.Sprintf("type(%s)", f.typ.String())
 }

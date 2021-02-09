@@ -4,9 +4,14 @@
 package factory
 
 import (
+	"fmt"
 	"github.com/vlorc/gioc/types"
 )
 
 func (vf *ValueFactory) Instance(types.Provider) (interface{}, error) {
 	return vf.value, vf.err
+}
+
+func (vf *ValueFactory) String() string {
+	return fmt.Sprintf("value(%v) error(%v)", vf.value, vf.err)
 }

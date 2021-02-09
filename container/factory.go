@@ -8,11 +8,9 @@ import (
 )
 
 func NewWithContainer(provider types.Provider) types.Container {
-	var binderFactory types.BinderFactory
 	var selectorFactory types.SelectorFactory
 	var registerFactory types.RegisterFactory
 	var providerFactory types.ProviderFactory
-	provider.Assign(&binderFactory)
 	provider.Assign(&selectorFactory)
 	provider.Assign(&registerFactory)
 	provider.Assign(&providerFactory)
@@ -20,7 +18,7 @@ func NewWithContainer(provider types.Provider) types.Container {
 	if nil == selectorFactory || nil == registerFactory || nil == providerFactory {
 		return nil
 	}
-	sel, err := selectorFactory.Instance(binderFactory)
+	sel, err := selectorFactory.Instance()
 	if nil != err {
 		panic(err)
 	}
@@ -28,7 +26,7 @@ func NewWithContainer(provider types.Provider) types.Container {
 	if nil != err {
 		panic(err)
 	}
-	pro, err := providerFactory.Instance(sel, provider)
+	pro, err := providerFactory.Instance(provider, sel)
 	if nil != err {
 		panic(err)
 	}
@@ -41,6 +39,8 @@ func NewContainer(register types.Register, provider types.Provider) types.Contai
 		provider: provider,
 		create:   NewWithContainer,
 	}
+
 	register.RegisterInterface(&provider)
+
 	return c
 }

@@ -47,14 +47,14 @@ func Test_InterfaceOf(t *testing.T) {
 	}
 }
 
-func Test_DirectlyType(t *testing.T) {
-	if v := DirectlyType(reflect.TypeOf((*int)(nil))); nil == v || reflect.Ptr == v.Kind() {
+func Test_IndirectType(t *testing.T) {
+	if v := IndirectType(reflect.TypeOf((*int)(nil))); nil == v || reflect.Ptr == v.Kind() {
 		t.Error("must not is pointer type")
 	}
 }
 
-func Test_DirectlyValue(t *testing.T) {
-	if v := DirectlyValue(reflect.ValueOf(new(int))); !v.CanSet() {
+func Test_IndirectValue(t *testing.T) {
+	if v := IndirectValue(reflect.ValueOf(new(int))); !v.CanSet() {
 		t.Error("can't set value")
 	}
 }

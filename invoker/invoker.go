@@ -4,26 +4,24 @@
 package invoker
 
 import (
-	"github.com/vlorc/gioc/builder"
-	"github.com/vlorc/gioc/factory"
 	"github.com/vlorc/gioc/types"
 	"github.com/vlorc/gioc/utils"
 	"reflect"
 )
 
-func lazyBuilder(val reflect.Value) func(types.Provider) types.Builder {
-	return utils.Lazy(func(provider types.Provider) types.Builder {
+func lazyDependency(val reflect.Value) func(types.Provider) types.Dependency {
+	return utils.Lazy(func(provider types.Provider) types.Dependency {
 		var dependFactory types.DependencyFactory
 		provider.Assign(&dependFactory)
 		dep, err := dependFactory.Instance(val)
 		if nil != err {
 			panic(err)
 		}
-		return builder.NewBuilder(factory.NewParamFactory(dep.Length()), dep)
-	}).(func(types.Provider) types.Builder)
+		return dep
+	}).(func(types.Provider) types.Dependency)
 }
 
-func NewInvoker(method interface{}, builder types.Builder) types.Invoker {
+func NewInvoker(method interface{}, dependency types.Dependency) types.Invoker {
 	val := utils.ValueOf(method)
 	if reflect.Func != val.Kind() {
 		panic(types.NewWithError(types.ErrTypeNotFunction, method))
@@ -31,36 +29,53 @@ func NewInvoker(method interface{}, builder types.Builder) types.Invoker {
 	if val.Type().NumIn() <= 0 {
 		return NoParamInvoker(val)
 	}
-	return newInvoker(val, builder)
+	return newInvoker(val, dependency)
 }
 
-func newInvoker(val reflect.Value, builder types.Builder) types.Invoker {
-	if nil == builder {
+func newInvoker(val reflect.Value, dependency types.Dependency) types.Invoker {
+	if nil == dependency {
 		return &CoreInvoker{
-			method:  val,
-			builder: lazyBuilder(val),
+			method:     val,
+			dependency: lazyDependency(val),
 		}
 	}
 	return &CoreInvoker{
 		method: val,
-		builder: func(types.Provider) types.Builder {
-			return builder
+		dependency: func(types.Provider) types.Dependency {
+			return dependency
 		},
 	}
 }
 
-func (i *CoreInvoker) Apply(args ...interface{}) []reflect.Value {
-	return i.ApplyWith(nil, args...)
+func (ci *CoreInvoker) Apply(args ...interface{}) ([]reflect.Value, error) {
+	return ci.ApplyWith(nil, args...)
 }
 
-func (i *CoreInvoker) ApplyWith(provider types.Provider, args ...interface{}) []reflect.Value {
-	temp, err := i.builder(provider).Build(provider, func(ctx *types.BuildContext) {
-		if len(args) > 0 {
-			ctx.FullBefore = builder.IndexFullBefore(args)
+func (ci *CoreInvoker) ApplyWith(provider types.Provider, args ...interface{}) ([]reflect.Value, error) {
+	return ci.applyWith(provider, args...)
+}
+
+func (ci *CoreInvoker) applyWith(provider types.Provider, args ...interface{}) (result []reflect.Value, err error) {
+	defer utils.Recover(&err)
+
+	dep := ci.dependency(provider)
+
+	params := make([]reflect.Value, dep.Length())
+
+	for scan := dep.AsScan(); scan.Next(); {
+		i := scan.Index().Value()
+		if i < len(args) {
+			params[i] = utils.Convert(reflect.ValueOf(args[i]), scan.Type())
+			continue
 		}
-	})
-	if nil != err {
-		panic(err)
+		b := scan.Factory(provider)
+		instance, err := b.Instance(provider)
+		if nil != err {
+			return nil, err
+		}
+		params[i] = utils.Convert(reflect.ValueOf(instance), scan.Type())
 	}
-	return i.method.Call(temp.([]reflect.Value))
+
+	result = ci.method.Call(params)
+	return
 }

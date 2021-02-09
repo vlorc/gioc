@@ -4,7 +4,6 @@
 package operation
 
 import (
-	"github.com/vlorc/gioc/builder"
 	"github.com/vlorc/gioc/factory"
 	"github.com/vlorc/gioc/types"
 	"github.com/vlorc/gioc/utils"
@@ -87,8 +86,8 @@ func Pointer(val interface{}) DeclareHandle {
 }
 
 func toMethodFactory(ctx *DeclareContext, val interface{}, index ...int) {
-	param := builder.NewBuilder(factory.NewParamFactory(ctx.Depend.Length()), ctx.Depend)
-	bean, typ, err := factory.NewMethodFactory(val, param.AsFactory(), index...)
+	param := factory.NewDependencyFactory(factory.NewParamFactory(ctx.Dependency.Length()), ctx.Dependency)
+	bean, typ, err := factory.NewMethodFactory(val, param, index...)
 	if nil != err {
 		panic(err)
 	}
@@ -105,7 +104,7 @@ func toRegistered(ctx *DeclareContext) {
 
 func toExport(ctx *DeclareContext) {
 	var bean types.BeanFactory
-	if nil != ctx.Depend {
+	if nil != ctx.Dependency {
 		bean = factory.NewExportFactory(ctx.Factory, lazyProvider(ctx.Context.Container))
 	} else {
 		bean = ctx.Factory
@@ -123,7 +122,7 @@ func toDependency(ctx *DeclareContext, val interface{}) (ok bool) {
 	dep, err := dependFactory.Instance(val)
 	if nil == err {
 		ok = true
-		ctx.Depend = dep
+		ctx.Dependency = dep
 	}
 	return
 }

@@ -11,4 +11,5 @@ type CoreContainer struct {
 	register types.Register
 	provider types.Provider
 	create   func(types.Provider) types.Container
+	name     string
 }

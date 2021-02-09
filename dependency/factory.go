@@ -1,7 +1,7 @@
 // Copyright 2017 Granitic. All rights reserved.
 // Use of this source code is governed by an Apache 2.0 license that can be found in the LICENSE file at the root of this project.
 
-package depend
+package dependency
 
 import (
 	"github.com/vlorc/gioc/text"
@@ -14,6 +14,7 @@ func NewDependencyFactory() types.DependencyFactory {
 	obj := &CoreDependencyFactory{
 		pool:   make(map[reflect.Type]types.Dependency),
 		parser: text.NewTextParser(DefaultHandle, text.NewParamFactory()),
+		tag:    "inject",
 	}
 	obj.resolve = map[reflect.Kind]ResolveHandle{
 		reflect.Array:  obj.resolveArray,
@@ -25,7 +26,7 @@ func NewDependencyFactory() types.DependencyFactory {
 }
 
 func (df *CoreDependencyFactory) Instance(impTyp interface{}) (types.Dependency, error) {
-	return df.instance(utils.DirectlyType(utils.TypeOf(impTyp)), impTyp)
+	return df.instance(utils.IndirectType(utils.TypeOf(impTyp)), impTyp)
 }
 
 func (df *CoreDependencyFactory) instance(typ reflect.Type, val interface{}) (dep types.Dependency, err error) {
@@ -42,7 +43,7 @@ func (df *CoreDependencyFactory) instance(typ reflect.Type, val interface{}) (de
 	return
 }
 
-func NewDependency(typ reflect.Type, dep []*types.DependencyDescription, reflectFactory func(reflect.Value) types.Reflect) types.Dependency {
+func NewDependency(typ reflect.Type, dep []types.DependencyDescriptor, reflectFactory func(reflect.Value) types.Reflect) types.Dependency {
 	return &CoreDependency{
 		typ:     typ,
 		dep:     dep,
@@ -50,18 +51,18 @@ func NewDependency(typ reflect.Type, dep []*types.DependencyDescription, reflect
 	}
 }
 
-func NewStructDependency(typ reflect.Type, dep []*types.DependencyDescription) types.Dependency {
+func NewStructDependency(typ reflect.Type, dep []types.DependencyDescriptor) types.Dependency {
 	return NewDependency(typ, dep, NewStructReflect)
 }
 
-func NewArrayDependency(typ reflect.Type, dep []*types.DependencyDescription) types.Dependency {
+func NewArrayDependency(typ reflect.Type, dep []types.DependencyDescriptor) types.Dependency {
 	return NewDependency(typ, dep, NewArrayReflect)
 }
 
-func NewMapDependency(typ reflect.Type, dep []*types.DependencyDescription) types.Dependency {
+func NewMapDependency(typ reflect.Type, dep []types.DependencyDescriptor) types.Dependency {
 	return NewDependency(typ, dep, NewMapReflect)
 }
 
-func NewFuncDependency(typ reflect.Type, dep []*types.DependencyDescription) types.Dependency {
+func NewFuncDependency(typ reflect.Type, dep []types.DependencyDescriptor) types.Dependency {
 	return NewDependency(typ, dep, NewParamReflect)
 }

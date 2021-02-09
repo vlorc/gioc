@@ -4,7 +4,7 @@
 package operation
 
 import (
-	"github.com/vlorc/gioc/builder"
+	"github.com/vlorc/gioc/factory"
 	"github.com/vlorc/gioc/types"
 )
 
@@ -20,7 +20,7 @@ func Dependency(val ...interface{}) DeclareHandle {
 			val = []interface{}{ctx.Type}
 		}
 		if toDependency(ctx, val[0]) && nil != ctx.Factory {
-			ctx.Factory = builder.NewBuilder(ctx.Factory, ctx.Depend).AsFactory()
+			ctx.Factory = factory.NewDependencyFactory(ctx.Factory, ctx.Dependency)
 		}
 	}
 }

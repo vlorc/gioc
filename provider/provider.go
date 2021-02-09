@@ -75,11 +75,18 @@ func (p *coreProvider) AssignType(dstValue reflect.Value, srcType reflect.Type, 
 	return
 }
 
-func (p *coreProvider) FactoryOf(typ reflect.Type, name string, deep int) types.BeanFactory {
+func (p *coreProvider) Get(typ reflect.Type, name string, deep int) types.BeanFactory {
 	if factory := p.selector.Get(typ, name); nil != factory {
 		return factory
 	}
-	return p.parent.FactoryOf(typ, name, deep-1)
+	return p.parent.Get(typ, name, deep-1)
+}
+
+func (p *coreProvider) Range(callback func(types.GeneralFactory) bool, typ ...reflect.Type) bool {
+	if p.selector.Range(callback, typ...) {
+		return p.parent.Range(callback, typ...)
+	}
+	return false
 }
 
 func (p *coreProvider) AsSelector() types.SelectorGetter {

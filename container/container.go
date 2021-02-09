@@ -37,3 +37,7 @@ func (c *CoreContainer) Readonly() types.Container {
 func (c *CoreContainer) NewChild() types.Container {
 	return c.create(c.AsProvider())
 }
+
+func (c *CoreContainer) Name() string {
+	return c.name
+}

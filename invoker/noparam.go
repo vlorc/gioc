@@ -5,13 +5,17 @@ package invoker
 
 import (
 	"github.com/vlorc/gioc/types"
+	"github.com/vlorc/gioc/utils"
 	"reflect"
 )
 
-func (npi NoParamInvoker) Apply(...interface{}) []reflect.Value {
+func (npi NoParamInvoker) Apply(...interface{}) ([]reflect.Value, error) {
 	return npi.ApplyWith(nil)
 }
 
-func (npi NoParamInvoker) ApplyWith(types.Provider, ...interface{}) []reflect.Value {
-	return reflect.Value(npi).Call(nil)
+func (npi NoParamInvoker) ApplyWith(types.Provider, ...interface{}) (result []reflect.Value, err error) {
+	defer utils.Recover(&err)
+
+	result = reflect.Value(npi).Call(nil)
+	return
 }
