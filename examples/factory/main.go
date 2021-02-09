@@ -32,9 +32,9 @@ func main() {
 		Bootstrap(func(param struct {
 			id   int64        `inject:"default(100)"`
 			inc  func() int64 `inject:"lazy"`
-			once *int64
+			once int64
 		}) {
-			println("id: ", param.id, " inc: ", param.inc(), " once: ", *param.once)
+			println("id: ", param.id, " inc: ", param.inc(), " once: ", param.once)
 		}),
 	)
 }

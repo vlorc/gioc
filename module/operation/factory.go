@@ -89,14 +89,16 @@ func toMethodFactory(ctx *DeclareContext, val interface{}, index ...int) {
 	param := factory.NewDependencyFactory(factory.NewParamFactory(ctx.Dependency.Length()), ctx.Dependency)
 	bean, typ, err := factory.NewMethodFactory(val, param, index...)
 	if nil != err {
-		panic(err)
+		utils.Panic(err)
 	}
 	ctx.Type = typ
 	ctx.Factory = bean
 }
 
 func toRegistered(ctx *DeclareContext) {
-	ctx.Context.Container().AsRegister().RegisterFactory(
+	c := ctx.Context.Container()
+	r := c.AsRegister()
+	r.RegisterFactory(
 		ctx.Factory,
 		ctx.Type,
 		ctx.Name)

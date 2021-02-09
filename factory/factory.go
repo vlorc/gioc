@@ -85,7 +85,7 @@ func NewResolveFactory(typ reflect.Type, name ...types.StringFactory) types.Bean
 
 func NewChainFactory(factory ...types.BeanFactory) types.BeanFactory {
 	if len(factory) <= 0 {
-		panic(errors.New("factory is empty"))
+		utils.Panic(errors.New("factory is empty"))
 	}
 	if len(factory) == 1 {
 		return factory[0]

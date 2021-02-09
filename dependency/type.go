@@ -172,7 +172,7 @@ func (df *CoreDependencyFactory) appendField(
 	}
 
 	if len(field.Index) > 1 {
-		panic(types.NewWithError(types.ErrIndexNotSupport, field.Type))
+		utils.Panic(types.NewWithError(types.ErrIndexNotSupport, field.Type))
 	}
 
 	if uint(field.Name[0]-65) >= uint(26) {

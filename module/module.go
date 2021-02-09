@@ -43,6 +43,9 @@ func moduleInit(module *CoreModule, table ...ModuleInitHandle) (types.Module, er
 
 func moduleBootstrap(module *CoreModule, fn []interface{}) {
 	for _, v := range fn {
-		invoker.NewInvoker(v, nil).ApplyWith(module.container().AsProvider())
+		_, err := invoker.NewInvoker(v, nil).ApplyWith(module.container().AsProvider())
+		if nil != err {
+			utils.Panic(err)
+		}
 	}
 }

@@ -105,31 +105,20 @@ This project is under the apache License. See the LICENSE file for the full lice
 + Factory
 	+ responsible for generating Instance
 	+ the basic plant has a value factory, method factory, agent factory, single factory, type factory
-+ Mapper
-	+ get the Factory by id
-+ Binder
-	+ the Factory is bound by id
-	+ can be converted to read-only Mapper
 + Register
 	+ as a connection to Factory and Selector
 	+ provides the registration method, which eventually matches the Type to the Factory
-	+ register custom Binder, Mapper, Factory
 + Dependency
 	+ for target type dependency analysis, collection integration
 	+ converted to an Injector by an instance
 + Injector
 	+ and obtain the Instance padding based on the Dependency retrieval Provider
-+ Builder
-	+ is also a Factory
-	+ use the Factory to get the instance and Injector to solve the Dependency
 + Container
 	+ provides Register and Provider, and the parent container makes up traversal
 	+ convert to read-only Provider
 	+ convert to seal Container
 + Selector
-	+ use type and id index Factory
-	+ auto create Binder and Mapper
-	+ index mode isolation
+	+ find factory by type and name
 + Module
     + import module
     + export factory

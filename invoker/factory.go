@@ -1,3 +1,6 @@
+// Copyright 2017 Granitic. All rights reserved.
+// Use of this source code is governed by an Apache 2.0 license that can be found in the LICENSE file at the root of this project.
+
 package invoker
 
 import (
@@ -21,14 +24,16 @@ func NewNoArgsInvoker(method interface{}) types.Invoker {
 	if src := utils.ValueOf(method); reflect.Func == src.Kind() {
 		return NoParamInvoker(src)
 	}
-	panic(types.NewWithError(types.ErrTypeNotFunction, method))
+	utils.Panic(types.NewWithError(types.ErrTypeNotFunction, method))
+	return nil
 }
 
 func NewSimpleInvoker(method interface{}) types.Invoker {
 	if src := utils.ValueOf(method); reflect.Func == src.Kind() {
 		return SimpleInvoker(src)
 	}
-	panic(types.NewWithError(types.ErrTypeNotFunction, method))
+	utils.Panic(types.NewWithError(types.ErrTypeNotFunction, method))
+	return nil
 }
 
 func NewInvokerWith(provider func() types.Provider, invoker types.Invoker) types.Invoker {

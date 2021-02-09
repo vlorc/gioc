@@ -8,7 +8,10 @@ import (
 	"fmt"
 )
 
-func Recover(err *error) {
+var Recover = __recover
+var Panic = __panic
+
+func __recover(err *error) {
 	r := recover()
 	if r == nil {
 		return
@@ -19,7 +22,11 @@ func Recover(err *error) {
 	case string:
 		*err = errors.New(x)
 	default:
-		*err = fmt.Errorf("Unknown panic %s", r)
+		*err = fmt.Errorf("Unknown Panic %s", r)
 	}
 	return
+}
+
+func __panic(v interface{}) {
+	panic(v)
 }

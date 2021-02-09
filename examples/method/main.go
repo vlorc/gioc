@@ -33,13 +33,13 @@ var ConfigModule = NewModuleFactory(
 	Export(
 		Method(func(param struct {
 			id       *int64
-			Name     string   `inject:"lower"`
-			personal Personal `inject:"extends"`
+			Name     string    `inject:"lower"`
+			personal *Personal `inject:"extends"`
 		}) *User {
 			*param.id++
 			return &User{
 				Id:       *param.id,
-				Personal: &param.personal,
+				Personal: param.personal,
 			}
 		}), Singleton(),
 	),

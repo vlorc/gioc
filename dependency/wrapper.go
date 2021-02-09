@@ -1,3 +1,6 @@
+// Copyright 2017 Granitic. All rights reserved.
+// Use of this source code is governed by an Apache 2.0 license that can be found in the LICENSE file at the root of this project.
+
 package dependency
 
 import (
@@ -13,9 +16,9 @@ func lazyWrapper(typ reflect.Type) func(types.BeanFactory) types.BeanFactory {
 			proxy := utils.LazyProxy(func([]reflect.Value) []reflect.Value {
 				instance, err := b.Instance(provider)
 				if nil != err {
-					panic(err)
+					utils.Panic(err)
 				}
-				return []reflect.Value{utils.Convert(reflect.ValueOf(instance), typ)}
+				return []reflect.Value{utils.Convert(reflect.ValueOf(instance), typ.Out(0))}
 			})
 			return reflect.MakeFunc(typ, proxy).Interface(), nil
 		})

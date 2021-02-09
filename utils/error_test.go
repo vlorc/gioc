@@ -17,7 +17,7 @@ func Test_Recover(t *testing.T) {
 	go func() {
 		defer wait.Done()
 		defer Recover(&dst)
-		panic(src)
+		Panic(src)
 	}()
 
 	if wait.Wait(); src != dst {

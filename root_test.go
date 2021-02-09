@@ -37,6 +37,6 @@ func Test_Invoker(t *testing.T) {
 		t.Errorf("can't allocate a invoker error : %s", err.Error())
 	}
 
-	results := invoker.ApplyWith(root.AsProvider(), 10)
-	t.Log("getKey", results[0].Interface())
+	results, err := invoker.ApplyWith(root.AsProvider(), 10)
+	t.Log("getKey", results[0].Interface(), err)
 }

@@ -16,6 +16,7 @@ func LazyProxy(init func([]reflect.Value) []reflect.Value) func([]reflect.Value)
 			defer func() {
 				if err := recover(); nil != err {
 					proxy = func(args []reflect.Value) []reflect.Value {
+						Panic(err)
 						panic(err)
 					}
 				}

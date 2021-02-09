@@ -5,6 +5,7 @@ package container
 
 import (
 	"github.com/vlorc/gioc/types"
+	"github.com/vlorc/gioc/utils"
 )
 
 func NewWithContainer(provider types.Provider) types.Container {
@@ -20,15 +21,15 @@ func NewWithContainer(provider types.Provider) types.Container {
 	}
 	sel, err := selectorFactory.Instance()
 	if nil != err {
-		panic(err)
+		utils.Panic(err)
 	}
 	reg, err := registerFactory.Instance(sel)
 	if nil != err {
-		panic(err)
+		utils.Panic(err)
 	}
 	pro, err := providerFactory.Instance(provider, sel)
 	if nil != err {
-		panic(err)
+		utils.Panic(err)
 	}
 	return NewContainer(reg, pro)
 }

@@ -32,8 +32,11 @@ func (f *DependencyFactory) Inject(provider types.Provider, instance interface{}
 		factory := scan.Factory(provider)
 
 		val, err := factory.Instance(provider)
-		if nil != err && 0 == scan.Flags()&types.DEPENDENCY_FLAG_OPTIONAL {
-			return err
+		if nil != err {
+			if 0 == scan.Flags()&types.DEPENDENCY_FLAG_OPTIONAL {
+				return err
+			}
+			continue
 		}
 
 		ref.Set(scan.Index(), reflect.ValueOf(val))

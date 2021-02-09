@@ -5,6 +5,7 @@ package text
 
 import (
 	"github.com/vlorc/gioc/types"
+	"github.com/vlorc/gioc/utils"
 	"reflect"
 	"strconv"
 )
@@ -16,7 +17,7 @@ func NewParamString(v string) types.Param {
 func NewParamEscapeString(v string) types.Param {
 	v, err := strconv.Unquote(v)
 	if nil != err {
-		panic(err)
+		utils.Panic(err)
 	}
 	return ParamString(v)
 }
@@ -40,7 +41,7 @@ func (ps ParamString) String() string {
 func (ps ParamString) Number() int64 {
 	v, err := strconv.ParseInt(ps.String(), 10, 64)
 	if nil != err {
-		panic(err)
+		utils.Panic(err)
 	}
 	return v
 }
@@ -48,7 +49,7 @@ func (ps ParamString) Number() int64 {
 func (ps ParamString) Float() float64 {
 	v, err := strconv.ParseFloat(ps.String(), 64)
 	if nil != err {
-		panic(err)
+		utils.Panic(err)
 	}
 	return v
 }

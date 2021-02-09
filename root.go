@@ -30,6 +30,8 @@ func NewRootContainer() types.Container {
 		dependency.NewDependencyFactory,
 		invoker.NewInvokerFactory,
 		provider.NewProviderFactory,
+		register.NewRegisterFactory,
+		selector.NewSelectorFactory,
 	} {
 		f, typ, _ := factory.NewMethodFactory(v, nil)
 		root.AsRegister().RegisterFactory(
