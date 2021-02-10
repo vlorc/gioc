@@ -15,7 +15,7 @@ func (s *readOnlySelector) Get(typ reflect.Type, name string) types.GeneralFacto
 	return nil
 }
 
-func (s *readOnlySelector) Range(callback func(types.GeneralFactory) bool, types ...reflect.Type) bool{
+func (s *readOnlySelector) Range(callback func(types.GeneralFactory) bool, types ...reflect.Type) bool {
 	return true
 }
 

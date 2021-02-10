@@ -12,9 +12,9 @@ func NewWithContainer(provider types.Provider) types.Container {
 	var selectorFactory types.SelectorFactory
 	var registerFactory types.RegisterFactory
 	var providerFactory types.ProviderFactory
-	provider.Assign(&selectorFactory)
-	provider.Assign(&registerFactory)
-	provider.Assign(&providerFactory)
+	provider.Load(&selectorFactory)
+	provider.Load(&registerFactory)
+	provider.Load(&providerFactory)
 
 	if nil == selectorFactory || nil == registerFactory || nil == providerFactory {
 		return nil
@@ -41,7 +41,7 @@ func NewContainer(register types.Register, provider types.Provider) types.Contai
 		create:   NewWithContainer,
 	}
 
-	register.RegisterInterface(&provider)
+	register.Interface(&provider)
 
 	return c
 }

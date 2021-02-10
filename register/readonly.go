@@ -8,28 +8,26 @@ import (
 	"github.com/vlorc/gioc/types"
 )
 
-var errReadonly = types.NewError(types.ErrNotRegister)
+func (r *readOnlyRegister) Interface(instance interface{}, args ...string) {
 
-func (r *readOnlyRegister) RegisterInterface(interface{}, ...string) error {
-	return errReadonly
 }
 
-func (r *readOnlyRegister) RegisterInstance(interface{}, ...string) error {
-	return errReadonly
+func (r *readOnlyRegister) Set(instance interface{}, args ...string) {
+
 }
 
-func (r *readOnlyRegister) RegisterPointer(interface{}, ...string) error {
-	return errReadonly
+func (r *readOnlyRegister) Add(instance interface{}, args ...string) {
+
 }
 
-func (r *readOnlyRegister) RegisterFactory(types.BeanFactory, interface{}, ...string) error {
-	return errReadonly
+func (r *readOnlyRegister) Put(instance interface{}, args ...string) bool {
+	return true
 }
 
-func (r *readOnlyRegister) RegisterMethod(types.BeanFactory, interface{}, interface{}, ...string) error {
-	return errReadonly
+func (r *readOnlyRegister) Factory(factory types.BeanFactory, impType interface{}, args ...string) {
+
 }
 
-func (r *readOnlyRegister) AsSelector() types.Selector {
+func (r *readOnlyRegister) Selector() types.Selector {
 	return selector.NewReadOnlyFactory(r.getter)
 }

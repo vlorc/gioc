@@ -12,7 +12,7 @@ import (
 func lazyDependency(val reflect.Value) func(types.Provider) types.Dependency {
 	return utils.Lazy(func(provider types.Provider) types.Dependency {
 		var dependFactory types.DependencyFactory
-		provider.Assign(&dependFactory)
+		provider.Load(&dependFactory)
 		dep, err := dependFactory.Instance(val)
 		if nil != err {
 			utils.Panic(err)

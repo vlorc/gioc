@@ -1,4 +1,3 @@
-
 # [Gioc](https://github.com/vlorc/gioc)
 
 [简体中文](https://github.com/vlorc/gioc/blob/master/README_CN.md)
@@ -24,73 +23,79 @@ gioc is a lightweight Ioc framework,it provides register and factory and depend 
 * [Module](https://github.com/vlorc/gioc/blob/master/examples/module/main.go) Support
 
 ## Installing
+
 	go get -u github.com/vlorc/gioc
 
 ## Quick Start
 
 * Create Root Module
+
 ```golang
 gioc.NewRootModule()
 ```
 
 * Import Module
+
 ```golang
 NewRootModule(
-    Import(
-        ConfigModule,
-        ServerModule,
-    )
+Import(
+ConfigModule,
+ServerModule,
+)
 )
 ```
 
 * Declare Instance
+
 ```golang
 NewRootModule(
-    Declare(
-        Instance(1), Id("id"),
-        Instance("ioc"), Id("name"),
-    ),
+Declare(
+Instance(1), Id("id"),
+Instance("ioc"), Id("name"),
+),
 )
 ```
 
 * Export Instance
+
 ```golang
 NewModuleFactory(
-    Export(
-        Instance(1), Id("id"),
-        Instance("ioc"), Id("name"),
-    ),
+Export(
+Instance(1), Id("id"),
+Instance("ioc"), Id("name"),
+),
 )
 ```
 
 ## Examples
 
 * Basic Module
+
 ```golang
 import (
-    . "github.com/vlorc/gioc"
-    . "github.com/vlorc/gioc/module"
-    . "github.com/vlorc/gioc/module/operation"
+."github.com/vlorc/gioc"
+."github.com/vlorc/gioc/module"
+."github.com/vlorc/gioc/module/operation"
 )
 
 // config.go
 var ConfigModule = NewModuleFactory(
-    Export(
-        Mapping(map[string]interface{}{
-            "id": 1,
-            "name": "ioc",
-        }),
-    ),
+Export(
+Mapping(map[string]interface{}{
+"id": 1,
+"name": "ioc",
+}),
+),
 )
 
 // main.go
 func main() {
-    NewRootModule(
-        Import(ConfigModule),
-        Bootstrap(func(param struct{ id int; name string }) {
-            println("id: ", param.id," name: ",param.name)
-        }),
-    )
+NewRootModule(
+Import(ConfigModule),
+Bootstrap(func(param struct{ id int; name string }) {
+println("id: ", param.id, " name: ",param.name)
+}),
+)
 }
 ```
 
@@ -101,31 +106,33 @@ This project is under the apache License. See the LICENSE file for the full lice
 ## Interface
 
 + Provider
-	+ provides Factory discovery
+    + provides Factory discovery
 + Factory
-	+ responsible for generating Instance
-	+ the basic plant has a value factory, method factory, agent factory, single factory, type factory
+    + responsible for generating Instance
+    + the basic plant has a value factory, method factory, agent factory, single factory, type factory
 + Register
-	+ as a connection to Factory and Selector
-	+ provides the registration method, which eventually matches the Type to the Factory
+    + as a connection to Factory and Selector
+    + provides the registration method, which eventually matches the Type to the Factory
 + Dependency
-	+ for target type dependency analysis, collection integration
-	+ converted to an Injector by an instance
+    + for target type dependency analysis, collection integration
+    + converted to an Injector by an instance
 + Injector
-	+ and obtain the Instance padding based on the Dependency retrieval Provider
+    + and obtain the Instance padding based on the Dependency retrieval Provider
 + Container
-	+ provides Register and Provider, and the parent container makes up traversal
-	+ convert to read-only Provider
-	+ convert to seal Container
+    + provides Register and Provider, and the parent container makes up traversal
+    + convert to read-only Provider
+    + convert to seal Container
 + Selector
-	+ find factory by type and name
+    + find factory by type and name
 + Module
     + import module
     + export factory
     + declare factory
-    
+
 # Roadmap
-For details on planned features and future direction please refer to [roadmap](https://github.com/vlorc/gioc/blob/master/ROADMAP.md)
+
+For details on planned features and future direction please refer
+to [roadmap](https://github.com/vlorc/gioc/blob/master/ROADMAP.md)
 
 # Keyword
 

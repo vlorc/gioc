@@ -38,35 +38,15 @@ type TextParser interface {
 
 type Provider interface {
 	// get instance by type pointer and name
-	// impType must be a pointer
-	Resolve(impType interface{}, name ...string) (interface{}, error)
+	Get(impType interface{}, name ...string) (interface{}, error)
 
-	// get instance by type and name and deep
-	ResolveType(typ reflect.Type, name string, deep int) (interface{}, error)
+	Load(receive interface{}, name ...string) error
 
-	// get instance by type pointer and name and deep
-	// impType must be a pointer
-	ResolveNamed(impType interface{}, name string, deep int) (interface{}, error)
-
-	// assigned to instance by type pointer and name
-	// dst must be a pointer
-	Assign(dst interface{}, name ...string) error
-
-	// assigned to instance by type and name and deep
-	// dst must be can set
-	// typ for nil using dst type
-	AssignType(dst reflect.Value, typ reflect.Type, name string, deep int) error
-
-	// assigned to instance by type pointer and name and deep
-	// dst and impType must be a pointer
-	// impType for nil using dst type
-	AssignNamed(dst interface{}, impType interface{}, name string, deep int) error
-
-	Get(typ reflect.Type, name string, deep int) BeanFactory
+	Factory(typ reflect.Type, name string, deep int) BeanFactory
 
 	Range(callback func(GeneralFactory) bool, types ...reflect.Type) bool
 
-	AsSelector() SelectorGetter
+	Selector() SelectorGetter
 }
 
 type Module interface{}
@@ -169,20 +149,19 @@ type InvokerFactory interface {
 
 // register
 type Register interface {
-	// register a pointer
-	RegisterPointer(pointer interface{}, name ...string) error
 	// register an instance,use the type of instance
-	RegisterInstance(instance interface{}, name ...string) error
-	// register an interface,use the type of interface
-	RegisterInterface(instance interface{}, name ...string) error
-	// register a custom factory
-	// impType must be a pointer
-	RegisterFactory(factory BeanFactory, impType interface{}, name ...string) error
-	// register a custom method
-	// impType must be a pointer,it's the return value type of method
-	RegisterMethod(factory BeanFactory, method interface{}, impType interface{}, name ...string) error
+	Set(instance interface{}, name ...string)
 
-	AsSelector() Selector
+	Add(instance interface{}, name ...string)
+
+	Put(instance interface{}, name ...string) bool
+
+	// register an interface,use the type of interface
+	Interface(instance interface{}, name ...string)
+
+	Factory(factory BeanFactory, impType interface{}, name ...string)
+
+	Selector() Selector
 }
 
 // the container is provider and register
@@ -248,6 +227,6 @@ type Invoker interface {
 }
 
 var Type = reflect.TypeOf((*reflect.Type)(nil)).Elem()
+var StringType = reflect.TypeOf((*string)(nil)).Elem()
 var ErrorType = reflect.TypeOf((*error)(nil)).Elem()
 var ProviderType = reflect.TypeOf((*Provider)(nil)).Elem()
-var RegisterFactoryType = reflect.TypeOf((*RegisterFactory)(nil)).Elem()

@@ -22,11 +22,11 @@ func Test_Invoker(t *testing.T) {
 	}
 
 	name := "angel"
-	root.AsRegister().RegisterInstance(&name)
+	root.AsRegister().Set(&name)
 	var dependFactory types.DependencyFactory
 	var invokerFactory types.InvokerFactory
-	root.AsProvider().Assign(&dependFactory)
-	root.AsProvider().Assign(&invokerFactory)
+	root.AsProvider().Load(&dependFactory)
+	root.AsProvider().Load(&invokerFactory)
 
 	dep, err := dependFactory.Instance(getKey)
 	if nil != err {

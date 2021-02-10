@@ -1,4 +1,3 @@
-
 # [Gioc](https://github.com/vlorc/gioc)
 
 [English](https://github.com/vlorc/gioc/blob/master/README.md)
@@ -24,73 +23,79 @@ gioc是一个轻量级的Ioc框架，它提供注册表和工厂、依赖解决�
 * [模块](https://github.com/vlorc/gioc/blob/master/examples/module/main.go)
 
 ## 安装
+
 	go get -u github.com/vlorc/gioc
 
 ## 快速开始
 
 * 创建根模块
+
 ```golang
 gioc.NewRootModule()
 ```
 
 * 导入模块
+
 ```golang
 NewRootModule(
-    Import(
-        ConfigModule,
-        ServerModule,
-    )
+Import(
+ConfigModule,
+ServerModule,
+)
 )
 ```
 
 * 声明实例
+
 ```golang
 NewRootModule(
-    Declare(
-        Instance(1), Id("id"),
-        Instance("ioc"), Id("name"),
-    ),
+Declare(
+Instance(1), Id("id"),
+Instance("ioc"), Id("name"),
+),
 )
 ```
 
 * 导出实例
+
 ```golang
 NewModuleFactory(
-    Export(
-        Instance(1), Id("id"),
-        Instance("ioc"), Id("name"),
-    ),
+Export(
+Instance(1), Id("id"),
+Instance("ioc"), Id("name"),
+),
 )
 ```
 
 ## 例子
 
 * 基础模块
+
 ```golang
 import (
-    . "github.com/vlorc/gioc"
-    . "github.com/vlorc/gioc/module"
-    . "github.com/vlorc/gioc/module/operation"
+."github.com/vlorc/gioc"
+."github.com/vlorc/gioc/module"
+."github.com/vlorc/gioc/module/operation"
 )
 
 // config.go
 var ConfigModule = NewModuleFactory(
-    Export(
-        Mapping(map[string]interface{}{
-            "id": 1,
-            "name": "ioc",
-        }),
-    ),
+Export(
+Mapping(map[string]interface{}{
+"id": 1,
+"name": "ioc",
+}),
+),
 )
 
 // main.go
 func main() {
-    NewRootModule(
-        Import(ConfigModule),
-        Bootstrap(func(param struct{ id int; name string }) {
-            println("id: ", param.id," name: ",param.name)
-        }),
-    )
+NewRootModule(
+Import(ConfigModule),
+Bootstrap(func(param struct{ id int; name string }) {
+println("id: ", param.id, " name: ",param.name)
+}),
+)
 }
 ```
 
@@ -101,35 +106,35 @@ func main() {
 ## 接口
 
 + Provider(提供商)
-	+ 提供工厂发现
-	+ 提供实例填充
+    + 提供工厂发现
+    + 提供实例填充
 + Factory(工厂)
-	+ 负责生成实例
-	+ 基本工厂有价值工厂，方法工厂，代理工厂，单例工厂，类型工厂
+    + 负责生成实例
+    + 基本工厂有价值工厂，方法工厂，代理工厂，单例工厂，类型工厂
 + Register(注册器)
-	+ 作为工厂和选择器的连接
-	+ 提供类型、实例、方法工厂转换
+    + 作为工厂和选择器的连接
+    + 提供类型、实例、方法工厂转换
 + Dependency(依赖)
-	+ 是目标类型依赖性分析结果的集合
-	+ 通过实例转换为注射器
+    + 是目标类型依赖性分析结果的集合
+    + 通过实例转换为注射器
 + Injector(注射器)
-	+ 根据依赖填充实例
+    + 根据依赖填充实例
 + Builder(构造器)
-	+ 也是一个工厂
-	+ 使用Factory来获取实例和注入器来解决依赖关系
+    + 也是一个工厂
+    + 使用Factory来获取实例和注入器来解决依赖关系
 + Container(容器)
-	+ 提供Register和Provider，并且父容器组成遍历
-	+ 转换为只读提供程序
-	+ 转换为密封容器
+    + 提供Register和Provider，并且父容器组成遍历
+    + 转换为只读提供程序
+    + 转换为密封容器
 + Selector(选择器)
-	+ 通过类型和名称寻找工厂
+    + 通过类型和名称寻找工厂
 + Module(模板)
     + 导入模块
     + 导出工厂
     + 声明工厂
 
-
 # 路线图
+
 有关计划特性和未来方向的详细信息请参考[路线图](https://github.com/vlorc/gioc/blob/master/ROADMAP.md)
 
 # 关键字

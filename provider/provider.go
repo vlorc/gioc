@@ -9,86 +9,73 @@ import (
 	"reflect"
 )
 
-func (p *coreProvider) Resolve(impType interface{}, args ...string) (interface{}, error) {
+func (p *coreProvider) Get(impType interface{}, args ...string) (interface{}, error) {
 	var name string
 	if len(args) > 0 {
 		name = args[0]
 	}
-	return p.ResolveNamed(impType, name, -1)
+	return p.Instance(utils.TypeOf(impType), name)
 }
 
-func (p *coreProvider) ResolveNamed(impType interface{}, name string, deep int) (interface{}, error) {
-	return p.ResolveType(utils.TypeOf(impType), name, deep)
-}
-
-func (p *coreProvider) ResolveType(typ reflect.Type, name string, deep int) (instance interface{}, err error) {
-	if factory := p.selector.Get(typ, name); nil != factory {
-		instance, err = factory.Instance(p)
-		return
+func (p *coreProvider) Instance(typ reflect.Type, name string) (interface{}, error) {
+	if b := p.Factory(typ, name, -1); nil != b {
+		return b.Instance(p)
 	}
-	if nil == p.parent || 0 == deep {
-		err = types.NewWithError(types.ErrFactoryNotFound, typ, name)
-	} else {
-		instance, err = p.parent.ResolveType(typ, name, deep-1)
-	}
-	return
+	return nil, types.NewWithError(types.ErrFactoryNotFound, typ, name)
 }
 
-func (p *coreProvider) Assign(dst interface{}, args ...string) error {
+func (p *coreProvider) Load(receive interface{}, args ...string) error {
 	var name string
 	if len(args) > 0 {
 		name = args[0]
 	}
-	return p.AssignType(utils.ValueOf(dst), nil, name, -1)
+	return p.load(receive, nil, name)
 }
 
-func (p *coreProvider) AssignNamed(dst interface{}, impType interface{}, name string, deep int) (err error) {
-	dstValue := utils.ValueOf(dst)
-	var srcType reflect.Type
-	if nil != impType {
-		srcType = utils.TypeOf(impType)
-	}
-	return p.AssignType(dstValue, srcType, name, deep)
-}
-
-func (p *coreProvider) AssignType(dstValue reflect.Value, srcType reflect.Type, name string, deep int) (err error) {
+func (p *coreProvider) load(receive interface{}, typ reflect.Type, name string) (err error) {
 	defer utils.Recover(&err)
 
-	if !dstValue.CanSet() {
-		if reflect.Ptr != dstValue.Kind() {
-			err = types.NewWithError(types.ErrTypeNotSet, dstValue)
+	val := utils.ValueOf(receive)
+
+	if !val.CanSet() {
+		if reflect.Ptr != val.Kind() {
+			err = types.NewWithError(types.ErrTypeNotSet, receive)
 			return
 		}
-		dstValue = dstValue.Elem()
+		val = val.Elem()
 	}
-	if nil == srcType {
-		srcType = dstValue.Type()
-	}
-
-	instance, err := p.ResolveType(srcType, name, deep)
-	if nil != err {
-		return err
+	if nil == typ {
+		typ = val.Type()
 	}
 
-	srcValue := utils.Convert(reflect.ValueOf(instance), srcType)
-	dstValue.Set(srcValue)
+	instance, err := p.Instance(typ, name)
+	if nil == err {
+		v := utils.Convert(reflect.ValueOf(instance), typ)
+		val.Set(v)
+	}
 	return
 }
 
-func (p *coreProvider) Get(typ reflect.Type, name string, deep int) types.BeanFactory {
+func (p *coreProvider) Factory(typ reflect.Type, name string, deep int) types.BeanFactory {
 	if factory := p.selector.Get(typ, name); nil != factory {
 		return factory
 	}
-	return p.parent.Get(typ, name, deep-1)
+	if nil != p.parent && 0 != deep {
+		return p.parent.Factory(typ, name, deep-1)
+	}
+	return nil
 }
 
 func (p *coreProvider) Range(callback func(types.GeneralFactory) bool, typ ...reflect.Type) bool {
 	if p.selector.Range(callback, typ...) {
-		return p.parent.Range(callback, typ...)
+		if nil != p.parent {
+			return p.parent.Range(callback, typ...)
+		}
+		return true
 	}
 	return false
 }
 
-func (p *coreProvider) AsSelector() types.SelectorGetter {
+func (p *coreProvider) Selector() types.SelectorGetter {
 	return p.selector
 }

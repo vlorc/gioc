@@ -10,7 +10,7 @@ import (
 
 func (f *resolveFactory) Instance(provider types.Provider) (instance interface{}, err error) {
 	if len(f.name) <= 0 {
-		return provider.ResolveType(f.typ, "", -1)
+		return provider.Get(f.typ)
 	}
 
 	var id string
@@ -18,7 +18,7 @@ func (f *resolveFactory) Instance(provider types.Provider) (instance interface{}
 		if id, err = b.Instance(provider); nil != err {
 			break
 		}
-		if instance, err = provider.ResolveType(f.typ, id, -1); nil == err {
+		if instance, err = provider.Get(f.typ, id); nil == err {
 			return instance, nil
 		}
 	}
@@ -31,7 +31,7 @@ func (f *resolveFactory) String() string {
 }
 
 func (f *typeResolveFactory) Instance(provider types.Provider) (interface{}, error) {
-	return provider.ResolveType(f.typ, f.name, -1)
+	return provider.Get(f.typ, f.name)
 }
 
 func (f *typeResolveFactory) String() string {

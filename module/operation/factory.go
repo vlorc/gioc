@@ -98,10 +98,7 @@ func toMethodFactory(ctx *DeclareContext, val interface{}, index ...int) {
 func toRegistered(ctx *DeclareContext) {
 	c := ctx.Context.Container()
 	r := c.AsRegister()
-	r.RegisterFactory(
-		ctx.Factory,
-		ctx.Type,
-		ctx.Name)
+	r.Factory(ctx.Factory, ctx.Type, ctx.Name)
 }
 
 func toExport(ctx *DeclareContext) {
@@ -111,16 +108,12 @@ func toExport(ctx *DeclareContext) {
 	} else {
 		bean = ctx.Factory
 	}
-	ctx.Context.Parent().AsRegister().RegisterFactory(
-		bean,
-		ctx.Type,
-		ctx.Name,
-	)
+	ctx.Context.Parent().AsRegister().Factory(bean, ctx.Type, ctx.Name)
 }
 
 func toDependency(ctx *DeclareContext, val interface{}) (ok bool) {
 	var dependFactory types.DependencyFactory
-	ctx.Context.Parent().AsProvider().Assign(&dependFactory)
+	ctx.Context.Parent().AsProvider().Load(&dependFactory)
 	dep, err := dependFactory.Instance(val)
 	if nil == err {
 		ok = true

@@ -4,6 +4,9 @@
 package types
 
 import (
+	"fmt"
+	"github.com/vlorc/gioc/utils"
+	"reflect"
 	"sort"
 )
 
@@ -18,8 +21,14 @@ func NewWrapperFactory() *WrapperFactory {
 	return &WrapperFactory{}
 }
 
+type NameFactory string
+
 func NewStringFactory(s string) StringFactory {
 	return RawStringFactory(s)
+}
+
+func NewNameFactory(s string) StringFactory {
+	return NameFactory(s)
 }
 
 func (l *WrapperFactory) Reset() {
@@ -56,4 +65,29 @@ func (l *WrapperFactory) Swap(i, j int) {
 
 func (f RawStringFactory) Instance(provider Provider) (string, error) {
 	return string(f), nil
+}
+
+func (f NameFactory) Instance(provider Provider) (string, error) {
+	b := provider.Factory(StringType, string(f), -1)
+	if nil == b {
+		if b = provider.Factory(nil, string(f), -1); nil == b {
+			utils.Panic(NewWithError(ErrFactoryNotFound, StringType, string(f)))
+		}
+	}
+
+	val, err := b.Instance(provider)
+	if nil != err {
+		return "", err
+	}
+
+	if str, ok := val.(string); ok {
+		return str, nil
+	}
+	if str, ok := val.(fmt.Stringer); ok {
+		return str.String(), nil
+	}
+	if v := utils.ValueOf(val); reflect.Ptr == v.Kind() {
+		return fmt.Sprint(utils.IndirectValue(v).Interface()), nil
+	}
+	return fmt.Sprint(val), nil
 }

@@ -21,7 +21,7 @@ func (si SimpleInvoker) ApplyWith(_ types.Provider, args ...interface{}) (result
 	for i := range param {
 		param[i] = reflect.ValueOf(args[i])
 	}
-	result =  val.Call(param)
+	result = val.Call(param)
 
 	return
 }

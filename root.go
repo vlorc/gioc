@@ -34,7 +34,7 @@ func NewRootContainer() types.Container {
 		selector.NewSelectorFactory,
 	} {
 		f, typ, _ := factory.NewMethodFactory(v, nil)
-		root.AsRegister().RegisterFactory(
+		root.AsRegister().Factory(
 			factory.NewSingleFactory(f),
 			typ,
 		)

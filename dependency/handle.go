@@ -44,6 +44,13 @@ var DefaultHandle = map[string][]types.IdentHandle{
 	},
 }
 
+func __stringFactory(s string) types.StringFactory {
+	if strings.HasPrefix(s, "${") && strings.HasSuffix(s, "}") {
+		return types.NewNameFactory(s[2 : len(s)-1])
+	}
+	return types.NewStringFactory(s)
+}
+
 func lowerCaseHandle(ctx *types.ParseContext) error {
 	ctx.Dependency.Name = append(ctx.Dependency.Name, types.RawStringFactory(strings.ToLower(ctx.Dependency.Origin.Name)))
 	return nil
@@ -56,14 +63,14 @@ func upperCaseHandle(ctx *types.ParseContext) error {
 
 func idHandle(ctx *types.ParseContext) error {
 	if len(ctx.Params) > 0 {
-		ctx.Dependency.Name = []types.StringFactory{types.RawStringFactory(ctx.Params[0].String())}
+		ctx.Dependency.Name = []types.StringFactory{__stringFactory(ctx.Params[0].String())}
 	}
 	return nil
 }
 
 func nameHandle(ctx *types.ParseContext) error {
 	for i := range ctx.Params {
-		ctx.Dependency.Name = append(ctx.Dependency.Name, types.RawStringFactory(ctx.Params[i].String()))
+		ctx.Dependency.Name = append(ctx.Dependency.Name, __stringFactory(ctx.Params[i].String()))
 	}
 	return nil
 }
