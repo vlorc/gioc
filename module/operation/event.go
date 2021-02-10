@@ -16,7 +16,7 @@ func Event(handle ...EventHandle) module.ModuleInitHandle {
 func EventScore(name string, handle ...EventHandle) module.ModuleInitHandle {
 	return func(ctx *module.ModuleInitContext) {
 		c := &EventContext{ctx, nil}
-		c.Parent().AsProvider().Assign(&c.Listener, name)
+		c.Parent().AsProvider().Load(&c.Listener, name)
 		for _, v := range handle {
 			v(c)
 		}

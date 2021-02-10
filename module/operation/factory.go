@@ -4,7 +4,6 @@
 package operation
 
 import (
-	"github.com/vlorc/gioc/builder"
 	"github.com/vlorc/gioc/factory"
 	"github.com/vlorc/gioc/types"
 	"github.com/vlorc/gioc/utils"
@@ -87,43 +86,38 @@ func Pointer(val interface{}) DeclareHandle {
 }
 
 func toMethodFactory(ctx *DeclareContext, val interface{}, index ...int) {
-	param := builder.NewBuilder(factory.NewParamFactory(ctx.Depend.Length()), ctx.Depend)
-	bean, typ, err := factory.NewMethodFactory(val, param.AsFactory(), index...)
+	param := factory.NewDependencyFactory(factory.NewParamFactory(ctx.Dependency.Length()), ctx.Dependency)
+	bean, typ, err := factory.NewMethodFactory(val, param, index...)
 	if nil != err {
-		panic(err)
+		utils.Panic(err)
 	}
 	ctx.Type = typ
 	ctx.Factory = bean
 }
 
 func toRegistered(ctx *DeclareContext) {
-	ctx.Context.Container().AsRegister().RegisterFactory(
-		ctx.Factory,
-		ctx.Type,
-		ctx.Name)
+	c := ctx.Context.Container()
+	r := c.AsRegister()
+	r.Factory(ctx.Factory, ctx.Type, ctx.Name)
 }
 
 func toExport(ctx *DeclareContext) {
 	var bean types.BeanFactory
-	if nil != ctx.Depend {
+	if nil != ctx.Dependency {
 		bean = factory.NewExportFactory(ctx.Factory, lazyProvider(ctx.Context.Container))
 	} else {
 		bean = ctx.Factory
 	}
-	ctx.Context.Parent().AsRegister().RegisterFactory(
-		bean,
-		ctx.Type,
-		ctx.Name,
-	)
+	ctx.Context.Parent().AsRegister().Factory(bean, ctx.Type, ctx.Name)
 }
 
 func toDependency(ctx *DeclareContext, val interface{}) (ok bool) {
 	var dependFactory types.DependencyFactory
-	ctx.Context.Parent().AsProvider().Assign(&dependFactory)
+	ctx.Context.Parent().AsProvider().Load(&dependFactory)
 	dep, err := dependFactory.Instance(val)
 	if nil == err {
 		ok = true
-		ctx.Depend = dep
+		ctx.Dependency = dep
 	}
 	return
 }

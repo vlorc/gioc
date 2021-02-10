@@ -4,7 +4,6 @@
 package operation
 
 import (
-	"github.com/vlorc/gioc/builder"
 	"github.com/vlorc/gioc/factory"
 	"github.com/vlorc/gioc/utils"
 	"reflect"
@@ -47,7 +46,7 @@ func toStruct(ctx *DeclareContext, val reflect.Value, typ interface{}) {
 		ctx.Factory = factory.NewValueFactory(val.Elem().Interface())
 	}
 	if toDependency(ctx, typ) {
-		ctx.Factory = builder.NewBuilder(ctx.Factory, ctx.Depend).AsFactory()
+		ctx.Factory = factory.NewDependencyFactory(ctx.Factory, ctx.Dependency)
 	}
 	ctx.Factory = factory.NewConvertFactory(ctx.Factory, utils.TypeOf(typ))
 }

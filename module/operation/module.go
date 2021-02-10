@@ -13,7 +13,7 @@ func Import(factory ...types.ModuleFactory) module.ModuleInitHandle {
 	return func(ctx *module.ModuleInitContext) {
 		for _, v := range factory {
 			if _, err := v.Instance(ctx.Container); nil != err {
-				panic(err)
+				utils.Panic(err)
 			}
 		}
 	}

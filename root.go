@@ -4,10 +4,8 @@
 package gioc
 
 import (
-	"github.com/vlorc/gioc/binder"
-	"github.com/vlorc/gioc/builder"
 	"github.com/vlorc/gioc/container"
-	"github.com/vlorc/gioc/depend"
+	"github.com/vlorc/gioc/dependency"
 	"github.com/vlorc/gioc/event"
 	"github.com/vlorc/gioc/factory"
 	"github.com/vlorc/gioc/invoker"
@@ -22,22 +20,21 @@ import (
 
 // create a root container
 func NewRootContainer() types.Container {
-	sel := selector.NewTypeSelector(binder.NewBinderFactory())
+	general := selector.NewGeneralSelector()
 	root := container.NewContainer(
-		register.NewRegister(sel),
-		provider.NewWithProvider(sel, nil),
+		register.NewRegister(general),
+		provider.NewWithProvider(nil, general),
 	)
 
 	for _, v := range []interface{}{
-		depend.NewDependencyFactory,
-		builder.NewBuilderFactory,
-		selector.NewSelectorFactory,
+		dependency.NewDependencyFactory,
 		invoker.NewInvokerFactory,
-		register.NewRegisterFactory,
 		provider.NewProviderFactory,
+		register.NewRegisterFactory,
+		selector.NewSelectorFactory,
 	} {
 		f, typ, _ := factory.NewMethodFactory(v, nil)
-		root.AsRegister().RegisterFactory(
+		root.AsRegister().Factory(
 			factory.NewSingleFactory(f),
 			typ,
 		)

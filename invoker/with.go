@@ -8,10 +8,10 @@ import (
 	"reflect"
 )
 
-func (wi *WithInvoker) Apply(args ...interface{}) []reflect.Value {
+func (wi *WithInvoker) Apply(args ...interface{}) ([]reflect.Value, error) {
 	return wi.invoker.ApplyWith(wi.provider(), args...)
 }
 
-func (wi *WithInvoker) ApplyWith(_ types.Provider, args ...interface{}) []reflect.Value {
+func (wi *WithInvoker) ApplyWith(_ types.Provider, args ...interface{}) ([]reflect.Value, error) {
 	return wi.Apply(args...)
 }

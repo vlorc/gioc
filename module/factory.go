@@ -5,12 +5,14 @@ package module
 
 import (
 	"github.com/vlorc/gioc/types"
+	"github.com/vlorc/gioc/utils"
 )
 
 func NewWithModule(parent func() types.Container, table ...ModuleInitHandle) types.Module {
 	m, err := moduleInit(newWithModule(parent), table...)
 	if nil != err {
-		panic(err)
+		utils.Panic(err)
+		return nil
 	}
 	return m
 }
@@ -18,7 +20,8 @@ func NewWithModule(parent func() types.Container, table ...ModuleInitHandle) typ
 func NewModuleFor(container func() types.Container, table ...ModuleInitHandle) types.Module {
 	m, err := moduleInit(newModule(container, container), table...)
 	if nil != err {
-		panic(err)
+		utils.Panic(err)
+		return nil
 	}
 	return m
 }

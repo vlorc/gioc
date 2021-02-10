@@ -3,34 +3,31 @@
 
 package register
 
-import "github.com/vlorc/gioc/types"
+import (
+	"github.com/vlorc/gioc/selector"
+	"github.com/vlorc/gioc/types"
+)
 
-var errReadonly = types.NewError(types.ErrNotRegister)
+func (r *readOnlyRegister) Interface(instance interface{}, args ...string) {
 
-func (r ReadOnlyRegister) RegisterMapper(types.Mapper, interface{}) error {
-	return errReadonly
 }
 
-func (r ReadOnlyRegister) RegisterBinder(types.Binder, interface{}) error {
-	return errReadonly
+func (r *readOnlyRegister) Set(instance interface{}, args ...string) {
+
 }
 
-func (r ReadOnlyRegister) RegisterInterface(interface{}, ...string) error {
-	return errReadonly
+func (r *readOnlyRegister) Add(instance interface{}, args ...string) {
+
 }
 
-func (r ReadOnlyRegister) RegisterInstance(interface{}, ...string) error {
-	return errReadonly
+func (r *readOnlyRegister) Put(instance interface{}, args ...string) bool {
+	return true
 }
 
-func (r ReadOnlyRegister) RegisterPointer(interface{}, ...string) error {
-	return errReadonly
+func (r *readOnlyRegister) Factory(factory types.BeanFactory, impType interface{}, args ...string) {
+
 }
 
-func (r ReadOnlyRegister) RegisterFactory(types.BeanFactory, interface{}, ...string) error {
-	return errReadonly
-}
-
-func (r ReadOnlyRegister) RegisterMethod(types.BeanFactory, interface{}, interface{}, ...string) error {
-	return errReadonly
+func (r *readOnlyRegister) Selector() types.Selector {
+	return selector.NewReadOnlyFactory(r.getter)
 }

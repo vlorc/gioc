@@ -34,7 +34,7 @@ func (el *CoreEventListener) on(provider func() types.Provider, event string, fn
 	pos := strings.Index(event, "::")
 	if pos > 0 {
 		var l types.EventListener
-		provider().Assign(&l, event[:pos])
+		provider().Load(&l, event[:pos])
 		return l.On(event[pos+2:], fn)
 	}
 	if 0 == pos {

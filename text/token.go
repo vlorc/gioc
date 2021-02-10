@@ -7,6 +7,7 @@ import (
 	"bufio"
 	"errors"
 	"github.com/vlorc/gioc/types"
+	"github.com/vlorc/gioc/utils"
 	"io"
 )
 
@@ -86,7 +87,7 @@ func init() {
 	}
 
 	transfer[2] = func(d *CoreTokenScan, _ int, _ int, _ int) {
-		panic(errors.New("Illegal char"))
+		utils.Panic(errors.New("illegal char"))
 	}
 
 	transfer[1] = func(d *CoreTokenScan, n int, _ int, l int) {
@@ -99,7 +100,7 @@ func init() {
 		ok := d.reset()
 		d.Transfer(i, l)
 		if ok {
-			panic(nil)
+			utils.Panic(nil)
 		}
 	}
 }
@@ -142,7 +143,7 @@ func (ts *CoreTokenScan) Next() bool {
 func (ts *CoreTokenScan) Scan() (token types.Token, offset int, position int) {
 	defer func() {
 		if r := recover(); nil != r {
-			panic(r)
+			utils.Panic(r)
 		}
 	}()
 

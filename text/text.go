@@ -30,6 +30,8 @@ func (tp *CoreTextParser) pop(ctx *types.ParseContext, handle ...types.IdentHand
 	token, offset, length := ctx.Scan.Scan()
 	if types.TOKEN_EOF == token {
 		tp.invoke(ctx, handle)
+
+		// interrupt
 		panic(nil)
 	}
 	return token, ctx.Dump(offset, length)
@@ -49,14 +51,14 @@ func (tp *CoreTextParser) getParam(ctx *types.ParseContext) {
 func (tp *CoreTextParser) nextParam(ctx *types.ParseContext) bool {
 	token, key := tp.pop(ctx)
 	if types.TOKEN_EOF == token {
-		panic(fmt.Errorf("can't get param '%s'", key))
+		utils.Panic(fmt.Errorf("can't get param '%s'", key))
 	}
 	if types.TOKEN_RPAREN == token {
 		return false
 	}
 	param, err := tp.paramFactory.Instance(token, key)
 	if nil != err {
-		panic(err)
+		utils.Panic(err)
 	}
 	ctx.Params = append(ctx.Params, param)
 	return true
@@ -67,14 +69,14 @@ func (tp *CoreTextParser) dispatch(ctx *types.ParseContext, token types.Token, k
 	case types.TOKEN_IDENT:
 		tp.Invoke(ctx, key)
 	case types.TOKEN_CHART, types.TOKEN_STRING:
-		ctx.Descriptor.SetName(key[1 : len(key)-1])
+		ctx.Dependency.Name = []types.StringFactory{types.RawStringFactory(key[1 : len(key)-1])}
 	}
 }
 
 func (tp *CoreTextParser) invoke(ctx *types.ParseContext, handle []types.IdentHandle) {
 	for _, f := range handle {
 		if err := f(ctx); nil != err {
-			panic(err)
+			utils.Panic(err)
 		}
 	}
 }
@@ -82,7 +84,7 @@ func (tp *CoreTextParser) invoke(ctx *types.ParseContext, handle []types.IdentHa
 func (tp *CoreTextParser) Invoke(ctx *types.ParseContext, key string) {
 	handle, ok := tp.handle[key]
 	if !ok {
-		panic(fmt.Errorf("can't find token '%s'", key))
+		utils.Panic(fmt.Errorf("can't find token '%s'", key))
 	}
 
 	ctx.Params = nil

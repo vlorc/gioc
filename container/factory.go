@@ -5,32 +5,31 @@ package container
 
 import (
 	"github.com/vlorc/gioc/types"
+	"github.com/vlorc/gioc/utils"
 )
 
 func NewWithContainer(provider types.Provider) types.Container {
-	var binderFactory types.BinderFactory
 	var selectorFactory types.SelectorFactory
 	var registerFactory types.RegisterFactory
 	var providerFactory types.ProviderFactory
-	provider.Assign(&binderFactory)
-	provider.Assign(&selectorFactory)
-	provider.Assign(&registerFactory)
-	provider.Assign(&providerFactory)
+	provider.Load(&selectorFactory)
+	provider.Load(&registerFactory)
+	provider.Load(&providerFactory)
 
 	if nil == selectorFactory || nil == registerFactory || nil == providerFactory {
 		return nil
 	}
-	sel, err := selectorFactory.Instance(binderFactory)
+	sel, err := selectorFactory.Instance()
 	if nil != err {
-		panic(err)
+		utils.Panic(err)
 	}
 	reg, err := registerFactory.Instance(sel)
 	if nil != err {
-		panic(err)
+		utils.Panic(err)
 	}
-	pro, err := providerFactory.Instance(sel, provider)
+	pro, err := providerFactory.Instance(provider, sel)
 	if nil != err {
-		panic(err)
+		utils.Panic(err)
 	}
 	return NewContainer(reg, pro)
 }
@@ -41,6 +40,8 @@ func NewContainer(register types.Register, provider types.Provider) types.Contai
 		provider: provider,
 		create:   NewWithContainer,
 	}
-	register.RegisterInterface(&provider)
+
+	register.Interface(&provider)
+
 	return c
 }

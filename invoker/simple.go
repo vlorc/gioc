@@ -5,18 +5,23 @@ package invoker
 
 import (
 	"github.com/vlorc/gioc/types"
+	"github.com/vlorc/gioc/utils"
 	"reflect"
 )
 
-func (si SimpleInvoker) Apply(args ...interface{}) []reflect.Value {
+func (si SimpleInvoker) Apply(args ...interface{}) ([]reflect.Value, error) {
 	return si.ApplyWith(nil, args...)
 }
 
-func (si SimpleInvoker) ApplyWith(_ types.Provider, args ...interface{}) []reflect.Value {
+func (si SimpleInvoker) ApplyWith(_ types.Provider, args ...interface{}) (result []reflect.Value, err error) {
+	defer utils.Recover(&err)
+
 	val := reflect.Value(si)
 	param := make([]reflect.Value, val.Type().NumIn())
 	for i := range param {
 		param[i] = reflect.ValueOf(args[i])
 	}
-	return val.Call(param)
+	result = val.Call(param)
+
+	return
 }

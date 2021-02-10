@@ -15,8 +15,9 @@ type Personal struct {
 }
 
 type User struct {
-	Id        int64 `inject:"'id'"`
-	*Personal `inject:"extends"`
+	Id   int64
+	Name string
+	*Personal
 }
 
 // config.go
@@ -24,24 +25,28 @@ var ConfigModule = NewModuleFactory(
 	Declare(
 		Mapping(map[string]interface{}{
 			"id":      new(int64),
-			"name":    "admin_001",
+			"name":    "admin",
 			"gender":  1,
 			"email":   "xxx@163.com",
 			"Version": "1.0.1",
+			"1":       "admin_x001",
+			"2":       "admin_x102",
+			"3":       "admin_x103",
 		}),
 	),
 	Export(
 		Method(func(param struct {
 			id       *int64
-			Name     string   `inject:"lower"`
-			personal Personal `inject:"extends"`
+			Name     string    `inject:"id('${id}') optional"`
+			personal *Personal `inject:"extends"`
 		}) *User {
 			*param.id++
 			return &User{
 				Id:       *param.id,
-				Personal: &param.personal,
+				Name:     param.Name,
+				Personal: param.personal,
 			}
-		}), Singleton(),
+		}),
 	),
 )
 
@@ -50,10 +55,10 @@ func main() {
 	NewRootModule(
 		Import(ConfigModule),
 		Bootstrap(func(user *User) {
-			fmt.Println("id:", user.Id, "personal:", user.Personal)
+			fmt.Println("id:", user.Id, "name:", user.Name, "personal:", user.Personal)
 		}),
 		Bootstrap(func(user *User) {
-			fmt.Println("id:", user.Id, "personal:", user.Personal)
+			fmt.Println("id:", user.Id, "name:", user.Name, "personal:", user.Personal)
 		}),
 	)
 }

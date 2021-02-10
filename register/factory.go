@@ -7,20 +7,20 @@ import (
 	"github.com/vlorc/gioc/types"
 )
 
-func (rf *CoreRegisterFactory) Instance(selector types.SelectorSetter) (types.Register, error) {
+func (*coreRegisterFactory) Instance(selector types.Selector) (types.Register, error) {
 	return NewRegister(selector), nil
 }
 
 func NewRegisterFactory() types.RegisterFactory {
-	return &CoreRegisterFactory{}
+	return &coreRegisterFactory{}
 }
 
-func NewRegister(selector types.SelectorSetter) types.Register {
-	return &CoreRegister{
+func NewRegister(selector types.Selector) types.Register {
+	return &coreRegister{
 		selector: selector,
 	}
 }
 
-func NewReadOnlyRegister() types.Register {
-	return ReadOnlyRegister{}
+func NewReadOnlyRegister(getter types.SelectorGetter) types.Register {
+	return &readOnlyRegister{getter}
 }

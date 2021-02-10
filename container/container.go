@@ -28,7 +28,7 @@ func (c *CoreContainer) Seal() types.Container {
 
 func (c *CoreContainer) Readonly() types.Container {
 	return &CoreContainer{
-		register: register.NewReadOnlyRegister(),
+		register: register.NewReadOnlyRegister(c.provider.Selector()),
 		provider: c.provider,
 		create:   c.create,
 	}
@@ -36,4 +36,8 @@ func (c *CoreContainer) Readonly() types.Container {
 
 func (c *CoreContainer) NewChild() types.Container {
 	return c.create(c.AsProvider())
+}
+
+func (c *CoreContainer) Name() string {
+	return c.name
 }

@@ -1,4 +1,3 @@
-
 # [Gioc](https://github.com/vlorc/gioc)
 
 [English](https://github.com/vlorc/gioc/blob/master/README.md)
@@ -24,16 +23,21 @@ gioc是一个轻量级的Ioc框架，它提供注册表和工厂、依赖解决�
 * [模块](https://github.com/vlorc/gioc/blob/master/examples/module/main.go)
 
 ## 安装
+
 	go get -u github.com/vlorc/gioc
 
 ## 快速开始
 
 * 创建根模块
+
+* Create Root Module
+
 ```golang
 gioc.NewRootModule()
 ```
 
-* 导入模块
+* Import Module
+
 ```golang
 NewRootModule(
     Import(
@@ -43,7 +47,8 @@ NewRootModule(
 )
 ```
 
-* 声明实例
+* Declare Instance
+
 ```golang
 NewRootModule(
     Declare(
@@ -53,7 +58,8 @@ NewRootModule(
 )
 ```
 
-* 导出实例
+* Export Instance
+
 ```golang
 NewModuleFactory(
     Export(
@@ -62,15 +68,15 @@ NewModuleFactory(
     ),
 )
 ```
+## Examples
 
-## 例子
+* Basic Module
 
-* 基础模块
 ```golang
 import (
-    . "github.com/vlorc/gioc"
-    . "github.com/vlorc/gioc/module"
-    . "github.com/vlorc/gioc/module/operation"
+    ."github.com/vlorc/gioc"
+    ."github.com/vlorc/gioc/module"
+    ."github.com/vlorc/gioc/module/operation"
 )
 
 // config.go
@@ -88,7 +94,7 @@ func main() {
     NewRootModule(
         Import(ConfigModule),
         Bootstrap(func(param struct{ id int; name string }) {
-            println("id: ", param.id," name: ",param.name)
+            println("id: ", param.id, " name: ",param.name)
         }),
     )
 }
@@ -101,43 +107,35 @@ func main() {
 ## 接口
 
 + Provider(提供商)
-	+ 提供工厂发现
-	+ 提供实例填充
+    + 提供工厂发现
+    + 提供实例填充
 + Factory(工厂)
-	+ 负责生成实例
-	+ 基本工厂有价值工厂，方法工厂，代理工厂，单例工厂，类型工厂
-+ Mapper(映射器)
-	+ 通过ID获取工厂
-+ Binder(绑定器)
-	+ 通过ID绑定工厂
-	+ 可以转换为只读映射器
+    + 负责生成实例
+    + 基本工厂有价值工厂，方法工厂，代理工厂，单例工厂，类型工厂
 + Register(注册器)
-	+ 作为工厂和选择器的连接
-	+ 提供类型、实例、方法工厂转换
-	+ 提供绑定器、映射器、自定义工厂的注册
+    + 作为工厂和选择器的连接
+    + 提供类型、实例、方法工厂转换
 + Dependency(依赖)
-	+ 是目标类型依赖性分析结果的集合
-	+ 通过实例转换为注射器
+    + 是目标类型依赖性分析结果的集合
+    + 通过实例转换为注射器
 + Injector(注射器)
-	+ 根据依赖填充实例
+    + 根据依赖填充实例
 + Builder(构造器)
-	+ 也是一个工厂
-	+ 使用Factory来获取实例和注入器来解决依赖关系
+    + 也是一个工厂
+    + 使用Factory来获取实例和注入器来解决依赖关系
 + Container(容器)
-	+ 提供Register和Provider，并且父容器组成遍历
-	+ 转换为只读提供程序
-	+ 转换为密封容器
+    + 提供Register和Provider，并且父容器组成遍历
+    + 转换为只读提供程序
+    + 转换为密封容器
 + Selector(选择器)
-	+ 使用类型和id索引工厂
-	+ 自动创建绑定器和映射器
-	+ 索引模式隔离
+    + 通过类型和名称寻找工厂
 + Module(模板)
     + 导入模块
     + 导出工厂
     + 声明工厂
 
-
 # 路线图
+
 有关计划特性和未来方向的详细信息请参考[路线图](https://github.com/vlorc/gioc/blob/master/ROADMAP.md)
 
 # 关键字

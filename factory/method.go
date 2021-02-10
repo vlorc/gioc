@@ -27,7 +27,10 @@ func makeParam(typ reflect.Type, paramFactory types.BeanFactory) func(types.Prov
 	if nil != paramFactory {
 		return func(provider types.Provider) ([]reflect.Value, error) {
 			instance, err := paramFactory.Instance(provider)
-			return instance.([]reflect.Value), err
+			if nil != err {
+				return nil, err
+			}
+			return instance.([]reflect.Value), nil
 		}
 	}
 	if 1 == typ.NumIn() && typ.In(0) == types.ProviderType {

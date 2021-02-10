@@ -4,6 +4,7 @@
 package factory
 
 import (
+	"errors"
 	"github.com/vlorc/gioc/types"
 	"github.com/vlorc/gioc/utils"
 	"reflect"
@@ -36,7 +37,7 @@ func NewMutexFactory(value types.BeanFactory) types.BeanFactory {
 }
 
 func NewTypeFactory(value interface{}) types.BeanFactory {
-	return &TypeFactory{
+	return &newFactory{
 		typ: utils.TypeOf(value),
 	}
 }
@@ -47,7 +48,7 @@ func NewSingleFactory(value types.BeanFactory) types.BeanFactory {
 
 func NewPointerFactory(value reflect.Value) types.BeanFactory {
 	return &PointerFactory{
-		value: utils.DirectlyValue(value),
+		value: utils.IndirectValue(value),
 	}
 }
 
@@ -71,4 +72,49 @@ func NewConvertFactory(factory types.BeanFactory, typ reflect.Type) types.BeanFa
 		factory: factory,
 		typ:     typ,
 	}
+}
+
+func NewResolveFactory(typ reflect.Type, name ...types.StringFactory) types.BeanFactory {
+	f := &resolveFactory{typ: typ}
+	if len(name) > 0 {
+		f.name = make([]types.StringFactory, len(name))
+		copy(f.name, name)
+	}
+	return f
+}
+
+func NewChainFactory(factory ...types.BeanFactory) types.BeanFactory {
+	if len(factory) <= 0 {
+		utils.Panic(errors.New("factory is empty"))
+	}
+	if len(factory) == 1 {
+		return factory[0]
+	}
+
+	chain := make(chainFactory, len(factory))
+	copy(chain, factory)
+	return chain
+}
+
+func NewDependencyFactory(factory types.BeanFactory, dependency types.Dependency, after ...func(interface{}) interface{}) types.BeanFactory {
+	f := &DependencyFactory{
+		factory:    factory,
+		dependency: dependency,
+	}
+	if len(after) > 0 {
+		f.after = make([]func(interface{}) interface{}, len(after))
+		copy(f.after, after)
+	}
+	return f
+}
+
+func NewSliceFactory(typ reflect.Type, name ...types.StringFactory) types.BeanFactory {
+	if len(name) <= 0 {
+		return &resolveAnyFactory{typ: typ}
+	}
+
+	f := &resolveNamesFactory{typ: typ}
+	f.name = make([]types.StringFactory, len(name))
+	copy(f.name, name)
+	return f
 }

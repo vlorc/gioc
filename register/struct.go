@@ -7,10 +7,12 @@ import (
 	"github.com/vlorc/gioc/types"
 )
 
-type CoreRegister struct {
-	selector types.SelectorSetter
+type coreRegister struct {
+	selector types.Selector
 }
 
-type ReadOnlyRegister struct{}
+type readOnlyRegister struct {
+	getter types.SelectorGetter
+}
 
-type CoreRegisterFactory struct{}
+type coreRegisterFactory struct{}

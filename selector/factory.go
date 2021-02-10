@@ -8,34 +8,26 @@ import (
 	"reflect"
 )
 
-func (sf *CoreSelectorFactory) Instance(factory types.BinderFactory) (selector types.Selector, _ error) {
-	if nil == factory {
-		selector = NewTypeNameSelector()
-	} else {
-		selector = NewTypeSelector(factory)
-	}
-	return
+func (*coreSelectorFactory) Instance() (types.Selector, error) {
+	return NewGeneralSelector(), nil
 }
 
 func NewSelectorFactory() types.SelectorFactory {
-	return &CoreSelectorFactory{}
+	return &coreSelectorFactory{}
 }
 
-func NewTypeSelector(factory types.BinderFactory) types.Selector {
-	return &TypeSelector{
-		factory: factory,
-		table:   make(map[reflect.Type]types.Binder),
-	}
+func NewReadOnlyFactory(getter types.SelectorGetter) types.Selector {
+	return &readOnlySelector{getter}
 }
 
-func NewTypeNameSelector() types.Selector {
-	return &NamedSelector{
-		selector: make(typeNameSelector),
-	}
-}
+func NewGeneralSelector() types.Selector {
+	return &generalSelector{
+		pool: make([]types.GeneralFactory, 64),
 
-func NewNamedSelector() types.Selector {
-	return &NamedSelector{
-		selector: make(nameSelector),
+		primary: map[typeName]int{},
+
+		types: map[reflect.Type][]int{},
+
+		name: map[string]int{},
 	}
 }
