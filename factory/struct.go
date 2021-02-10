@@ -68,3 +68,14 @@ type DependencyFactory struct {
 	dependency types.Dependency
 	after      []func(interface{}) interface{}
 }
+
+type resolveAnyFactory struct {
+	typ   reflect.Type
+	after []func(interface{}) interface{}
+}
+
+type resolveNamesFactory struct {
+	typ   reflect.Type
+	name  []types.StringFactory
+	after []func(interface{}) interface{}
+}

@@ -19,6 +19,7 @@
 - [x] lazy resolve
 - [x] extends resolve
 - [ ] dependency cycle
+- [x] variable name
 - [ ] expression name
 
 ## Factory

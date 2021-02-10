@@ -107,3 +107,14 @@ func NewDependencyFactory(factory types.BeanFactory, dependency types.Dependency
 	}
 	return f
 }
+
+func NewSliceFactory(typ reflect.Type, name ...types.StringFactory) types.BeanFactory {
+	if len(name) <= 0 {
+		return &resolveAnyFactory{typ: typ}
+	}
+
+	f := &resolveNamesFactory{typ: typ}
+	f.name = make([]types.StringFactory, len(name))
+	copy(f.name, name)
+	return f
+}

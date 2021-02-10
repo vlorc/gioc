@@ -26,6 +26,21 @@ func lazyWrapper(typ reflect.Type) func(types.BeanFactory) types.BeanFactory {
 }
 
 func extendWrapper(dependency types.Dependency, typ reflect.Type) func(types.BeanFactory) types.BeanFactory {
+	if reflect.Struct == dependency.Type().Kind() {
+		return extendStructWrapper(dependency, typ)
+	}
+
+	utils.Panic(types.NewError(types.ErrExtendNotSupport, dependency.Type()))
+	return nil
+}
+
+func extendSliceWrapper(typ reflect.Type, name ...types.StringFactory) func(types.BeanFactory) types.BeanFactory {
+	return func(b types.BeanFactory) types.BeanFactory {
+		return factory.NewSliceFactory(typ, name...)
+	}
+}
+
+func extendStructWrapper(dependency types.Dependency, typ reflect.Type) func(types.BeanFactory) types.BeanFactory {
 	return func(b types.BeanFactory) types.BeanFactory {
 		return factory.NewDependencyFactory(factory.NewTypeFactory(dependency.Type()), dependency, __elem(reflect.PtrTo(dependency.Type()), typ))
 	}

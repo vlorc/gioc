@@ -38,10 +38,10 @@ gioc.NewRootModule()
 
 ```golang
 NewRootModule(
-Import(
-ConfigModule,
-ServerModule,
-)
+    Import(
+        ConfigModule,
+        ServerModule,
+    )
 )
 ```
 
@@ -49,10 +49,10 @@ ServerModule,
 
 ```golang
 NewRootModule(
-Declare(
-Instance(1), Id("id"),
-Instance("ioc"), Id("name"),
-),
+    Declare(
+        Instance(1), Id("id"),
+        Instance("ioc"), Id("name"),
+    ),
 )
 ```
 
@@ -60,10 +60,10 @@ Instance("ioc"), Id("name"),
 
 ```golang
 NewModuleFactory(
-Export(
-Instance(1), Id("id"),
-Instance("ioc"), Id("name"),
-),
+    Export(
+        Instance(1), Id("id"),
+        Instance("ioc"), Id("name"),
+    ),
 )
 ```
 
@@ -73,29 +73,29 @@ Instance("ioc"), Id("name"),
 
 ```golang
 import (
-."github.com/vlorc/gioc"
-."github.com/vlorc/gioc/module"
-."github.com/vlorc/gioc/module/operation"
+    ."github.com/vlorc/gioc"
+    ."github.com/vlorc/gioc/module"
+    ."github.com/vlorc/gioc/module/operation"
 )
 
 // config.go
 var ConfigModule = NewModuleFactory(
-Export(
-Mapping(map[string]interface{}{
-"id": 1,
-"name": "ioc",
-}),
-),
+    Export(
+        Mapping(map[string]interface{}{
+            "id": 1,
+            "name": "ioc",
+        }),
+    ),
 )
 
 // main.go
 func main() {
-NewRootModule(
-Import(ConfigModule),
-Bootstrap(func(param struct{ id int; name string }) {
-println("id: ", param.id, " name: ",param.name)
-}),
-)
+    NewRootModule(
+        Import(ConfigModule),
+        Bootstrap(func(param struct{ id int; name string }) {
+            println("id: ", param.id, " name: ",param.name)
+        }),
+    )
 }
 ```
 

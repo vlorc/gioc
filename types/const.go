@@ -29,7 +29,7 @@ const (
 	ErrTypeNotConvert
 	ErrIndexNotSupport
 	ErrTokenNotSupport
-	ErrNotRegister
+	ErrExtendNotSupport
 )
 
 var errFormatTable = map[ErrorCode]string{
@@ -48,7 +48,7 @@ var errFormatTable = map[ErrorCode]string{
 	ErrTypeNotConvert:    `don't convert type '%s'`,
 	ErrIndexNotSupport:   `can't support type '%s'`,
 	ErrTokenNotSupport:   `can't support token '%s'`,
-	ErrNotRegister:       `can't register,it's readonly`,
+	ErrExtendNotSupport:  `can't support extend type '%s'`,
 }
 
 const (

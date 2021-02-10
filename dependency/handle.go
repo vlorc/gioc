@@ -105,6 +105,11 @@ func lazyHandle(ctx *types.ParseContext) (err error) {
 func extendsHandle(ctx *types.ParseContext) error {
 	typ := ctx.Dependency.Type
 
+	if reflect.Slice == typ.Kind() {
+		ctx.Dependency.Wrapper.Append(256, extendSliceWrapper(typ, ctx.Dependency.Name...))
+		return nil
+	}
+
 	dep, err := ctx.Factory.Instance(typ)
 	if nil != err {
 		return err

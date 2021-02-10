@@ -30,72 +30,73 @@ gioc是一个轻量级的Ioc框架，它提供注册表和工厂、依赖解决�
 
 * 创建根模块
 
+* Create Root Module
+
 ```golang
 gioc.NewRootModule()
 ```
 
-* 导入模块
+* Import Module
 
 ```golang
 NewRootModule(
-Import(
-ConfigModule,
-ServerModule,
-)
+    Import(
+        ConfigModule,
+        ServerModule,
+    )
 )
 ```
 
-* 声明实例
+* Declare Instance
 
 ```golang
 NewRootModule(
-Declare(
-Instance(1), Id("id"),
-Instance("ioc"), Id("name"),
-),
+    Declare(
+        Instance(1), Id("id"),
+        Instance("ioc"), Id("name"),
+    ),
 )
 ```
 
-* 导出实例
+* Export Instance
 
 ```golang
 NewModuleFactory(
-Export(
-Instance(1), Id("id"),
-Instance("ioc"), Id("name"),
-),
+    Export(
+        Instance(1), Id("id"),
+        Instance("ioc"), Id("name"),
+    ),
 )
 ```
+## Examples
 
-## 例子
-
-* 基础模块
+* Basic Module
 
 ```golang
 import (
-."github.com/vlorc/gioc"
-."github.com/vlorc/gioc/module"
-."github.com/vlorc/gioc/module/operation"
+    ."github.com/vlorc/gioc"
+    ."github.com/vlorc/gioc/module"
+    ."github.com/vlorc/gioc/module/operation"
 )
 
 // config.go
 var ConfigModule = NewModuleFactory(
-Export(
-Mapping(map[string]interface{}{
-"id": 1,
-"name": "ioc",
-}),
-),
+    Export(
+        Mapping(map[string]interface{}{
+            "id": 1,
+            "name": "ioc",
+        }),
+    ),
 )
 
 // main.go
 func main() {
-NewRootModule(
-Import(ConfigModule),
-Bootstrap(func(param struct{ id int; name string }) {
-println("id: ", param.id, " name: ",param.name)
-}),
-)
+    NewRootModule(
+        Import(ConfigModule),
+        Bootstrap(func(param struct{ id int; name string }) {
+            println("id: ", param.id, " name: ",param.name)
+        }),
+    )
 }
 ```
 
