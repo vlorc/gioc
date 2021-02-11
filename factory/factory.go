@@ -118,3 +118,13 @@ func NewSliceFactory(typ reflect.Type, name ...types.StringFactory) types.BeanFa
 	copy(f.name, name)
 	return f
 }
+
+func NewLazyFactory(typ reflect.Type, factory types.BeanFactory) types.BeanFactory {
+	return newRequestFactory(typ, factory, utils.LazyProxy)
+}
+
+func NewRequestFactory(typ reflect.Type, factory types.BeanFactory) types.BeanFactory {
+	return newRequestFactory(typ, factory, func(v func([]reflect.Value) []reflect.Value) func([]reflect.Value) []reflect.Value {
+		return v
+	})
+}

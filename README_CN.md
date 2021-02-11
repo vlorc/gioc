@@ -68,6 +68,7 @@ NewModuleFactory(
     ),
 )
 ```
+
 ## Examples
 
 * Basic Module

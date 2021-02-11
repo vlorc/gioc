@@ -6,32 +6,13 @@ package dependency
 import (
 	"github.com/vlorc/gioc/factory"
 	"github.com/vlorc/gioc/types"
-	"github.com/vlorc/gioc/utils"
 	"reflect"
 )
 
 func lazyWrapper(typ reflect.Type) func(types.BeanFactory) types.BeanFactory {
 	return func(b types.BeanFactory) types.BeanFactory {
-		return factory.NewFuncFactory(func(provider types.Provider) (interface{}, error) {
-			proxy := utils.LazyProxy(func([]reflect.Value) []reflect.Value {
-				instance, err := b.Instance(provider)
-				if nil != err {
-					utils.Panic(err)
-				}
-				return []reflect.Value{utils.Convert(reflect.ValueOf(instance), typ.Out(0))}
-			})
-			return reflect.MakeFunc(typ, proxy).Interface(), nil
-		})
+		return factory.NewLazyFactory(typ, b)
 	}
-}
-
-func extendWrapper(dependency types.Dependency, typ reflect.Type) func(types.BeanFactory) types.BeanFactory {
-	if reflect.Struct == dependency.Type().Kind() {
-		return extendStructWrapper(dependency, typ)
-	}
-
-	utils.Panic(types.NewError(types.ErrExtendNotSupport, dependency.Type()))
-	return nil
 }
 
 func extendSliceWrapper(typ reflect.Type, name ...types.StringFactory) func(types.BeanFactory) types.BeanFactory {
@@ -65,5 +46,11 @@ func newWrapper(typ reflect.Type) func(types.BeanFactory) types.BeanFactory {
 func resolveWrapper(typ reflect.Type, names ...types.StringFactory) func(types.BeanFactory) types.BeanFactory {
 	return func(b types.BeanFactory) types.BeanFactory {
 		return factory.NewResolveFactory(typ, names...)
+	}
+}
+
+func requestWrapper(typ reflect.Type) func(types.BeanFactory) types.BeanFactory {
+	return func(b types.BeanFactory) types.BeanFactory {
+		return factory.NewRequestFactory(typ, b)
 	}
 }

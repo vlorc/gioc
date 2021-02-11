@@ -31,10 +31,11 @@ func main() {
 	NewRootModule(
 		Import(ConfigModule),
 		Bootstrap(func(param struct {
-			Id       int64               `inject:"lower"`
-			Personal func() ****Personal `inject:"lazy extends"`
+			Id       int64            `inject:"lower"`
+			Strings  []string         `inject:"extends"`
+			Personal func() *Personal `inject:"lazy extends"`
 		}) {
-			fmt.Println("id:", param.Id, "name:", (****param.Personal()).name, ****param.Personal())
+			fmt.Println(param.Strings, "id:", param.Id, "name:", (*param.Personal()).name, *param.Personal())
 		}),
 	)
 }
