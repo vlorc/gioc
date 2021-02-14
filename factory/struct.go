@@ -79,3 +79,17 @@ type resolveNamesFactory struct {
 	name  []types.StringFactory
 	after []func(interface{}) interface{}
 }
+
+type makeSliceFactory struct {
+	typ    reflect.Type
+	length int
+}
+
+type makeMapFactory struct {
+	typ reflect.Type
+}
+
+type makeChanFactory struct {
+	typ    reflect.Type
+	length int
+}

@@ -128,3 +128,22 @@ func NewRequestFactory(typ reflect.Type, factory types.BeanFactory) types.BeanFa
 		return v
 	})
 }
+
+func NewMakeFactory(typ reflect.Type, length ...int) types.BeanFactory {
+	switch typ.Kind() {
+	case reflect.Slice:
+		if len(length) > 0 {
+			return &makeSliceFactory{typ: typ, length: length[0]}
+		}
+		return &makeSliceFactory{typ: typ}
+	case reflect.Chan:
+		if len(length) > 0 {
+			return &makeChanFactory{typ: typ, length: length[0]}
+		}
+		return &makeChanFactory{typ: typ}
+	case reflect.Map:
+		return &makeMapFactory{typ: typ}
+	default:
+		return NewValueFactory(nil, types.NewError(types.ErrTypeNotSupport, typ))
+	}
+}

@@ -188,7 +188,10 @@ func (df *CoreDependencyFactory) appendField(
 		ctx.Dump = func(i1 int, i2 int) string {
 			return str[i1:i2]
 		}
-		_ = df.parser.Resolve(ctx)
+
+		if err := df.parser.Resolve(ctx); nil != err {
+			utils.Panic(err)
+		}
 	}
 
 	return df.appendContext(dep, &ctx.Dependency)

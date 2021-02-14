@@ -4,6 +4,7 @@
 package dependency
 
 import (
+	"github.com/vlorc/gioc/factory"
 	"github.com/vlorc/gioc/types"
 	"github.com/vlorc/gioc/utils"
 	"reflect"
@@ -30,6 +31,10 @@ var DefaultHandle = map[string][]types.IdentHandle{
 	"name":  {nameHandle},
 	"lower": {lowerCaseHandle},
 	"upper": {upperCaseHandle},
+	"make": {
+		flagsHandle(types.DEPENDENCY_FLAG_MAKE),
+		makeHandle,
+	},
 	"request": {
 		flagsHandle(types.DEPENDENCY_FLAG_REQUEST),
 		requestHandle,
@@ -58,6 +63,21 @@ func lowerCaseHandle(ctx *types.ParseContext) error {
 
 func upperCaseHandle(ctx *types.ParseContext) error {
 	ctx.Dependency.Name = append(ctx.Dependency.Name, types.RawStringFactory(strings.ToUpper(ctx.Dependency.Origin.Name)))
+	return nil
+}
+
+func makeHandle(ctx *types.ParseContext) error {
+	typ := ctx.Dependency.Type
+	if len(ctx.Params) > 0 {
+		length := int(ctx.Params[0].Number())
+		ctx.Dependency.Default = func(c *types.DependencyContext) types.BeanFactory {
+			return factory.NewMakeFactory(typ, length)
+		}
+	} else {
+		ctx.Dependency.Default = func(c *types.DependencyContext) types.BeanFactory {
+			return factory.NewMakeFactory(typ)
+		}
+	}
 	return nil
 }
 
@@ -103,7 +123,7 @@ func lazyHandle(ctx *types.ParseContext) error {
 }
 
 func extendsHandle(ctx *types.ParseContext) error {
-	typ := ctx.Dependency.Type
+	typ := utils.IndirectType(ctx.Dependency.Type)
 
 	ctx.Dependency.Default = func(*types.DependencyContext) types.BeanFactory {
 		return nil
@@ -118,7 +138,7 @@ func extendsHandle(ctx *types.ParseContext) error {
 		if nil != err {
 			return err
 		}
-		ctx.Dependency.Wrapper.Append(256, extendStructWrapper(dep, typ))
+		ctx.Dependency.Wrapper.Append(256, extendStructWrapper(dep, ctx.Dependency.Type))
 		return nil
 	}
 

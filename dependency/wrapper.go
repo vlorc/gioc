@@ -43,12 +43,6 @@ func newWrapper(typ reflect.Type) func(types.BeanFactory) types.BeanFactory {
 	}
 }
 
-func resolveWrapper(typ reflect.Type, names ...types.StringFactory) func(types.BeanFactory) types.BeanFactory {
-	return func(b types.BeanFactory) types.BeanFactory {
-		return factory.NewResolveFactory(typ, names...)
-	}
-}
-
 func requestWrapper(typ reflect.Type) func(types.BeanFactory) types.BeanFactory {
 	return func(b types.BeanFactory) types.BeanFactory {
 		return factory.NewRequestFactory(typ, b)

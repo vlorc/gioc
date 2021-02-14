@@ -25,3 +25,4 @@ type ModuleInitContext struct {
 }
 
 type ModuleInitHandle func(*ModuleInitContext)
+type ModuleCondHandle func(*ModuleInitContext) bool

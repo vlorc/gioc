@@ -33,8 +33,10 @@ func main() {
 			id   int64        `inject:"default(100)"`
 			inc  func() int64 `inject:"lazy"`
 			once int64
+			req  func() int64 `inject:"request 'inc'"`
+			ids  []int64      `inject:"make(10)"`
 		}) {
-			println("id: ", param.id, " inc: ", param.inc(), " once: ", param.once)
+			println("id: ", param.id, " inc: ", param.inc(), " once: ", param.once, "request: ", param.req(), param.req())
 		}),
 	)
 }
