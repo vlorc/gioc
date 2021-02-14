@@ -81,13 +81,13 @@ func methodFactoryOf(
 }
 
 func newCallFactory(
-	src reflect.Value,
+	method reflect.Value,
 	makeParam func(types.Provider) ([]reflect.Value, error),
 	makeInstance func([]reflect.Value) (interface{}, error)) types.BeanFactory {
 	return NewFuncFactory(func(provider types.Provider) (instance interface{}, err error) {
 		param, err := makeParam(provider)
 		if nil == err {
-			result := src.Call(param)
+			result := method.Call(param)
 			instance, err = makeInstance(result)
 		}
 		return

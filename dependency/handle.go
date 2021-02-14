@@ -4,6 +4,7 @@
 package dependency
 
 import (
+	"github.com/vlorc/gioc/factory"
 	"github.com/vlorc/gioc/types"
 	"github.com/vlorc/gioc/utils"
 	"reflect"
@@ -30,6 +31,10 @@ var DefaultHandle = map[string][]types.IdentHandle{
 	"name":  {nameHandle},
 	"lower": {lowerCaseHandle},
 	"upper": {upperCaseHandle},
+	"make": {
+		flagsHandle(types.DEPENDENCY_FLAG_MAKE),
+		makeHandle,
+	},
 	"request": {
 		flagsHandle(types.DEPENDENCY_FLAG_REQUEST),
 		requestHandle,
@@ -58,6 +63,21 @@ func lowerCaseHandle(ctx *types.ParseContext) error {
 
 func upperCaseHandle(ctx *types.ParseContext) error {
 	ctx.Dependency.Name = append(ctx.Dependency.Name, types.RawStringFactory(strings.ToUpper(ctx.Dependency.Origin.Name)))
+	return nil
+}
+
+func makeHandle(ctx *types.ParseContext) error {
+	typ := ctx.Dependency.Type
+	if len(ctx.Params) > 0 {
+		length := int(ctx.Params[0].Number())
+		ctx.Dependency.Default = func(c *types.DependencyContext) types.BeanFactory {
+			return factory.NewMakeFactory(typ, length)
+		}
+	} else {
+		ctx.Dependency.Default = func(c *types.DependencyContext) types.BeanFactory {
+			return factory.NewMakeFactory(typ)
+		}
+	}
 	return nil
 }
 
@@ -91,32 +111,38 @@ func defaultHandle(ctx *types.ParseContext) error {
 	return nil
 }
 
-func lazyHandle(ctx *types.ParseContext) (err error) {
+func lazyHandle(ctx *types.ParseContext) error {
 	typ := ctx.Dependency.Type
 	if reflect.Func != typ.Kind() || typ.NumOut() != 1 || typ.NumIn() > 0 {
-		err = types.NewWithError(types.ErrTypeNotSupport, typ, ctx.Dependency.Origin.Name)
+		return types.NewWithError(types.ErrTypeNotSupport, typ, ctx.Dependency.Origin.Name)
 	}
 
 	ctx.Dependency.Type = ctx.Dependency.Type.Out(0)
 	ctx.Dependency.Wrapper.Append(0, lazyWrapper(typ))
-	return
+	return nil
 }
 
 func extendsHandle(ctx *types.ParseContext) error {
-	typ := ctx.Dependency.Type
+	typ := utils.IndirectType(ctx.Dependency.Type)
 
-	if reflect.Slice == typ.Kind() {
-		ctx.Dependency.Wrapper.Append(256, extendSliceWrapper(typ, ctx.Dependency.Name...))
+	ctx.Dependency.Default = func(*types.DependencyContext) types.BeanFactory {
 		return nil
 	}
 
-	dep, err := ctx.Factory.Instance(typ)
-	if nil != err {
-		return err
+	if reflect.Slice == typ.Kind() {
+		ctx.Dependency.Wrapper.Append(256, extendSliceWrapper(typ.Elem(), ctx.Dependency.Name...))
+		return nil
+	}
+	if reflect.Struct == typ.Kind() {
+		dep, err := ctx.Factory.Instance(typ)
+		if nil != err {
+			return err
+		}
+		ctx.Dependency.Wrapper.Append(256, extendStructWrapper(dep, ctx.Dependency.Type))
+		return nil
 	}
 
-	ctx.Dependency.Wrapper.Append(256, extendWrapper(dep, typ))
-	return nil
+	return types.NewError(types.ErrExtendNotSupport, typ)
 }
 
 func flagsHandle(flag types.DependencyFlag) types.IdentHandle {
@@ -132,8 +158,12 @@ func anyHandle(ctx *types.ParseContext) error {
 }
 
 func requestHandle(ctx *types.ParseContext) error {
-	if typ := ctx.Dependency.Type; reflect.Func != typ.Kind() || typ.NumOut() != 1 {
+	typ := ctx.Dependency.Type
+	if reflect.Func != typ.Kind() || typ.NumOut() != 1 || typ.NumIn() > 0 {
 		return types.NewWithError(types.ErrTypeNotSupport, typ, ctx.Dependency.Origin.Name)
 	}
+
+	ctx.Dependency.Type = ctx.Dependency.Type.Out(0)
+	ctx.Dependency.Wrapper.Append(0, requestWrapper(typ))
 	return nil
 }

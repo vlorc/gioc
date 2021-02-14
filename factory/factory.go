@@ -118,3 +118,32 @@ func NewSliceFactory(typ reflect.Type, name ...types.StringFactory) types.BeanFa
 	copy(f.name, name)
 	return f
 }
+
+func NewLazyFactory(typ reflect.Type, factory types.BeanFactory) types.BeanFactory {
+	return newRequestFactory(typ, factory, utils.LazyProxy)
+}
+
+func NewRequestFactory(typ reflect.Type, factory types.BeanFactory) types.BeanFactory {
+	return newRequestFactory(typ, factory, func(v func([]reflect.Value) []reflect.Value) func([]reflect.Value) []reflect.Value {
+		return v
+	})
+}
+
+func NewMakeFactory(typ reflect.Type, length ...int) types.BeanFactory {
+	switch typ.Kind() {
+	case reflect.Slice:
+		if len(length) > 0 {
+			return &makeSliceFactory{typ: typ, length: length[0]}
+		}
+		return &makeSliceFactory{typ: typ}
+	case reflect.Chan:
+		if len(length) > 0 {
+			return &makeChanFactory{typ: typ, length: length[0]}
+		}
+		return &makeChanFactory{typ: typ}
+	case reflect.Map:
+		return &makeMapFactory{typ: typ}
+	default:
+		return NewValueFactory(nil, types.NewError(types.ErrTypeNotSupport, typ))
+	}
+}
