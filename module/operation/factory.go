@@ -7,6 +7,7 @@ import (
 	"github.com/vlorc/gioc/factory"
 	"github.com/vlorc/gioc/types"
 	"github.com/vlorc/gioc/utils"
+	"os"
 	"reflect"
 )
 
@@ -44,8 +45,13 @@ func Func(val func(types.Provider) (interface{}, error)) DeclareHandle {
 }
 
 func Method(val interface{}, index ...int) DeclareHandle {
+	return Method1(val, index...)
+}
+
+func Method1(val interface{}, index ...int) DeclareHandle {
 	return func(ctx *DeclareContext) {
 		ctx.Reset()
+
 		typ := reflect.ValueOf(val).Type()
 		if reflect.Func != typ.Kind() || typ.NumOut() <= 0 {
 			return
@@ -58,11 +64,65 @@ func Method(val interface{}, index ...int) DeclareHandle {
 	}
 }
 
+func Method2(val interface{}, index ...int) DeclareHandle {
+	return func(ctx *DeclareContext) {
+		Method1(val)(ctx)
+
+		instance, err := ctx.Factory.Instance(ctx.Context.Container().AsProvider())
+		if nil != err {
+			ctx.Factory = factory.NewValueFactory(nil, err)
+			return
+		}
+		if v := reflect.ValueOf(instance); !v.IsValid() || (v.IsNil() && (reflect.Func == v.Kind() || reflect.Ptr == v.Kind() || reflect.Interface == v.Kind())) {
+			ctx.Factory, ctx.Type = nil, nil
+			return
+		}
+
+		if typ := utils.TypeOf(ctx.Type); reflect.Func == typ.Kind() {
+			ctx.Factory, ctx.Type = nil, nil
+			Method1(instance, index...)(ctx)
+		} else {
+			ctx.Factory = factory.NewValueFactory(instance)
+		}
+	}
+}
+
 func Instance(val interface{}) DeclareHandle {
 	return func(ctx *DeclareContext) {
 		ctx.Reset()
 		ctx.Factory = factory.NewValueFactory(val)
 		ctx.Type = reflect.TypeOf(val)
+	}
+}
+
+func Env(keys ...string) DeclareHandle {
+	if len(keys) <= 0 {
+		return func(c *DeclareContext) {
+
+		}
+	}
+
+	if len(keys) == 1 {
+		k := keys[0]
+		return func(ctx *DeclareContext) {
+			ctx.Reset()
+
+			ctx.Name = k
+			ctx.Factory = factory.NewValueFactory(os.Getenv(k))
+			ctx.Type = types.StringType
+		}
+	}
+
+	return func(ctx *DeclareContext) {
+		ctx.Reset()
+
+		for _, k := range keys {
+			c := *ctx
+			c.Name = k
+			ctx.Factory = factory.NewValueFactory(os.Getenv(k))
+			ctx.Type = types.StringType
+			c.done(&c)
+		}
 	}
 }
 
@@ -87,12 +147,12 @@ func Pointer(val interface{}) DeclareHandle {
 
 func toMethodFactory(ctx *DeclareContext, val interface{}, index ...int) {
 	param := factory.NewDependencyFactory(factory.NewParamFactory(ctx.Dependency.Length()), ctx.Dependency)
-	bean, typ, err := factory.NewMethodFactory(val, param, index...)
+	f, typ, err := factory.NewMethodFactory(val, param, index...)
 	if nil != err {
 		utils.Panic(err)
 	}
 	ctx.Type = typ
-	ctx.Factory = bean
+	ctx.Factory = f
 }
 
 func toRegistered(ctx *DeclareContext) {
@@ -111,13 +171,25 @@ func toExport(ctx *DeclareContext) {
 	ctx.Context.Parent().AsRegister().Factory(bean, ctx.Type, ctx.Name)
 }
 
-func toDependency(ctx *DeclareContext, val interface{}) (ok bool) {
+func toPrimary(ctx *DeclareContext) {
+	var bean types.BeanFactory
+	if nil != ctx.Dependency {
+		bean = factory.NewExportFactory(ctx.Factory, lazyProvider(ctx.Context.Container))
+	} else {
+		bean = ctx.Factory
+	}
+	ctx.Context.Parent().AsRegister().Selector().Set(utils.TypeOf(ctx.Type), ctx.Name, bean)
+}
+
+func toDependency(ctx *DeclareContext, val interface{}) bool {
 	var dependFactory types.DependencyFactory
 	ctx.Context.Parent().AsProvider().Load(&dependFactory)
 	dep, err := dependFactory.Instance(val)
 	if nil == err {
-		ok = true
 		ctx.Dependency = dep
+		return true
 	}
-	return
+	// add check error
+
+	return false
 }

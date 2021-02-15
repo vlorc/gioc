@@ -20,6 +20,7 @@ gioc is a lightweight Ioc framework,it provides register and factory and depend 
 * Invoker Support
 * [Lazy](https://github.com/vlorc/gioc/blob/master/examples/lazy/main.go) Load
 * [Struct](https://github.com/vlorc/gioc/blob/master/examples/depend/main.go) Extends Support
+* [Condition](https://github.com/vlorc/gioc/blob/master/examples/cond/main.go) Support
 * [Module](https://github.com/vlorc/gioc/blob/master/examples/module/main.go) Support
 
 ## Installing
@@ -37,7 +38,7 @@ gioc.NewRootModule()
 * Import Module
 
 ```golang
-NewRootModule(
+NewModuleFactory(
     Import(
         ConfigModule,
         ServerModule,
@@ -48,7 +49,7 @@ NewRootModule(
 * Declare Instance
 
 ```golang
-NewRootModule(
+NewModuleFactory(
     Declare(
         Instance(1), Id("id"),
         Instance("ioc"), Id("name"),
@@ -63,6 +64,24 @@ NewModuleFactory(
     Export(
         Instance(1), Id("id"),
         Instance("ioc"), Id("name"),
+    ),
+)
+```
+
+* Condition Import
+
+```golang
+NewModuleFactory(
+    Condition(
+    	HavingValue(Equal("redis"), types.StringType, "cache.type"), 
+    	Import(RedisModule),
+    ),
+    Condition(
+        Or(
+            Not(HavingBean(types.StringType, "cache.type")),
+            HavingValue(Equal("memory"), types.StringType, "cache.type"),
+        ), 
+        Import(MemoryModule),
     ),
 )
 ```
@@ -116,8 +135,6 @@ This project is under the apache License. See the LICENSE file for the full lice
 + Dependency
     + for target type dependency analysis, collection integration
     + converted to an Injector by an instance
-+ Injector
-    + and obtain the Instance padding based on the Dependency retrieval Provider
 + Container
     + provides Register and Provider, and the parent container makes up traversal
     + convert to read-only Provider

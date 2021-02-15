@@ -17,6 +17,10 @@ func Export(handle ...DeclareHandle) module.ModuleInitHandle {
 	return declare(toExport, handle)
 }
 
+func Primary(handle ...DeclareHandle) module.ModuleInitHandle {
+	return declare(toPrimary, handle)
+}
+
 func declare(done func(*DeclareContext), handle []DeclareHandle) module.ModuleInitHandle {
 	return func(ctx *module.ModuleInitContext) {
 		dc := &DeclareContext{done: done, Context: ctx}

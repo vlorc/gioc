@@ -3,6 +3,7 @@ package operation
 import (
 	"github.com/vlorc/gioc/module"
 	"github.com/vlorc/gioc/types"
+	"github.com/vlorc/gioc/utils"
 	"reflect"
 	"strings"
 )
@@ -43,14 +44,14 @@ func havingValue(eq func(types.BeanFactory, types.Provider) bool, typ reflect.Ty
 	}
 }
 
-func HavingBean(typ reflect.Type, names ...string) module.ModuleCondHandle {
+func HavingBean(impType interface{}, names ...string) module.ModuleCondHandle {
 	return havingValue(func(factory types.BeanFactory, provider types.Provider) bool {
 		return nil != factory
-	}, typ, names...)
+	}, utils.TypeOf(impType), names...)
 }
 
-func HavingValue(eq func(types.BeanFactory, types.Provider) bool, typ reflect.Type, names ...string) module.ModuleCondHandle {
-	return havingValue(eq, typ, names...)
+func HavingValue(eq func(types.BeanFactory, types.Provider) bool, impType interface{}, names ...string) module.ModuleCondHandle {
+	return havingValue(eq, utils.TypeOf(impType), names...)
 }
 
 func Not(cond ...module.ModuleCondHandle) module.ModuleCondHandle {

@@ -10,6 +10,8 @@ will have a single, minimal file in its main package similar to:
 
 	func main() {
 		container := gioc.NewRootContainer()
+
+		module := gioc.NewRootModule()
 	}
 
 
