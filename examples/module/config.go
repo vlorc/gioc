@@ -8,8 +8,10 @@ import (
 var ConfigModule = NewModuleFactory(
 	Export(
 		Mapping(map[string]interface{}{
-			"port": 80,
-			"host": "127.0.0.1",
+			"port":     80,
+			"host":     "127.0.0.1",
+			"certFile": "client.pem",
+			"keyFile":  "client.key",
 		}),
 	),
 )

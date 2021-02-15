@@ -20,6 +20,7 @@ gioc是一个轻量级的Ioc框架，它提供注册表和工厂、依赖解决�
 * 调用器
 * [惰性加载](https://github.com/vlorc/gioc/blob/master/examples/lazy/main.go)
 * [结构体扩展](https://github.com/vlorc/gioc/blob/master/examples/depend/main.go)
+* [条件控制](https://github.com/vlorc/gioc/blob/master/examples/cond/main.go)
 * [模块](https://github.com/vlorc/gioc/blob/master/examples/module/main.go)
 
 ## 安装
@@ -30,74 +31,90 @@ gioc是一个轻量级的Ioc框架，它提供注册表和工厂、依赖解决�
 
 * 创建根模块
 
-* Create Root Module
-
 ```golang
 gioc.NewRootModule()
 ```
 
-* Import Module
-
-```golang
-NewRootModule(
-    Import(
-        ConfigModule,
-        ServerModule,
-    )
-)
-```
-
-* Declare Instance
-
-```golang
-NewRootModule(
-    Declare(
-        Instance(1), Id("id"),
-        Instance("ioc"), Id("name"),
-    ),
-)
-```
-
-* Export Instance
+* 导入模块
 
 ```golang
 NewModuleFactory(
-    Export(
-        Instance(1), Id("id"),
-        Instance("ioc"), Id("name"),
-    ),
+Import(
+ConfigModule,
+ServerModule,
+)
 )
 ```
 
-## Examples
+* 声明实例
 
-* Basic Module
+```golang
+NewModuleFactory(
+Declare(
+Instance(1), Id("id"),
+Instance("ioc"), Id("name"),
+),
+)
+```
+
+* 导出实例
+
+```golang
+NewModuleFactory(
+Export(
+Instance(1), Id("id"),
+Instance("ioc"), Id("name"),
+),
+)
+```
+
+* 条件导入
+
+```golang
+NewModuleFactory(
+Condition(
+HavingValue(Equal("redis"), types.StringType, "cache.type"),
+Import(RedisModule),
+),
+Condition(
+Or(
+Not(HavingBean(types.StringType, "cache.type")),
+HavingValue(Equal("memory"), types.StringType, "cache.type"),
+),
+Import(MemoryModule),
+),
+)
+```
+
+## 例子
+
+* 基本模块
 
 ```golang
 import (
-    ."github.com/vlorc/gioc"
-    ."github.com/vlorc/gioc/module"
-    ."github.com/vlorc/gioc/module/operation"
+."github.com/vlorc/gioc"
+."github.com/vlorc/gioc/module"
+."github.com/vlorc/gioc/module/operation"
 )
 
 // config.go
 var ConfigModule = NewModuleFactory(
-    Export(
-        Mapping(map[string]interface{}{
-            "id": 1,
-            "name": "ioc",
-        }),
-    ),
+Export(
+Mapping(map[string]interface{}{
+"id": 1,
+"name": "ioc",
+}),
+),
 )
 
 // main.go
 func main() {
-    NewRootModule(
-        Import(ConfigModule),
-        Bootstrap(func(param struct{ id int; name string }) {
-            println("id: ", param.id, " name: ",param.name)
-        }),
-    )
+NewRootModule(
+Import(ConfigModule),
+Bootstrap(func(param struct{ id int; name string }) {
+println("id: ", param.id, " name: ",param.name)
+}),
+)
 }
 ```
 
@@ -119,11 +136,6 @@ func main() {
 + Dependency(依赖)
     + 是目标类型依赖性分析结果的集合
     + 通过实例转换为注射器
-+ Injector(注射器)
-    + 根据依赖填充实例
-+ Builder(构造器)
-    + 也是一个工厂
-    + 使用Factory来获取实例和注入器来解决依赖关系
 + Container(容器)
     + 提供Register和Provider，并且父容器组成遍历
     + 转换为只读提供程序

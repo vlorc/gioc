@@ -8,7 +8,7 @@ import (
 
 type User struct {
 	Id       int64 `inject:"lower"`
-	personal ****struct {
+	personal *struct {
 		name   string
 		age    int    `inject:"default(99)"`
 		gender int    `inject:"optional"`
@@ -32,8 +32,10 @@ var ConfigModule = NewModuleFactory(
 func main() {
 	NewRootModule(
 		Import(ConfigModule),
-		Bootstrap(func(param struct{ user User }) {
-			println("id: ", param.user.Id, " name: ", (***param.user.personal).name)
+		Bootstrap(func(param struct {
+			user User `inject:"extends"`
+		}) {
+			println("id: ", param.user.Id, " name: ", (*param.user.personal).name)
 		}),
 	)
 }

@@ -49,5 +49,8 @@ func NewRootModule(table ...module.ModuleInitHandle) types.Module {
 		Import(event.EventModuleFor("root", "parent")),
 		Join(table...),
 		Event(Emit("ready"), Emit("init")),
+		Bootstrap(func(listener types.EventListener) {
+			listener.Emit("exit")
+		}),
 	)
 }

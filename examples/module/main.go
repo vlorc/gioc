@@ -12,6 +12,7 @@ func main() {
 		Import(
 			ConfigModule,
 			ListenModule,
+			TLSModule,
 			ServerModule,
 		),
 		Bootstrap(func(server *http.Server, listen net.Listener) {
