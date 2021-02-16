@@ -5,7 +5,9 @@ package operation
 
 import (
 	"github.com/vlorc/gioc/factory"
+	"github.com/vlorc/gioc/module"
 	"github.com/vlorc/gioc/types"
+	"github.com/vlorc/gioc/utils"
 )
 
 func lazyProvider(con func() types.Container) func() types.Provider {
@@ -16,7 +18,7 @@ func lazyProvider(con func() types.Container) func() types.Provider {
 
 func Dependency(val ...interface{}) DeclareHandle {
 	return func(ctx *DeclareContext) {
-		if len(val) <= 0 {
+		if len(val) == 0 {
 			val = []interface{}{ctx.Type}
 		}
 		if toDependency(ctx, val[0]) && nil != ctx.Factory {
@@ -51,5 +53,49 @@ func Name(name string) DeclareHandle {
 func Factory(factory types.BeanFactory) DeclareHandle {
 	return func(ctx *DeclareContext) {
 		ctx.Factory = factory
+	}
+}
+
+func Parent() string {
+	return "#parent"
+}
+
+func Register(names ...string) func(*module.ModuleInitContext) types.Register {
+	if len(names) == 0 {
+		return func(ctx *module.ModuleInitContext) types.Register {
+			return ctx.Container().AsRegister()
+		}
+	}
+	if Parent() == names[0] {
+		return func(ctx *module.ModuleInitContext) types.Register {
+			return ctx.Parent().AsRegister()
+		}
+	}
+	name := names[0]
+	return func(ctx *module.ModuleInitContext) (r types.Register) {
+		if err := ctx.Container().AsProvider().Load(&r, name); nil != err {
+			utils.Panic(err)
+		}
+		return
+	}
+}
+
+func Provider(names ...string) func(*module.ModuleInitContext) types.Provider {
+	if len(names) == 0 {
+		return func(ctx *module.ModuleInitContext) types.Provider {
+			return ctx.Container().AsProvider()
+		}
+	}
+	if Parent() == names[0] {
+		return func(ctx *module.ModuleInitContext) types.Provider {
+			return ctx.Parent().AsProvider()
+		}
+	}
+	name := names[0]
+	return func(ctx *module.ModuleInitContext) (p types.Provider) {
+		if err := ctx.Container().AsProvider().Load(&p, name); nil != err {
+			utils.Panic(err)
+		}
+		return
 	}
 }

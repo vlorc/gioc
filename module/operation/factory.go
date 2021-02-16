@@ -27,10 +27,10 @@ func Mutex() DeclareHandle {
 	}
 }
 
-func Convert(val interface{}) DeclareHandle {
+func Convert(impType interface{}) DeclareHandle {
 	return func(ctx *DeclareContext) {
 		if nil != ctx.Factory {
-			typ := utils.TypeOf(val)
+			typ := utils.TypeOf(impType)
 			ctx.Factory = factory.NewConvertFactory(ctx.Factory, typ)
 			ctx.Type = typ
 		}
@@ -73,7 +73,7 @@ func Method2(val interface{}, index ...int) DeclareHandle {
 			ctx.Factory = factory.NewValueFactory(nil, err)
 			return
 		}
-		if v := reflect.ValueOf(instance); !v.IsValid() || (v.IsNil() && (reflect.Func == v.Kind() || reflect.Ptr == v.Kind() || reflect.Interface == v.Kind())) {
+		if utils.IsNil(instance) {
 			ctx.Factory, ctx.Type = nil, nil
 			return
 		}
@@ -96,7 +96,7 @@ func Instance(val interface{}) DeclareHandle {
 }
 
 func Env(keys ...string) DeclareHandle {
-	if len(keys) <= 0 {
+	if len(keys) == 0 {
 		return func(c *DeclareContext) {
 
 		}
@@ -153,32 +153,6 @@ func toMethodFactory(ctx *DeclareContext, val interface{}, index ...int) {
 	}
 	ctx.Type = typ
 	ctx.Factory = f
-}
-
-func toRegistered(ctx *DeclareContext) {
-	c := ctx.Context.Container()
-	r := c.AsRegister()
-	r.Factory(ctx.Factory, ctx.Type, ctx.Name)
-}
-
-func toExport(ctx *DeclareContext) {
-	var bean types.BeanFactory
-	if nil != ctx.Dependency {
-		bean = factory.NewExportFactory(ctx.Factory, lazyProvider(ctx.Context.Container))
-	} else {
-		bean = ctx.Factory
-	}
-	ctx.Context.Parent().AsRegister().Factory(bean, ctx.Type, ctx.Name)
-}
-
-func toPrimary(ctx *DeclareContext) {
-	var bean types.BeanFactory
-	if nil != ctx.Dependency {
-		bean = factory.NewExportFactory(ctx.Factory, lazyProvider(ctx.Context.Container))
-	} else {
-		bean = ctx.Factory
-	}
-	ctx.Context.Parent().AsRegister().Selector().Set(utils.TypeOf(ctx.Type), ctx.Name, bean)
 }
 
 func toDependency(ctx *DeclareContext, val interface{}) bool {

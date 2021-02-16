@@ -10,6 +10,7 @@ import (
 type CoreContainer struct {
 	register types.Register
 	provider types.Provider
-	create   func(types.Provider) types.Container
+	create   func(types.Provider, ...string) types.Container
 	name     string
+	count    uint32
 }

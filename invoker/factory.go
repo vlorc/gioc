@@ -14,9 +14,10 @@ func NewInvokerFactory() types.InvokerFactory {
 }
 
 func (fi *CoreInvokerFactory) Instance(method interface{}, dependency types.Dependency) (invoker types.Invoker, err error) {
-	defer utils.Recover(&err)
-
 	invoker = NewInvoker(method, dependency)
+	if nil == invoker {
+		err = types.NewWithError(types.ErrTypeNotFunction, method)
+	}
 	return
 }
 

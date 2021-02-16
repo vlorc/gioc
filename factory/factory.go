@@ -84,7 +84,7 @@ func NewResolveFactory(typ reflect.Type, name ...types.StringFactory) types.Bean
 }
 
 func NewChainFactory(factory ...types.BeanFactory) types.BeanFactory {
-	if len(factory) <= 0 {
+	if len(factory) == 0 {
 		utils.Panic(errors.New("factory is empty"))
 	}
 	if len(factory) == 1 {
@@ -109,7 +109,7 @@ func NewDependencyFactory(factory types.BeanFactory, dependency types.Dependency
 }
 
 func NewSliceFactory(typ reflect.Type, name ...types.StringFactory) types.BeanFactory {
-	if len(name) <= 0 {
+	if len(name) == 0 {
 		return &resolveAnyFactory{typ: typ}
 	}
 

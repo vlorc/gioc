@@ -10,6 +10,7 @@ import (
 
 type DeclareContext struct {
 	done       func(*DeclareContext)
+	register   func(*module.ModuleInitContext) types.Register
 	Name       string
 	Type       interface{}
 	Factory    types.BeanFactory
@@ -21,7 +22,7 @@ func (dc *DeclareContext) Reset() {
 	if nil != dc.Factory && nil != dc.Type {
 		dc.done(dc)
 	}
-	*dc = DeclareContext{done: dc.done, Context: dc.Context}
+	*dc = DeclareContext{done: dc.done, register: dc.register, Context: dc.Context}
 }
 
 type EventContext struct {

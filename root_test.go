@@ -5,6 +5,8 @@ package gioc
 
 import (
 	"fmt"
+	"github.com/vlorc/gioc/module"
+	. "github.com/vlorc/gioc/module/operation"
 	"github.com/vlorc/gioc/types"
 	"testing"
 )
@@ -38,5 +40,30 @@ func Test_Invoker(t *testing.T) {
 	}
 
 	results, err := invoker.ApplyWith(root.AsProvider(), 10)
-	t.Log("getKey", results[0].Interface(), err)
+	if nil != err {
+		t.Error("ApplyWith error", err.Error())
+	} else {
+		t.Log("getKey", results[0].Interface())
+	}
+}
+
+func Test_Cond(t *testing.T) {
+	config := module.NewModuleFactory(
+		Condition(
+			HavingValue(Equal("PRODUCT"), types.StringType, "ENV"),
+			Primary(Instance("PROC")),
+		),
+		Condition(
+			Not(HavingValue(Equal("PRODUCT"), types.StringType, "ENV")),
+			Primary(Instance("DEV")),
+		),
+	)
+	NewRootModule(
+		Declare(Instance("TEST"), Id("ENV")),
+		Import(config),
+		Bootstrap(func(str string) {
+			if "DEV" != str {
+				t.Error("string match:", str)
+			}
+		}))
 }

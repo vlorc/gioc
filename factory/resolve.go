@@ -9,7 +9,7 @@ import (
 )
 
 func (f *resolveFactory) Instance(provider types.Provider) (instance interface{}, err error) {
-	if len(f.name) <= 0 {
+	if len(f.name) == 0 {
 		return provider.Get(f.typ)
 	}
 

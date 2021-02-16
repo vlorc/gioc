@@ -24,7 +24,7 @@ func lazyDependency(val reflect.Value) func(types.Provider) types.Dependency {
 func NewInvoker(method interface{}, dependency types.Dependency) types.Invoker {
 	val := utils.ValueOf(method)
 	if reflect.Func != val.Kind() {
-		utils.Panic(types.NewWithError(types.ErrTypeNotFunction, method))
+		return nil
 	}
 	if val.Type().NumIn() <= 0 {
 		return NoParamInvoker(val)
