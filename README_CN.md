@@ -6,8 +6,8 @@
 [![codebeat badge](https://codebeat.co/badges/c41b426c-4121-4dc8-99c2-f1b60574be64)](https://codebeat.co/projects/github-com-vlorc-gioc-master)
 [![Go Report Card](https://goreportcard.com/badge/github.com/vlorc/gioc)](https://goreportcard.com/report/github.com/vlorc/gioc)
 [![GoDoc](https://godoc.org/github.com/vlorc/gioc?status.svg)](https://godoc.org/github.com/vlorc/gioc)
-[![Build Status](https://travis-ci.org/vlorc/gioc.svg?branch=master)](https://travis-ci.org/vlorc/gioc?branch=master)
-[![Coverage Status](https://coveralls.io/repos/github/vlorc/gioc/badge.svg?branch=master)](https://coveralls.io/github/vlorc/gioc?branch=master)
+[![Build Status](https://travis-ci.org/vlorc/gioc.svg?branch=master)](https://travis-ci.org/vlorc/gioc)
+[![Coverage Status](https://coveralls.io/repos/github/vlorc/gioc/badge.svg?branch=master)](https://codecov.io/gh/vlorc/gioc)
 
 gioc是一个轻量级的Ioc框架，它提供注册表和工厂、依赖解决方案
 
