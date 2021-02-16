@@ -4,8 +4,11 @@
 package container
 
 import (
+	"fmt"
 	"github.com/vlorc/gioc/register"
 	"github.com/vlorc/gioc/types"
+	"strings"
+	"sync/atomic"
 )
 
 func (c *CoreContainer) AsRegister() types.Register {
@@ -20,7 +23,7 @@ func (c *CoreContainer) Seal() types.Container {
 	return &CoreContainer{
 		register: c.register,
 		provider: c.provider,
-		create: func(types.Provider) types.Container {
+		create: func(types.Provider, ...string) types.Container {
 			return nil
 		},
 	}
@@ -34,8 +37,17 @@ func (c *CoreContainer) Readonly() types.Container {
 	}
 }
 
-func (c *CoreContainer) NewChild() types.Container {
-	return c.create(c.AsProvider())
+func (c *CoreContainer) NewChild(names ...string) types.Container {
+	if "" == c.name {
+		return c.create(c.AsProvider())
+	}
+	var name string
+	if len(names) > 0 {
+		name = names[0]
+	} else {
+		name = fmt.Sprintf("child-%d", atomic.AddUint32(&c.count, 1))
+	}
+	return c.create(c.AsProvider(), strings.Join([]string{c.name, name}, "::"))
 }
 
 func (c *CoreContainer) Name() string {

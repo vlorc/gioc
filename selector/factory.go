@@ -22,7 +22,7 @@ func NewReadOnlyFactory(getter types.SelectorGetter) types.Selector {
 
 func NewGeneralSelector() types.Selector {
 	return &generalSelector{
-		pool: make([]types.GeneralFactory, 64),
+		pool: make([]types.GeneralFactory, 0, 24),
 
 		primary: map[typeName]int{},
 

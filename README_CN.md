@@ -39,10 +39,10 @@ gioc.NewRootModule()
 
 ```golang
 NewModuleFactory(
-Import(
-ConfigModule,
-ServerModule,
-)
+    Import(
+        ConfigModule,
+        ServerModule,
+    )
 )
 ```
 
@@ -50,10 +50,10 @@ ServerModule,
 
 ```golang
 NewModuleFactory(
-Declare(
-Instance(1), Id("id"),
-Instance("ioc"), Id("name"),
-),
+    Declare(
+        Instance(1), Id("id"),
+        Instance("ioc"), Id("name"),
+    ),
 )
 ```
 
@@ -61,10 +61,10 @@ Instance("ioc"), Id("name"),
 
 ```golang
 NewModuleFactory(
-Export(
-Instance(1), Id("id"),
-Instance("ioc"), Id("name"),
-),
+    Export(
+        Instance(1), Id("id"),
+        Instance("ioc"), Id("name"),
+    ),
 )
 ```
 
@@ -72,17 +72,17 @@ Instance("ioc"), Id("name"),
 
 ```golang
 NewModuleFactory(
-Condition(
-HavingValue(Equal("redis"), types.StringType, "cache.type"),
-Import(RedisModule),
-),
-Condition(
-Or(
-Not(HavingBean(types.StringType, "cache.type")),
-HavingValue(Equal("memory"), types.StringType, "cache.type"),
-),
-Import(MemoryModule),
-),
+    Condition(
+        HavingValue(Equal("redis"), types.StringType, "cache.type"),
+        Import(RedisModule),
+    ),
+    Condition(
+        Or(
+            Not(HavingBean(types.StringType, "cache.type")),
+            HavingValue(Equal("memory"), types.StringType, "cache.type"),
+        ),
+        Import(MemoryModule),
+    ),
 )
 ```
 
@@ -92,29 +92,29 @@ Import(MemoryModule),
 
 ```golang
 import (
-."github.com/vlorc/gioc"
-."github.com/vlorc/gioc/module"
-."github.com/vlorc/gioc/module/operation"
+    ."github.com/vlorc/gioc"
+    ."github.com/vlorc/gioc/module"
+    ."github.com/vlorc/gioc/module/operation"
 )
 
 // config.go
 var ConfigModule = NewModuleFactory(
-Export(
-Mapping(map[string]interface{}{
-"id": 1,
-"name": "ioc",
-}),
-),
+    Export(
+        Mapping(map[string]interface{}{
+            "id": 1,
+            "name": "ioc",
+        }),
+    ),
 )
 
 // main.go
 func main() {
-NewRootModule(
-Import(ConfigModule),
-Bootstrap(func(param struct{ id int; name string }) {
-println("id: ", param.id, " name: ",param.name)
-}),
-)
+    NewRootModule(
+        Import(ConfigModule),
+        Bootstrap(func(param struct{ id int; name string }) {
+            println("id: ", param.id, " name: ",param.name)
+        }),
+    )
 }
 ```
 

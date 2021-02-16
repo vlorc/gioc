@@ -78,7 +78,7 @@ func (s *generalSelector) rangeByType(callback func(types.GeneralFactory) bool, 
 }
 
 func (s *generalSelector) Range(callback func(types.GeneralFactory) bool, types ...reflect.Type) bool {
-	if len(types) <= 0 {
+	if len(types) == 0 {
 		return s.rangeWithPool(callback)
 	}
 	for _, typ := range types {

@@ -170,7 +170,7 @@ type Container interface {
 	AsRegister() Register
 	Seal() Container
 	Readonly() Container
-	NewChild() Container
+	NewChild(...string) Container
 	Name() string
 }
 

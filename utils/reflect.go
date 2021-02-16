@@ -70,6 +70,7 @@ func NewOf(v reflect.Value) reflect.Value {
 	return v
 }
 
+// type conversion
 func Convert(val reflect.Value, typ reflect.Type) reflect.Value {
 	if !val.IsValid() {
 		return reflect.Zero(typ)
@@ -83,6 +84,7 @@ func Convert(val reflect.Value, typ reflect.Type) reflect.Value {
 	return val.Convert(typ)
 }
 
+// type conversion imp to typ
 func Elem(imp interface{}, typ reflect.Type) interface{} {
 	val := ValueOf(imp)
 	for ; val.Type() != typ; val = val.Elem() {
@@ -91,4 +93,10 @@ func Elem(imp interface{}, typ reflect.Type) interface{} {
 		}
 	}
 	return val.Interface()
+}
+
+func IsNil(val interface{}) bool {
+	v := ValueOf(val)
+
+	return v.IsValid() || ((v.Kind() >= reflect.Chan && v.Kind() <= reflect.Slice) && v.IsNil())
 }

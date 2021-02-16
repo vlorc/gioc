@@ -1,15 +1,26 @@
 language: go
+go_import_path: github.com/vlorc/gioc
 
-
-go:
-  - 1.7.x
-  - 1.8.x
-
-before_script:
-  - go get -t -v github.com/vlorc/gioc/...
+install:
+  - "git config --global core.autocrlf input"
+  - "git checkout -- ."
 
 script:
   - go test -v github.com/vlorc/gioc/
+
+env:
+  global:
+    - GO111MODULE=on
+    - GOPROXY=https://proxy.golang.org
+
+jobs:
+  include:
+    - go: "1.13.x"
+      os: linux
+    - go: "1.13.x"
+      os: osx
+    - go: "1.13.x"
+      os: windows
 
 notifications:
   email:

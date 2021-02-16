@@ -24,18 +24,24 @@ func (el *CoreEventListener) OnWith(provider func() types.Provider, event string
 }
 
 func (el *CoreEventListener) EmitWith(provider func() types.Provider, event string, params ...interface{}) error {
-	for _, v := range el.get(event) {
-		v.ApplyWith(provider(), params...)
+	f := el.get(event)
+	if len(f) == 0 {
+		return nil
+	}
+
+	p := provider()
+	for _, v := range f {
+		v.ApplyWith(p, params...)
 	}
 	return nil
 }
 
 func (el *CoreEventListener) on(provider func() types.Provider, event string, fn interface{}) error {
-	pos := strings.Index(event, "::")
+	pos := strings.LastIndex(event, "::")
 	if pos > 0 {
-		var l types.EventListener
-		provider().Load(&l, event[:pos])
-		return l.On(event[pos+2:], fn)
+		var listener types.EventListener
+		provider().Load(&listener, event[:pos])
+		return listener.On(event[pos+2:], fn)
 	}
 	if 0 == pos {
 		event = event[2:]

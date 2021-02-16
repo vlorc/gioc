@@ -23,7 +23,7 @@ func (r *coreRegister) Interface(instance interface{}, args ...string) {
 }
 
 func (r *coreRegister) Set(instance interface{}, args ...string) {
-	t := utils.TypeOf(instance)
+	t := reflect.TypeOf(instance)
 	b := factory.NewValueFactory(instance)
 	if len(args) > 0 {
 		r.selector.Set(t, args[0], b)
@@ -33,7 +33,7 @@ func (r *coreRegister) Set(instance interface{}, args ...string) {
 }
 
 func (r *coreRegister) Add(instance interface{}, args ...string) {
-	t := utils.TypeOf(instance)
+	t := reflect.TypeOf(instance)
 	b := factory.NewValueFactory(instance)
 	if len(args) > 0 {
 		r.selector.Add(t, args[0], b)

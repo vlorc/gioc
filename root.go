@@ -24,6 +24,7 @@ func NewRootContainer() types.Container {
 	root := container.NewContainer(
 		register.NewRegister(general),
 		provider.NewWithProvider(nil, general),
+		"root",
 	)
 
 	for _, v := range []interface{}{
@@ -46,7 +47,7 @@ func NewRootContainer() types.Container {
 func NewRootModule(table ...module.ModuleInitHandle) types.Module {
 	return module.NewModuleFor(
 		utils.Lazy(NewRootContainer).(func() types.Container),
-		Import(event.EventModuleFor("root", "parent")),
+		Import(event.EventModuleFor("root")),
 		Join(table...),
 		Event(Emit("ready"), Emit("init")),
 		Bootstrap(func(listener types.EventListener) {

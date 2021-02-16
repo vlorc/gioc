@@ -20,7 +20,7 @@ func Condition(cond module.ModuleCondHandle, handle ...module.ModuleInitHandle) 
 
 func havingValue(eq func(types.BeanFactory, types.Provider) bool, typ reflect.Type, names ...string) module.ModuleCondHandle {
 	return func(ctx *module.ModuleInitContext) bool {
-		if len(names) <= 0 {
+		if len(names) == 0 {
 			if f := ctx.Container().AsProvider().Factory(typ, "", -1); nil != f {
 				return eq(f, ctx.Container().AsProvider())
 			}
