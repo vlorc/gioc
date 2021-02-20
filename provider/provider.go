@@ -56,7 +56,7 @@ func (p *coreProvider) load(receive interface{}, typ reflect.Type, name string) 
 	return
 }
 
-func (p *coreProvider) Factory(typ reflect.Type, name string, deep int) types.BeanFactory {
+func (p *coreProvider) Factory(typ reflect.Type, name string, deep int) types.GeneralFactory {
 	if factory := p.selector.Get(typ, name); nil != factory {
 		return factory
 	}

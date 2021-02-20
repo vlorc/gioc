@@ -93,3 +93,9 @@ type makeChanFactory struct {
 	typ    reflect.Type
 	length int
 }
+
+type resolveGeneralFactory struct {
+	typ    reflect.Type
+	name   []types.StringFactory
+	append func(reflect.Value, types.GeneralFactory) reflect.Value
+}

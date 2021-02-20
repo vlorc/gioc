@@ -46,3 +46,20 @@ func (f *resolveNamesFactory) Instance(provider types.Provider) (interface{}, er
 
 	return val.Interface(), nil
 }
+
+func (f *resolveGeneralFactory) Instance(provider types.Provider) (interface{}, error) {
+	val := reflect.MakeSlice(reflect.SliceOf(f.typ), 0, len(f.name))
+
+	for _, b := range f.name {
+		id, err := b.Instance(provider)
+		if nil != err {
+			// add check error
+			continue
+		}
+		if v := provider.Factory(nil, id, -1); nil != v {
+			val = f.append(val, v)
+		}
+	}
+
+	return val.Interface(), nil
+}

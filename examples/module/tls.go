@@ -9,7 +9,11 @@ import (
 )
 
 var TLSModule = NewModuleFactory(
-	Condition(And(HavingBean(types.StringType, "certFile"), HavingBean(types.StringType, "keyFile")),
+	Condition(
+		And(
+			HavingFile(types.StringType, "certFile"),
+			HavingFile(types.StringType, "keyFile"),
+		),
 		Declare(
 			Method(func(param struct {
 				config   *tls.Config `inject:"'default' optional"`
