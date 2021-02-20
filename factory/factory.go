@@ -113,10 +113,28 @@ func NewSliceFactory(typ reflect.Type, name ...types.StringFactory) types.BeanFa
 		return &resolveAnyFactory{typ: typ}
 	}
 
-	f := &resolveNamesFactory{typ: typ}
-	f.name = make([]types.StringFactory, len(name))
-	copy(f.name, name)
-	return f
+	dump := make([]types.StringFactory, len(name))
+	copy(dump, name)
+
+	if types.BeanFactoryType == typ {
+		return &resolveGeneralFactory{
+			typ: typ,
+			append: func(value reflect.Value, factory types.GeneralFactory) reflect.Value {
+				return reflect.Append(value, reflect.ValueOf(factory.(types.BeanFactory)))
+			},
+		}
+	}
+
+	if types.BeanFactoryType == typ {
+		return &resolveGeneralFactory{
+			typ: typ,
+			append: func(value reflect.Value, factory types.GeneralFactory) reflect.Value {
+				return reflect.Append(value, reflect.ValueOf(factory))
+			},
+		}
+	}
+
+	return &resolveNamesFactory{typ: typ, name: dump}
 }
 
 func NewLazyFactory(typ reflect.Type, factory types.BeanFactory) types.BeanFactory {

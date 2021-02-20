@@ -42,7 +42,7 @@ type Provider interface {
 
 	Load(receive interface{}, name ...string) error
 
-	Factory(typ reflect.Type, name string, deep int) BeanFactory
+	Factory(typ reflect.Type, name string, deep int) GeneralFactory
 
 	Range(callback func(GeneralFactory) bool, types ...reflect.Type) bool
 
@@ -230,3 +230,5 @@ var Type = reflect.TypeOf((*reflect.Type)(nil)).Elem()
 var StringType = reflect.TypeOf((*string)(nil)).Elem()
 var ErrorType = reflect.TypeOf((*error)(nil)).Elem()
 var ProviderType = reflect.TypeOf((*Provider)(nil)).Elem()
+var BeanFactoryType = reflect.TypeOf((*BeanFactory)(nil)).Elem()
+var GeneralFactoryType = reflect.TypeOf((*GeneralFactory)(nil)).Elem()

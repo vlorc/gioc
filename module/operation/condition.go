@@ -1,9 +1,11 @@
 package operation
 
 import (
+	"fmt"
 	"github.com/vlorc/gioc/module"
 	"github.com/vlorc/gioc/types"
 	"github.com/vlorc/gioc/utils"
+	"os"
 	"reflect"
 	"strings"
 )
@@ -27,8 +29,8 @@ func havingValue(eq func(types.BeanFactory, types.Provider) bool, typ reflect.Ty
 			return false
 		}
 		for _, v := range names {
-			if strings.HasPrefix(v, "${") && strings.HasSuffix(v, "") {
-				if str, err := types.NewNameFactory(v).Instance(ctx.Container().AsProvider()); nil != err {
+			if strings.HasPrefix(v, "${") && strings.HasSuffix(v, "}") {
+				if str, err := types.NewNameFactory(v[2 : len(v)-1]).Instance(ctx.Container().AsProvider()); nil != err {
 					// add check error
 					continue
 				} else {
@@ -45,13 +47,15 @@ func havingValue(eq func(types.BeanFactory, types.Provider) bool, typ reflect.Ty
 }
 
 func HavingBean(impType interface{}, names ...string) module.ModuleCondHandle {
-	return havingValue(func(factory types.BeanFactory, provider types.Provider) bool {
-		return nil != factory
-	}, utils.TypeOf(impType), names...)
+	return havingValue(havingBean, utils.TypeOf(impType), names...)
 }
 
 func HavingValue(eq func(types.BeanFactory, types.Provider) bool, impType interface{}, names ...string) module.ModuleCondHandle {
 	return havingValue(eq, utils.TypeOf(impType), names...)
+}
+
+func HavingFile(impType interface{}, names ...string) module.ModuleCondHandle {
+	return havingValue(havingFile, utils.TypeOf(impType), names...)
 }
 
 func Not(cond ...module.ModuleCondHandle) module.ModuleCondHandle {
@@ -95,4 +99,20 @@ func Equal(val interface{}) func(types.BeanFactory, types.Provider) bool {
 		}
 		return reflect.DeepEqual(val, instance)
 	}
+}
+
+func havingBean(factory types.BeanFactory, provider types.Provider) bool {
+	return nil != factory
+}
+
+func havingFile(factory types.BeanFactory, provider types.Provider) bool {
+	instance, err := factory.Instance(provider)
+	if nil != err {
+		return false
+	}
+
+	file := fmt.Sprint(instance)
+	_, err = os.Stat(file)
+
+	return nil == err || !os.IsNotExist(err)
 }
